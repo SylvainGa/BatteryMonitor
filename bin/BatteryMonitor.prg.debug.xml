@@ -1,0 +1,834 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<debugInfo>
+<manifest filename="C:\Users\Sylvain\git\BatteryMonitor\manifest.xml"/>
+<pcToLineNum>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="1" lineNum="10" parent="globals/BatteryMonitorServiceDelegate" pc="268435460" symbol="&lt;init&gt;"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="2" lineNum="165" parent="globals" pc="268435472" symbol="objectStoreErase"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="2" lineNum="167" parent="globals" pc="268435482" symbol="objectStoreErase"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="91" parent="globals" pc="268435498" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="93" parent="globals" pc="268435509" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="94" parent="globals" pc="268435525" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="95" parent="globals" pc="268435531" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="98" parent="globals" pc="268435550" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="99" parent="globals" pc="268435564" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="100" parent="globals" pc="268435580" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="101" parent="globals" pc="268435586" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="102" parent="globals" pc="268435608" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="106" parent="globals" pc="268435630" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="109" parent="globals" pc="268435646" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="3" lineNum="110" parent="globals" pc="268435662" symbol="analyzeAndStoreData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="4" lineNum="40" parent="globals/BatteryMonitorApp" pc="268435694" symbol="&lt;init&gt;"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="117" parent="globals" pc="268435706" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="119" parent="globals" pc="268435717" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="120" parent="globals" pc="268435731" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="121" parent="globals" pc="268435737" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="122" parent="globals" pc="268435753" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="125" parent="globals" pc="268435776" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="126" parent="globals" pc="268435791" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="129" parent="globals" pc="268435830" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="130" parent="globals" pc="268435845" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="5" lineNum="133" parent="globals" pc="268435871" symbol="objectStoreAdd"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="6" lineNum="144" parent="globals" pc="268435916" symbol="objectStoreGet"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="6" lineNum="146" parent="globals" pc="268435927" symbol="objectStoreGet"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="6" lineNum="147" parent="globals" pc="268435943" symbol="objectStoreGet"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="6" lineNum="148" parent="globals" pc="268435955" symbol="objectStoreGet"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="6" lineNum="149" parent="globals" pc="268435959" symbol="objectStoreGet"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="6" lineNum="151" parent="globals" pc="268435979" symbol="objectStoreGet"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="7" lineNum="159" parent="globals" pc="268435982" symbol="objectStorePut"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="7" lineNum="161" parent="globals" pc="268435992" symbol="objectStorePut"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="8" lineNum="19" parent="globals/BatteryMonitorServiceDelegate" pc="268436010" symbol="onTemporalEvent"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="8" lineNum="22" parent="globals/BatteryMonitorServiceDelegate" pc="268436013" symbol="onTemporalEvent"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="8" lineNum="23" parent="globals/BatteryMonitorServiceDelegate" pc="268436025" symbol="onTemporalEvent"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="8" lineNum="25" parent="globals/BatteryMonitorServiceDelegate" pc="268436033" symbol="onTemporalEvent"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="8" lineNum="26" parent="globals/BatteryMonitorServiceDelegate" pc="268436051" symbol="onTemporalEvent"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="9" lineNum="11" parent="globals/BatteryMonitorServiceDelegate" pc="268436084" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="9" lineNum="13" parent="globals/BatteryMonitorServiceDelegate" pc="268436086" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="10" lineNum="48" parent="globals/BatteryMonitorApp" pc="268436099" symbol="onStart"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="11" lineNum="77" parent="globals/BatteryMonitorApp" pc="268436102" symbol="getServiceDelegate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="11" lineNum="79" parent="globals/BatteryMonitorApp" pc="268436104" symbol="getServiceDelegate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="12" lineNum="67" parent="globals/BatteryMonitorApp" pc="268436130" symbol="getInitialView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="12" lineNum="70" parent="globals/BatteryMonitorApp" pc="268436132" symbol="getInitialView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="12" lineNum="71" parent="globals/BatteryMonitorApp" pc="268436147" symbol="getInitialView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="12" lineNum="72" parent="globals/BatteryMonitorApp" pc="268436155" symbol="getInitialView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="12" lineNum="74" parent="globals/BatteryMonitorApp" pc="268436196" symbol="getInitialView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="13" lineNum="43" parent="globals/BatteryMonitorApp" pc="268436243" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="13" lineNum="44" parent="globals/BatteryMonitorApp" pc="268436245" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="14" lineNum="82" parent="globals/BatteryMonitorApp" pc="268436258" symbol="onBackgroundData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="14" lineNum="85" parent="globals/BatteryMonitorApp" pc="268436260" symbol="onBackgroundData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="14" lineNum="86" parent="globals/BatteryMonitorApp" pc="268436271" symbol="onBackgroundData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="15" lineNum="57" parent="globals/BatteryMonitorApp" pc="268436283" symbol="getGlanceView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="15" lineNum="58" parent="globals/BatteryMonitorApp" pc="268436285" symbol="getGlanceView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="15" lineNum="59" parent="globals/BatteryMonitorApp" pc="268436300" symbol="getGlanceView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="15" lineNum="60" parent="globals/BatteryMonitorApp" pc="268436308" symbol="getGlanceView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="15" lineNum="62" parent="globals/BatteryMonitorApp" pc="268436349" symbol="getGlanceView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="15" lineNum="63" parent="globals/BatteryMonitorApp" pc="268436374" symbol="getGlanceView"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorApp.mc" id="16" lineNum="53" parent="globals/BatteryMonitorApp" pc="268436387" symbol="onStop"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="17" lineNum="10" parent="globals/BatteryMonitorGlanceView" pc="268436390" symbol="&lt;init&gt;"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="19" lineNum="21" parent="globals/BatteryMonitorGlanceView" pc="268436402" symbol="onLayout"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="20" lineNum="11" parent="globals/BatteryMonitorGlanceView" pc="268436405" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="20" lineNum="12" parent="globals/BatteryMonitorGlanceView" pc="268436407" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="22" lineNum="24" parent="globals/BatteryMonitorGlanceView" pc="268436420" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="22" lineNum="26" parent="globals/BatteryMonitorGlanceView" pc="268436423" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="22" lineNum="28" parent="globals/BatteryMonitorGlanceView" pc="268436440" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="22" lineNum="29" parent="globals/BatteryMonitorGlanceView" pc="268436448" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="22" lineNum="31" parent="globals/BatteryMonitorGlanceView" pc="268436457" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="22" lineNum="32" parent="globals/BatteryMonitorGlanceView" pc="268436465" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="22" lineNum="35" parent="globals/BatteryMonitorGlanceView" pc="268436475" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="22" lineNum="37" parent="globals/BatteryMonitorGlanceView" pc="268436482" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorGlanceView.mc" id="22" lineNum="39" parent="globals/BatteryMonitorGlanceView" pc="268436496" symbol="onUpdate"/>
+<entry filename="c:\\Users\\Sylvain\\git\\BatteryMonitor\\bin\\gen\\006-B4374-00\\source\\Rez.mcgen" id="23" lineNum="7" parent="globals/Rez" pc="268436532" symbol="&lt;init&gt;"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="24" lineNum="85" parent="globals/ConfirmationDialogDelegate" pc="268436552" symbol="&lt;init&gt;"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="25" lineNum="30" parent="globals" pc="268436564" symbol="getData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="25" lineNum="33" parent="globals" pc="268436575" symbol="getData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="25" lineNum="34" parent="globals" pc="268436587" symbol="getData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="25" lineNum="36" parent="globals" pc="268436595" symbol="getData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorBackground.mc" id="25" lineNum="37" parent="globals" pc="268436613" symbol="getData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="26" lineNum="9" parent="globals/BatteryMonitorInitDelegate" pc="268436633" symbol="&lt;init&gt;"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="27" lineNum="9" parent="globals/BatteryMonitorView" pc="268436645" symbol="&lt;init&gt;"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="28" lineNum="90" parent="globals/ConfirmationDialogDelegate" pc="268436657" symbol="onResponse"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="28" lineNum="91" parent="globals/ConfirmationDialogDelegate" pc="268436659" symbol="onResponse"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="28" lineNum="96" parent="globals/ConfirmationDialogDelegate" pc="268436669" symbol="onResponse"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="28" lineNum="97" parent="globals/ConfirmationDialogDelegate" pc="268436683" symbol="onResponse"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="28" lineNum="98" parent="globals/ConfirmationDialogDelegate" pc="268436697" symbol="onResponse"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="28" lineNum="100" parent="globals/ConfirmationDialogDelegate" pc="268436711" symbol="onResponse"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="29" lineNum="86" parent="globals/ConfirmationDialogDelegate" pc="268436713" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="29" lineNum="87" parent="globals/ConfirmationDialogDelegate" pc="268436715" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="30" lineNum="15" parent="globals/BatteryMonitorInitDelegate" pc="268436728" symbol="goBack"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="30" lineNum="16" parent="globals/BatteryMonitorInitDelegate" pc="268436730" symbol="goBack"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="31" lineNum="40" parent="globals/BatteryMonitorInitDelegate" pc="268436732" symbol="onPreviousPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="31" lineNum="41" parent="globals/BatteryMonitorInitDelegate" pc="268436734" symbol="onPreviousPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="31" lineNum="42" parent="globals/BatteryMonitorInitDelegate" pc="268436749" symbol="onPreviousPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="31" lineNum="43" parent="globals/BatteryMonitorInitDelegate" pc="268436760" symbol="onPreviousPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="31" lineNum="45" parent="globals/BatteryMonitorInitDelegate" pc="268436772" symbol="onPreviousPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="31" lineNum="46" parent="globals/BatteryMonitorInitDelegate" pc="268436783" symbol="onPreviousPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="32" lineNum="63" parent="globals/BatteryMonitorInitDelegate" pc="268436785" symbol="onMenu"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="32" lineNum="66" parent="globals/BatteryMonitorInitDelegate" pc="268436788" symbol="onMenu"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="32" lineNum="67" parent="globals/BatteryMonitorInitDelegate" pc="268436817" symbol="onMenu"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="32" lineNum="68" parent="globals/BatteryMonitorInitDelegate" pc="268436851" symbol="onMenu"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="33" lineNum="49" parent="globals/BatteryMonitorInitDelegate" pc="268436853" symbol="onSwipe"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="33" lineNum="50" parent="globals/BatteryMonitorInitDelegate" pc="268436855" symbol="onSwipe"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="33" lineNum="51" parent="globals/BatteryMonitorInitDelegate" pc="268436868" symbol="onSwipe"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="33" lineNum="52" parent="globals/BatteryMonitorInitDelegate" pc="268436875" symbol="onSwipe"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="33" lineNum="55" parent="globals/BatteryMonitorInitDelegate" pc="268436880" symbol="onSwipe"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="33" lineNum="56" parent="globals/BatteryMonitorInitDelegate" pc="268436892" symbol="onSwipe"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="33" lineNum="57" parent="globals/BatteryMonitorInitDelegate" pc="268436899" symbol="onSwipe"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="33" lineNum="60" parent="globals/BatteryMonitorInitDelegate" pc="268436904" symbol="onSwipe"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="34" lineNum="11" parent="globals/BatteryMonitorInitDelegate" pc="268436906" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="34" lineNum="12" parent="globals/BatteryMonitorInitDelegate" pc="268436908" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="35" lineNum="26" parent="globals/BatteryMonitorInitDelegate" pc="268436921" symbol="onTap"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="35" lineNum="27" parent="globals/BatteryMonitorInitDelegate" pc="268436923" symbol="onTap"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="35" lineNum="28" parent="globals/BatteryMonitorInitDelegate" pc="268436930" symbol="onTap"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="36" lineNum="19" parent="globals/BatteryMonitorInitDelegate" pc="268436932" symbol="onSelect"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="36" lineNum="21" parent="globals/BatteryMonitorInitDelegate" pc="268436934" symbol="onSelect"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="36" lineNum="22" parent="globals/BatteryMonitorInitDelegate" pc="268436949" symbol="onSelect"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="36" lineNum="23" parent="globals/BatteryMonitorInitDelegate" pc="268436960" symbol="onSelect"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="37" lineNum="31" parent="globals/BatteryMonitorInitDelegate" pc="268436962" symbol="onNextPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="37" lineNum="32" parent="globals/BatteryMonitorInitDelegate" pc="268436964" symbol="onNextPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="37" lineNum="33" parent="globals/BatteryMonitorInitDelegate" pc="268436979" symbol="onNextPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="37" lineNum="34" parent="globals/BatteryMonitorInitDelegate" pc="268436990" symbol="onNextPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="37" lineNum="36" parent="globals/BatteryMonitorInitDelegate" pc="268437002" symbol="onNextPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="37" lineNum="37" parent="globals/BatteryMonitorInitDelegate" pc="268437013" symbol="onNextPage"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="38" lineNum="71" parent="globals/BatteryMonitorInitDelegate" pc="268437015" symbol="onKey"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="38" lineNum="72" parent="globals/BatteryMonitorInitDelegate" pc="268437017" symbol="onKey"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="38" lineNum="73" parent="globals/BatteryMonitorInitDelegate" pc="268437030" symbol="onKey"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="38" lineNum="74" parent="globals/BatteryMonitorInitDelegate" pc="268437037" symbol="onKey"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="38" lineNum="77" parent="globals/BatteryMonitorInitDelegate" pc="268437042" symbol="onKey"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="38" lineNum="78" parent="globals/BatteryMonitorInitDelegate" pc="268437055" symbol="onKey"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorDelegate.mc" id="38" lineNum="81" parent="globals/BatteryMonitorInitDelegate" pc="268437065" symbol="onKey"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="39" lineNum="59" parent="globals/BatteryMonitorView" pc="268437067" symbol="onExitSleep"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="39" lineNum="61" parent="globals/BatteryMonitorView" pc="268437069" symbol="onExitSleep"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="40" lineNum="24" parent="globals/BatteryMonitorView" pc="268437091" symbol="onShow"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="40" lineNum="27" parent="globals/BatteryMonitorView" pc="268437093" symbol="onShow"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="40" lineNum="28" parent="globals/BatteryMonitorView" pc="268437122" symbol="onShow"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="40" lineNum="31" parent="globals/BatteryMonitorView" pc="268437153" symbol="onShow"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="40" lineNum="32" parent="globals/BatteryMonitorView" pc="268437174" symbol="onShow"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="40" lineNum="33" parent="globals/BatteryMonitorView" pc="268437187" symbol="onShow"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="123" parent="globals/BatteryMonitorView" pc="268437202" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="124" parent="globals/BatteryMonitorView" pc="268437205" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="125" parent="globals/BatteryMonitorView" pc="268437232" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="127" parent="globals/BatteryMonitorView" pc="268437241" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="128" parent="globals/BatteryMonitorView" pc="268437248" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="132" parent="globals/BatteryMonitorView" pc="268437255" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="133" parent="globals/BatteryMonitorView" pc="268437259" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="135" parent="globals/BatteryMonitorView" pc="268437278" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="136" parent="globals/BatteryMonitorView" pc="268437295" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="143" parent="globals/BatteryMonitorView" pc="268437307" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="144" parent="globals/BatteryMonitorView" pc="268437310" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="149" parent="globals/BatteryMonitorView" pc="268437329" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="150" parent="globals/BatteryMonitorView" pc="268437341" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="151" parent="globals/BatteryMonitorView" pc="268437348" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="152" parent="globals/BatteryMonitorView" pc="268437351" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="153" parent="globals/BatteryMonitorView" pc="268437368" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="154" parent="globals/BatteryMonitorView" pc="268437374" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="155" parent="globals/BatteryMonitorView" pc="268437384" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="156" parent="globals/BatteryMonitorView" pc="268437395" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="159" parent="globals/BatteryMonitorView" pc="268437419" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="162" parent="globals/BatteryMonitorView" pc="268437436" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="164" parent="globals/BatteryMonitorView" pc="268437446" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="165" parent="globals/BatteryMonitorView" pc="268437460" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="167" parent="globals/BatteryMonitorView" pc="268437472" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="168" parent="globals/BatteryMonitorView" pc="268437489" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="171" parent="globals/BatteryMonitorView" pc="268437515" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="172" parent="globals/BatteryMonitorView" pc="268437532" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="175" parent="globals/BatteryMonitorView" pc="268437560" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="176" parent="globals/BatteryMonitorView" pc="268437571" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="177" parent="globals/BatteryMonitorView" pc="268437589" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="182" parent="globals/BatteryMonitorView" pc="268437607" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="183" parent="globals/BatteryMonitorView" pc="268437623" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="184" parent="globals/BatteryMonitorView" pc="268437642" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="187" parent="globals/BatteryMonitorView" pc="268437663" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="188" parent="globals/BatteryMonitorView" pc="268437684" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="190" parent="globals/BatteryMonitorView" pc="268437705" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="191" parent="globals/BatteryMonitorView" pc="268437721" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="194" parent="globals/BatteryMonitorView" pc="268437731" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="195" parent="globals/BatteryMonitorView" pc="268437738" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="196" parent="globals/BatteryMonitorView" pc="268437751" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="197" parent="globals/BatteryMonitorView" pc="268437758" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="200" parent="globals/BatteryMonitorView" pc="268437768" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="203" parent="globals/BatteryMonitorView" pc="268437775" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="204" parent="globals/BatteryMonitorView" pc="268437803" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="205" parent="globals/BatteryMonitorView" pc="268437826" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="206" parent="globals/BatteryMonitorView" pc="268437833" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="208" parent="globals/BatteryMonitorView" pc="268437856" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="211" parent="globals/BatteryMonitorView" pc="268437880" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="212" parent="globals/BatteryMonitorView" pc="268437906" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="213" parent="globals/BatteryMonitorView" pc="268437913" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="214" parent="globals/BatteryMonitorView" pc="268437939" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="218" parent="globals/BatteryMonitorView" pc="268437957" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="219" parent="globals/BatteryMonitorView" pc="268437969" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="220" parent="globals/BatteryMonitorView" pc="268437975" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="221" parent="globals/BatteryMonitorView" pc="268437990" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="222" parent="globals/BatteryMonitorView" pc="268438004" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="223" parent="globals/BatteryMonitorView" pc="268438017" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="224" parent="globals/BatteryMonitorView" pc="268438045" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="225" parent="globals/BatteryMonitorView" pc="268438052" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="226" parent="globals/BatteryMonitorView" pc="268438078" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="227" parent="globals/BatteryMonitorView" pc="268438085" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="229" parent="globals/BatteryMonitorView" pc="268438108" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="232" parent="globals/BatteryMonitorView" pc="268438132" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="233" parent="globals/BatteryMonitorView" pc="268438139" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="234" parent="globals/BatteryMonitorView" pc="268438165" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="235" parent="globals/BatteryMonitorView" pc="268438172" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="236" parent="globals/BatteryMonitorView" pc="268438198" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="240" parent="globals/BatteryMonitorView" pc="268438219" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="242" parent="globals/BatteryMonitorView" pc="268438241" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="243" parent="globals/BatteryMonitorView" pc="268438250" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="244" parent="globals/BatteryMonitorView" pc="268438276" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="246" parent="globals/BatteryMonitorView" pc="268438288" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="247" parent="globals/BatteryMonitorView" pc="268438300" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="248" parent="globals/BatteryMonitorView" pc="268438326" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="249" parent="globals/BatteryMonitorView" pc="268438338" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="250" parent="globals/BatteryMonitorView" pc="268438379" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="252" parent="globals/BatteryMonitorView" pc="268438386" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="253" parent="globals/BatteryMonitorView" pc="268438395" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="256" parent="globals/BatteryMonitorView" pc="268438402" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="257" parent="globals/BatteryMonitorView" pc="268438414" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="261" parent="globals/BatteryMonitorView" pc="268438441" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="262" parent="globals/BatteryMonitorView" pc="268438453" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="263" parent="globals/BatteryMonitorView" pc="268438460" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="264" parent="globals/BatteryMonitorView" pc="268438474" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="265" parent="globals/BatteryMonitorView" pc="268438505" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="268" parent="globals/BatteryMonitorView" pc="268438525" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="270" parent="globals/BatteryMonitorView" pc="268438541" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="273" parent="globals/BatteryMonitorView" pc="268438593" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="275" parent="globals/BatteryMonitorView" pc="268438605" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="277" parent="globals/BatteryMonitorView" pc="268438612" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="280" parent="globals/BatteryMonitorView" pc="268438629" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="281" parent="globals/BatteryMonitorView" pc="268438639" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="284" parent="globals/BatteryMonitorView" pc="268438655" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="285" parent="globals/BatteryMonitorView" pc="268438669" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="287" parent="globals/BatteryMonitorView" pc="268438678" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="288" parent="globals/BatteryMonitorView" pc="268438692" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="291" parent="globals/BatteryMonitorView" pc="268438702" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="294" parent="globals/BatteryMonitorView" pc="268438709" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="295" parent="globals/BatteryMonitorView" pc="268438717" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="298" parent="globals/BatteryMonitorView" pc="268438723" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="299" parent="globals/BatteryMonitorView" pc="268438742" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="302" parent="globals/BatteryMonitorView" pc="268438749" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="303" parent="globals/BatteryMonitorView" pc="268438756" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="305" parent="globals/BatteryMonitorView" pc="268438766" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="306" parent="globals/BatteryMonitorView" pc="268438773" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="307" parent="globals/BatteryMonitorView" pc="268438787" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="309" parent="globals/BatteryMonitorView" pc="268438819" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="313" parent="globals/BatteryMonitorView" pc="268438835" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="314" parent="globals/BatteryMonitorView" pc="268438844" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="316" parent="globals/BatteryMonitorView" pc="268438860" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="317" parent="globals/BatteryMonitorView" pc="268438868" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="320" parent="globals/BatteryMonitorView" pc="268438874" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="321" parent="globals/BatteryMonitorView" pc="268438881" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="323" parent="globals/BatteryMonitorView" pc="268438891" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="324" parent="globals/BatteryMonitorView" pc="268438905" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="325" parent="globals/BatteryMonitorView" pc="268438940" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="330" parent="globals/BatteryMonitorView" pc="268438969" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="331" parent="globals/BatteryMonitorView" pc="268438980" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="332" parent="globals/BatteryMonitorView" pc="268438992" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="334" parent="globals/BatteryMonitorView" pc="268438998" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="335" parent="globals/BatteryMonitorView" pc="268439005" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="336" parent="globals/BatteryMonitorView" pc="268439012" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="337" parent="globals/BatteryMonitorView" pc="268439019" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="338" parent="globals/BatteryMonitorView" pc="268439026" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="339" parent="globals/BatteryMonitorView" pc="268439035" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="340" parent="globals/BatteryMonitorView" pc="268439053" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="341" parent="globals/BatteryMonitorView" pc="268439060" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="342" parent="globals/BatteryMonitorView" pc="268439077" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="343" parent="globals/BatteryMonitorView" pc="268439080" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="345" parent="globals/BatteryMonitorView" pc="268439093" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="346" parent="globals/BatteryMonitorView" pc="268439109" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="348" parent="globals/BatteryMonitorView" pc="268439125" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="350" parent="globals/BatteryMonitorView" pc="268439140" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="351" parent="globals/BatteryMonitorView" pc="268439214" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="356" parent="globals/BatteryMonitorView" pc="268439232" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="357" parent="globals/BatteryMonitorView" pc="268439249" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="358" parent="globals/BatteryMonitorView" pc="268439261" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="360" parent="globals/BatteryMonitorView" pc="268439290" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="361" parent="globals/BatteryMonitorView" pc="268439302" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="363" parent="globals/BatteryMonitorView" pc="268439339" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="364" parent="globals/BatteryMonitorView" pc="268439345" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="365" parent="globals/BatteryMonitorView" pc="268439357" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="366" parent="globals/BatteryMonitorView" pc="268439369" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="41" lineNum="367" parent="globals/BatteryMonitorView" pc="268439386" symbol="drawChart2"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="42" lineNum="484" parent="globals/BatteryMonitorView" pc="268439434" symbol="MAX"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="42" lineNum="485" parent="globals/BatteryMonitorView" pc="268439436" symbol="MAX"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="42" lineNum="486" parent="globals/BatteryMonitorView" pc="268439444" symbol="MAX"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="42" lineNum="489" parent="globals/BatteryMonitorView" pc="268439450" symbol="MAX"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="43" lineNum="74" parent="globals/BatteryMonitorView" pc="268439454" symbol="onLayout"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="43" lineNum="76" parent="globals/BatteryMonitorView" pc="268439456" symbol="onLayout"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="43" lineNum="77" parent="globals/BatteryMonitorView" pc="268439473" symbol="onLayout"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="44" lineNum="381" parent="globals/BatteryMonitorView" pc="268439491" symbol="LastChargeData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="44" lineNum="382" parent="globals/BatteryMonitorView" pc="268439494" symbol="LastChargeData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="44" lineNum="383" parent="globals/BatteryMonitorView" pc="268439513" symbol="LastChargeData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="44" lineNum="384" parent="globals/BatteryMonitorView" pc="268439536" symbol="LastChargeData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="44" lineNum="387" parent="globals/BatteryMonitorView" pc="268439555" symbol="LastChargeData"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="45" lineNum="390" parent="globals/BatteryMonitorView" pc="268439571" symbol="timeLastFullCharge"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="45" lineNum="391" parent="globals/BatteryMonitorView" pc="268439574" symbol="timeLastFullCharge"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="45" lineNum="392" parent="globals/BatteryMonitorView" pc="268439590" symbol="timeLastFullCharge"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="45" lineNum="393" parent="globals/BatteryMonitorView" pc="268439604" symbol="timeLastFullCharge"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="45" lineNum="396" parent="globals/BatteryMonitorView" pc="268439626" symbol="timeLastFullCharge"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="455" parent="globals/BatteryMonitorView" pc="268439642" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="458" parent="globals/BatteryMonitorView" pc="268439645" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="459" parent="globals/BatteryMonitorView" pc="268439653" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="461" parent="globals/BatteryMonitorView" pc="268439663" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="462" parent="globals/BatteryMonitorView" pc="268439671" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="464" parent="globals/BatteryMonitorView" pc="268439689" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="465" parent="globals/BatteryMonitorView" pc="268439697" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="466" parent="globals/BatteryMonitorView" pc="268439716" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="467" parent="globals/BatteryMonitorView" pc="268439726" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="469" parent="globals/BatteryMonitorView" pc="268439759" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="470" parent="globals/BatteryMonitorView" pc="268439768" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="471" parent="globals/BatteryMonitorView" pc="268439787" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="472" parent="globals/BatteryMonitorView" pc="268439797" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="475" parent="globals/BatteryMonitorView" pc="268439830" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="476" parent="globals/BatteryMonitorView" pc="268439852" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="478" parent="globals/BatteryMonitorView" pc="268439877" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="46" lineNum="481" parent="globals/BatteryMonitorView" pc="268439906" symbol="minToStr"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="47" lineNum="493" parent="globals/BatteryMonitorView" pc="268439909" symbol="MIN"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="47" lineNum="494" parent="globals/BatteryMonitorView" pc="268439911" symbol="MIN"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="47" lineNum="495" parent="globals/BatteryMonitorView" pc="268439919" symbol="MIN"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="47" lineNum="498" parent="globals/BatteryMonitorView" pc="268439925" symbol="MIN"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="48" lineNum="66" parent="globals/BatteryMonitorView" pc="268439929" symbol="refreshTimer"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="48" lineNum="67" parent="globals/BatteryMonitorView" pc="268439931" symbol="refreshTimer"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="399" parent="globals/BatteryMonitorView" pc="268439953" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="401" parent="globals/BatteryMonitorView" pc="268439956" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="402" parent="globals/BatteryMonitorView" pc="268439969" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="406" parent="globals/BatteryMonitorView" pc="268439974" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="407" parent="globals/BatteryMonitorView" pc="268439978" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="409" parent="globals/BatteryMonitorView" pc="268439984" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="410" parent="globals/BatteryMonitorView" pc="268440002" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="412" parent="globals/BatteryMonitorView" pc="268440018" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="414" parent="globals/BatteryMonitorView" pc="268440074" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="416" parent="globals/BatteryMonitorView" pc="268440144" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="419" parent="globals/BatteryMonitorView" pc="268440191" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="420" parent="globals/BatteryMonitorView" pc="268440212" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="421" parent="globals/BatteryMonitorView" pc="268440221" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="422" parent="globals/BatteryMonitorView" pc="268440231" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="423" parent="globals/BatteryMonitorView" pc="268440244" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="424" parent="globals/BatteryMonitorView" pc="268440257" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="425" parent="globals/BatteryMonitorView" pc="268440299" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="426" parent="globals/BatteryMonitorView" pc="268440311" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="430" parent="globals/BatteryMonitorView" pc="268440353" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="431" parent="globals/BatteryMonitorView" pc="268440374" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="432" parent="globals/BatteryMonitorView" pc="268440389" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="433" parent="globals/BatteryMonitorView" pc="268440396" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="435" parent="globals/BatteryMonitorView" pc="268440411" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="437" parent="globals/BatteryMonitorView" pc="268440432" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="440" parent="globals/BatteryMonitorView" pc="268440446" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="441" parent="globals/BatteryMonitorView" pc="268440458" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="444" parent="globals/BatteryMonitorView" pc="268440463" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="445" parent="globals/BatteryMonitorView" pc="268440466" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="446" parent="globals/BatteryMonitorView" pc="268440482" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="449" parent="globals/BatteryMonitorView" pc="268440502" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="49" lineNum="451" parent="globals/BatteryMonitorView" pc="268440514" symbol="downSlope"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="50" lineNum="52" parent="globals/BatteryMonitorView" pc="268440518" symbol="onEnterSleep"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="50" lineNum="54" parent="globals/BatteryMonitorView" pc="268440520" symbol="onEnterSleep"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="51" lineNum="16" parent="globals/BatteryMonitorView" pc="268440542" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="51" lineNum="18" parent="globals/BatteryMonitorView" pc="268440544" symbol="initialize"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="52" lineNum="40" parent="globals/BatteryMonitorView" pc="268440557" symbol="onHide"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="52" lineNum="42" parent="globals/BatteryMonitorView" pc="268440559" symbol="onHide"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="52" lineNum="43" parent="globals/BatteryMonitorView" pc="268440567" symbol="onHide"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="52" lineNum="45" parent="globals/BatteryMonitorView" pc="268440582" symbol="onHide"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="52" lineNum="46" parent="globals/BatteryMonitorView" pc="268440590" symbol="onHide"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="52" lineNum="47" parent="globals/BatteryMonitorView" pc="268440603" symbol="onHide"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="52" lineNum="48" parent="globals/BatteryMonitorView" pc="268440622" symbol="onHide"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="81" parent="globals/BatteryMonitorView" pc="268440637" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="85" parent="globals/BatteryMonitorView" pc="268440640" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="86" parent="globals/BatteryMonitorView" pc="268440652" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="88" parent="globals/BatteryMonitorView" pc="268440660" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="90" parent="globals/BatteryMonitorView" pc="268440677" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="92" parent="globals/BatteryMonitorView" pc="268440686" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="96" parent="globals/BatteryMonitorView" pc="268440718" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="97" parent="globals/BatteryMonitorView" pc="268440734" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="98" parent="globals/BatteryMonitorView" pc="268440751" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="100" parent="globals/BatteryMonitorView" pc="268440767" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="105" parent="globals/BatteryMonitorView" pc="268440813" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="106" parent="globals/BatteryMonitorView" pc="268440821" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="108" parent="globals/BatteryMonitorView" pc="268440830" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="109" parent="globals/BatteryMonitorView" pc="268440838" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="112" parent="globals/BatteryMonitorView" pc="268440848" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="115" parent="globals/BatteryMonitorView" pc="268440855" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="116" parent="globals/BatteryMonitorView" pc="268440869" symbol="onUpdate"/>
+<entry filename="C:\\Users\\Sylvain\\git\\BatteryMonitor\\source\\BatteryMonitorView.mc" id="53" lineNum="118" parent="globals/BatteryMonitorView" pc="268440916" symbol="onUpdate"/>
+</pcToLineNum>
+<symbolTable>
+<entry id="8388639" module="true" symbol="Graphics"/>
+<entry id="31" method="true" symbol="minToStr"/>
+<entry id="11" method="true" symbol="analyzeAndStoreData"/>
+<entry id="32" method="true" symbol="refreshTimer"/>
+<entry id="8388632" method="true" symbol="&lt;init&gt;"/>
+<entry field="true" id="19" symbol="mGlanceView"/>
+<entry field="true" id="29" symbol="mNowData"/>
+<entry field="true" id="34" symbol="ComplicationIcon"/>
+<entry id="8390424" module="true" symbol="Storage"/>
+<entry id="8388924" module="true" symbol="Gregorian"/>
+<entry id="6" object="true" symbol="BatteryMonitorGlanceView"/>
+<entry field="true" id="8388611" module="true" symbol="Toybox"/>
+<entry id="8389108" method="true" symbol="onResponse"/>
+<entry id="9" object="true" symbol="BatteryMonitorView"/>
+<entry field="true" id="36" symbol="AppName"/>
+<entry id="4" module="true" symbol="globals/Rez/Strings"/>
+<entry id="8389080" method="true" symbol="onMenu"/>
+<entry id="21" method="true" symbol="LastChargeData"/>
+<entry id="8390147" object="true" symbol="ServiceDelegate"/>
+<entry id="8388648" module="true" symbol="WatchUi"/>
+<entry id="15" method="true" symbol="objectStoreAdd"/>
+<entry id="8390425" module="true" symbol="Properties"/>
+<entry id="2" module="true" symbol="globals/Rez"/>
+<entry id="8390148" method="true" symbol="onTemporalEvent"/>
+<entry id="8389124" method="true" symbol="onUpdate"/>
+<entry id="17" method="true" symbol="objectStoreGet"/>
+<entry id="8388771" module="true" object="true" symbol="Drawables"/>
+<entry id="7" object="true" symbol="BatteryMonitorInitDelegate"/>
+<entry id="8390169" method="true" symbol="getServiceDelegate"/>
+<entry id="8389079" method="true" symbol="onPreviousPage"/>
+<entry id="14" method="true" symbol="getData"/>
+<entry id="8389122" method="true" symbol="onLayout"/>
+<entry id="8389376" method="true" symbol="onEnterSleep"/>
+<entry id="16" method="true" symbol="objectStoreErase"/>
+<entry id="8389098" method="true" symbol="onTap"/>
+<entry id="3" module="true" symbol="globals/Rez/Drawables"/>
+<entry id="8390170" method="true" symbol="onBackgroundData"/>
+<entry id="5" object="true" symbol="BatteryMonitorApp"/>
+<entry id="23" method="true" symbol="MIN"/>
+<entry id="24" method="true" symbol="downSlope"/>
+<entry id="20" method="true" symbol="goBack"/>
+<entry field="true" id="27" symbol="mCtrY"/>
+<entry field="true" id="26" symbol="mCtrX"/>
+<entry id="22" method="true" symbol="MAX"/>
+<entry id="8389377" method="true" symbol="onExitSleep"/>
+<entry id="8389619" method="true" symbol="onSelect"/>
+<entry id="8388645" module="true" symbol="Time"/>
+<entry id="8388769" module="true" object="true" symbol="Rez"/>
+<entry id="10" object="true" symbol="ConfirmationDialogDelegate"/>
+<entry id="33" method="true" symbol="timeLastFullCharge"/>
+<entry id="8388640" module="true" symbol="Lang"/>
+<entry field="true" id="35" symbol="LauncherIcon"/>
+<entry id="8388610" symbol="statics"/>
+<entry id="8389123" method="true" symbol="onShow"/>
+<entry field="true" id="13" symbol="gViewScreen"/>
+<entry id="8389350" module="true" symbol="globals"/>
+<entry id="8388770" module="true" object="true" symbol="Strings"/>
+<entry id="8390146" module="true" symbol="Background"/>
+<entry id="8388702" method="true" symbol="initialize"/>
+<entry id="8" object="true" symbol="BatteryMonitorServiceDelegate"/>
+<entry id="8389279" method="true" symbol="onStart"/>
+<entry id="25" method="true" symbol="drawChart2"/>
+<entry id="8389280" method="true" symbol="getInitialView"/>
+<entry id="8389281" method="true" symbol="onStop"/>
+<entry id="8389097" method="true" symbol="onKey"/>
+<entry field="true" id="28" symbol="mLastData"/>
+<entry id="18" method="true" symbol="objectStorePut"/>
+<entry id="8388646" module="true" object="true" symbol="Timer"/>
+<entry field="true" id="37" symbol="longComplicationLabel"/>
+<entry id="8391457" method="true" symbol="getGlanceView"/>
+<entry field="true" id="30" symbol="mTimer"/>
+<entry id="8389125" method="true" symbol="onHide"/>
+<entry field="true" id="38" symbol="shortComplicationLabel"/>
+<entry field="true" id="12" symbol="gAbleBackground"/>
+<entry id="8389078" method="true" symbol="onNextPage"/>
+<entry id="8389101" method="true" symbol="onSwipe"/>
+</symbolTable>
+<localVars>
+<entry arg="true" endPc="268435497" name="key" stackId="1" startPc="268435472"/>
+<entry arg="true" endPc="268435693" name="data" stackId="1" startPc="268435498"/>
+<entry endPc="268435692" name="lastHistory" stackId="2" startPc="268435509"/>
+<entry endPc="268435626" name="history" stackId="3" startPc="268435564"/>
+<entry arg="true" endPc="268435915" name="key" stackId="1" startPc="268435706"/>
+<entry arg="true" endPc="268435915" name="newValue" stackId="2" startPc="268435706"/>
+<entry endPc="268435914" name="existingArray" stackId="3" startPc="268435717"/>
+<entry arg="true" endPc="268435981" name="key" stackId="1" startPc="268435916"/>
+<entry arg="true" endPc="268435981" name="defaultValue" stackId="2" startPc="268435916"/>
+<entry endPc="268435981" name="value" stackId="3" startPc="268435927"/>
+<entry arg="true" endPc="268436009" name="key" stackId="1" startPc="268435982"/>
+<entry arg="true" endPc="268436009" name="value" stackId="2" startPc="268435982"/>
+<entry endPc="268436082" name="stats" stackId="1" startPc="268436013"/>
+<entry endPc="268436082" name="battery" stackId="2" startPc="268436013"/>
+<entry endPc="268436082" name="now" stackId="3" startPc="268436013"/>
+<entry arg="true" endPc="268436282" name="data" stackId="1" startPc="268436258"/>
+<entry arg="true" endPc="268436531" name="dc" stackId="1" startPc="268436420"/>
+<entry endPc="268436530" name="battery" stackId="2" startPc="268436423"/>
+<entry endPc="268436530" name="colorBat" stackId="3" startPc="268436423"/>
+<entry endPc="268436632" name="stats" stackId="1" startPc="268436575"/>
+<entry endPc="268436632" name="battery" stackId="2" startPc="268436575"/>
+<entry endPc="268436632" name="now" stackId="3" startPc="268436575"/>
+<entry arg="true" endPc="268436712" name="value" stackId="1" startPc="268436657"/>
+<entry endPc="268436852" name="dialog" stackId="1" startPc="268436788"/>
+<entry arg="true" endPc="268436905" name="swipeEvent" stackId="1" startPc="268436853"/>
+<entry arg="true" endPc="268436931" name="evt" stackId="1" startPc="268436921"/>
+<entry arg="true" endPc="268437066" name="evt" stackId="1" startPc="268437015"/>
+<entry arg="true" endPc="268439433" name="dc" stackId="1" startPc="268437202"/>
+<entry arg="true" endPc="268439433" name="xy" stackId="2" startPc="268437202"/>
+<entry arg="true" endPc="268439433" name="chartDataNormalOrder" stackId="3" startPc="268437202"/>
+<entry endPc="268439432" name="X1" stackId="4" startPc="268437205"/>
+<entry endPc="268439432" name="X2" stackId="5" startPc="268437205"/>
+<entry endPc="268439432" name="Y1" stackId="6" startPc="268437205"/>
+<entry endPc="268439432" name="Y2" stackId="7" startPc="268437205"/>
+<entry endPc="268439432" name="chartData" stackId="8" startPc="268437205"/>
+<entry endPc="268439432" name="Yframe" stackId="9" startPc="268437205"/>
+<entry endPc="268439432" name="Xframe" stackId="10" startPc="268437205"/>
+<entry endPc="268439432" name="Xnow" stackId="11" startPc="268437205"/>
+<entry endPc="268439432" name="Ymax" stackId="12" startPc="268437205"/>
+<entry endPc="268439432" name="scale" stackId="13" startPc="268437205"/>
+<entry endPc="268439432" name="downSlopeSec" stackId="14" startPc="268437205"/>
+<entry endPc="268439429" name="downSlopeStr" stackId="15" startPc="268437329"/>
+<entry endPc="268439429" name="timeLeftSecUNIX" stackId="16" startPc="268437329"/>
+<entry endPc="268437511" name="downSlopeHours" stackId="17" startPc="268437374"/>
+<entry endPc="268437511" name="timeLeftSec" stackId="18" startPc="268437374"/>
+<entry endPc="268438215" name="batUsage" stackId="19" startPc="268437571"/>
+<entry endPc="268438215" name="timeDiff" stackId="20" startPc="268437571"/>
+<entry endPc="268438215" name="fontHeight" stackId="21" startPc="268437571"/>
+<entry endPc="268438215" name="yPos" stackId="22" startPc="268437571"/>
+<entry endPc="268438215" name="txt" stackId="23" startPc="268437571"/>
+<entry endPc="268437876" name="dischargeRate" stackId="24" startPc="268437738"/>
+<entry endPc="268438215" name="lastChargeData" stackId="25" startPc="268437571"/>
+<entry endPc="268438128" name="dischargeRate" stackId="26" startPc="268437975"/>
+<entry endPc="268439426" name="timeMostRecentPoint" stackId="27" startPc="268438241"/>
+<entry endPc="268439426" name="timeMostFuturePoint" stackId="28" startPc="268438241"/>
+<entry endPc="268439426" name="timeLeastRecentPoint" stackId="29" startPc="268438241"/>
+<entry endPc="268439426" name="xHistoryInMin" stackId="30" startPc="268438241"/>
+<entry endPc="268439426" name="xFutureInMin" stackId="31" startPc="268438241"/>
+<entry endPc="268439426" name="XmaxInMin" stackId="32" startPc="268438241"/>
+<entry endPc="268439426" name="XscaleMinPerPxl" stackId="33" startPc="268438241"/>
+<entry endPc="268439426" name="yGridSteps" stackId="34" startPc="268438241"/>
+<entry endPc="268438592" name="i" stackId="35" startPc="268438474"/>
+<entry endPc="268439426" name="lastPoint" stackId="36" startPc="268438241"/>
+<entry endPc="268438968" name="i" stackId="37" startPc="268438629"/>
+<entry endPc="268438958" name="timeEnd" stackId="38" startPc="268438629"/>
+<entry endPc="268438958" name="dataTimeDistanceInMinEnd" stackId="39" startPc="268438629"/>
+<entry endPc="268438958" name="colorBat" stackId="40" startPc="268438629"/>
+<entry endPc="268438834" name="dataHeightBat" stackId="41" startPc="268438723"/>
+<entry endPc="268438834" name="yBat" stackId="42" startPc="268438723"/>
+<entry endPc="268438834" name="dataTimeDistanceInPxl" stackId="43" startPc="268438723"/>
+<entry endPc="268438834" name="x" stackId="44" startPc="268438723"/>
+<entry endPc="268438958" name="timeStart" stackId="45" startPc="268438629"/>
+<entry endPc="268438958" name="dataTimeDistanceInMinStart" stackId="46" startPc="268438629"/>
+<entry endPc="268438958" name="dataTimeDistanceInPxl" stackId="47" startPc="268438874"/>
+<entry endPc="268438958" name="x" stackId="48" startPc="268438874"/>
+<entry endPc="268439225" name="pixelsAvail" stackId="49" startPc="268438998"/>
+<entry endPc="268439225" name="timeDistanceMin" stackId="50" startPc="268438998"/>
+<entry endPc="268439225" name="xStart" stackId="51" startPc="268438998"/>
+<entry endPc="268439225" name="xEnd" stackId="52" startPc="268438998"/>
+<entry endPc="268439225" name="valueStart" stackId="53" startPc="268438998"/>
+<entry endPc="268439225" name="valueEnd" stackId="54" startPc="268438998"/>
+<entry endPc="268439225" name="yStart" stackId="55" startPc="268438998"/>
+<entry endPc="268439225" name="yEnd" stackId="56" startPc="268438998"/>
+<entry endPc="268439225" name="triangle" stackId="57" startPc="268438998"/>
+<entry endPc="268439426" name="timeStr" stackId="58" startPc="268438241"/>
+<entry endPc="268439423" name="timeLeftMin" stackId="59" startPc="268439345"/>
+<entry arg="true" endPc="268439453" name="val1" stackId="1" startPc="268439434"/>
+<entry arg="true" endPc="268439453" name="val2" stackId="2" startPc="268439434"/>
+<entry arg="true" endPc="268439490" name="dc" stackId="1" startPc="268439454"/>
+<entry arg="true" endPc="268439570" name="data" stackId="1" startPc="268439491"/>
+<entry endPc="268439554" name="i" stackId="2" startPc="268439513"/>
+<entry arg="true" endPc="268439641" name="data" stackId="1" startPc="268439571"/>
+<entry endPc="268439625" name="i" stackId="2" startPc="268439590"/>
+<entry arg="true" endPc="268439908" name="min" stackId="1" startPc="268439642"/>
+<entry endPc="268439908" name="str" stackId="2" startPc="268439645"/>
+<entry endPc="268439755" name="hours" stackId="3" startPc="268439697"/>
+<entry endPc="268439755" name="mins" stackId="4" startPc="268439697"/>
+<entry endPc="268439826" name="hours" stackId="5" startPc="268439768"/>
+<entry endPc="268439826" name="mins" stackId="6" startPc="268439768"/>
+<entry endPc="268439905" name="days" stackId="7" startPc="268439830"/>
+<entry endPc="268439905" name="hours" stackId="8" startPc="268439830"/>
+<entry arg="true" endPc="268439928" name="val1" stackId="1" startPc="268439909"/>
+<entry arg="true" endPc="268439928" name="val2" stackId="2" startPc="268439909"/>
+<entry arg="true" endPc="268440517" name="data" stackId="1" startPc="268439953"/>
+<entry endPc="268440516" name="slopes" stackId="2" startPc="268439956"/>
+<entry endPc="268440516" name="i" stackId="3" startPc="268439956"/>
+<entry endPc="268440516" name="j" stackId="4" startPc="268439956"/>
+<entry endPc="268440516" name="timeMostRecent" stackId="5" startPc="268439956"/>
+<entry endPc="268440516" name="timeLeastRecent" stackId="6" startPc="268439956"/>
+<entry endPc="268440516" name="valueMostRecent" stackId="7" startPc="268439956"/>
+<entry endPc="268440516" name="valueLeastRecent" stackId="8" startPc="268439956"/>
+<entry endPc="268440431" name="slope" stackId="9" startPc="268440353"/>
+<entry endPc="268440516" name="sumSlopes" stackId="10" startPc="268440463"/>
+<entry endPc="268440516" name="avgSlope" stackId="11" startPc="268440463"/>
+<entry arg="true" endPc="268440984" name="dc" stackId="1" startPc="268440637"/>
+<entry endPc="268440983" name="history" stackId="2" startPc="268440718"/>
+<entry endPc="268440983" name="battery" stackId="3" startPc="268440718"/>
+<entry endPc="268440983" name="colorBat" stackId="4" startPc="268440813"/>
+</localVars>
+<deviceInfo deviceVersion="90325a5ba4f163ec5ad32845d0e0beee034c6cee" partNumber="006-B4374-00"/>
+<annotations>
+<annotationEntry annotation="glance" class="BatteryMonitorApp" module="globals" symbol="getGlanceView"/>
+<annotationEntry annotation="background" class="BatteryMonitorApp" module="globals" symbol="getGlanceView"/>
+<annotationEntry annotation="background" class="globals" module="" symbol="objectStoreAdd"/>
+<annotationEntry annotation="initialized" class="Drawables" module="globals/Rez" symbol="LauncherIcon"/>
+<annotationEntry annotation="initialized" class="Strings" module="globals/Rez" symbol="shortComplicationLabel"/>
+<annotationEntry annotation="background" class="BatteryMonitorServiceDelegate" module="globals" symbol="onTemporalEvent"/>
+<annotationEntry annotation="initialized" class="Strings" module="globals/Rez" symbol="AppName"/>
+<annotationEntry annotation="glance" class="BatteryMonitorApp" module="globals" symbol="getInitialView"/>
+<annotationEntry annotation="background" class="BatteryMonitorApp" module="globals" symbol="getInitialView"/>
+<annotationEntry annotation="glance" class="BatteryMonitorGlanceView" module="globals" symbol="onLayout"/>
+<annotationEntry annotation="background" class="globals" module="" symbol="objectStoreErase"/>
+<annotationEntry annotation="background" class="BatteryMonitorServiceDelegate" module="globals" symbol="initialize"/>
+<annotationEntry annotation="glance" class="BatteryMonitorGlanceView" module="globals" symbol="onShow"/>
+<annotationEntry annotation="glance" class="BatteryMonitorApp" module="globals" symbol="initialize"/>
+<annotationEntry annotation="background" class="BatteryMonitorApp" module="globals" symbol="initialize"/>
+<annotationEntry annotation="glance" class="BatteryMonitorGlanceView" module="globals" symbol="onUpdate"/>
+<annotationEntry annotation="background" class="globals" module="" symbol="analyzeAndStoreData"/>
+<annotationEntry annotation="initialized" class="Drawables" module="globals/Rez" symbol="ComplicationIcon"/>
+<annotationEntry annotation="glance" class="BatteryMonitorGlanceView" module="globals" symbol="onHide"/>
+<annotationEntry annotation="glance" class="BatteryMonitorApp" module="globals" symbol="getServiceDelegate"/>
+<annotationEntry annotation="background" class="BatteryMonitorApp" module="globals" symbol="getServiceDelegate"/>
+<annotationEntry annotation="glance" class="BatteryMonitorApp" module="globals" symbol="mGlanceView"/>
+<annotationEntry annotation="background" class="BatteryMonitorApp" module="globals" symbol="mGlanceView"/>
+<annotationEntry annotation="glance" class="BatteryMonitorApp" module="globals" symbol="onStop"/>
+<annotationEntry annotation="background" class="BatteryMonitorApp" module="globals" symbol="onStop"/>
+<annotationEntry annotation="glance" class="BatteryMonitorGlanceView" module="globals" symbol="initialize"/>
+<annotationEntry annotation="glance" class="BatteryMonitorApp" module="globals" symbol="onBackgroundData"/>
+<annotationEntry annotation="background" class="BatteryMonitorApp" module="globals" symbol="onBackgroundData"/>
+<annotationEntry annotation="glance" class="BatteryMonitorApp" module="globals" symbol="onStart"/>
+<annotationEntry annotation="background" class="BatteryMonitorApp" module="globals" symbol="onStart"/>
+<annotationEntry annotation="background" class="globals" module="" symbol="objectStoreGet"/>
+<annotationEntry annotation="initialized" class="Strings" module="globals/Rez" symbol="longComplicationLabel"/>
+<annotationEntry annotation="background" class="globals" module="" symbol="objectStorePut"/>
+</annotations>
+<dataEntryOffsetMappings>
+<dataEntry label="globals" offset="49" parentId="" symbolId="globals" type="module"/>
+<dataEntry label="globals/BatteryMonitorServiceDelegate" offset="215" parentId="globals" symbolId="BatteryMonitorServiceDelegate" type="class"/>
+<dataEntry label="globals/BatteryMonitorApp" offset="268" parentId="globals" symbolId="BatteryMonitorApp" type="class"/>
+<dataEntry label="globals/BatteryMonitorGlanceView" offset="419" parentId="globals" symbolId="BatteryMonitorGlanceView" type="class"/>
+<dataEntry label="globals/Rez" offset="532" parentId="globals" symbolId="Rez" type="module"/>
+<dataEntry label="globals/ConfirmationDialogDelegate" offset="576" parentId="globals" symbolId="ConfirmationDialogDelegate" type="class"/>
+<dataEntry label="globals/BatteryMonitorInitDelegate" offset="629" parentId="globals" symbolId="BatteryMonitorInitDelegate" type="class"/>
+<dataEntry label="globals/BatteryMonitorView" offset="745" parentId="globals" symbolId="BatteryMonitorView" type="class"/>
+<dataEntry label="globals/Rez/Drawables" offset="960" parentId="Rez" symbolId="Drawables" type="module"/>
+<dataEntry label="globals/Rez/Strings" offset="1004" parentId="Rez" symbolId="Strings" type="module"/>
+</dataEntryOffsetMappings>
+<functions>
+<functionEntry accessMode="public" endPc="268435471" name="&lt;init&gt;" parent="BatteryMonitorServiceDelegate" startPc="268435460">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435497" name="objectStoreErase" startPc="268435472">
+<param id="key"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435693" name="analyzeAndStoreData" startPc="268435498">
+<param id="data"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435705" name="&lt;init&gt;" parent="BatteryMonitorApp" startPc="268435694">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435915" name="objectStoreAdd" startPc="268435706">
+<param id="key"/>
+<param id="newValue"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435981" name="objectStoreGet" startPc="268435916">
+<param id="key"/>
+<param id="defaultValue"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436009" name="objectStorePut" startPc="268435982">
+<param id="key"/>
+<param id="value"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436083" name="onTemporalEvent" parent="BatteryMonitorServiceDelegate" startPc="268436010">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436098" name="initialize" parent="BatteryMonitorServiceDelegate" startPc="268436084">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436101" name="onStart" parent="BatteryMonitorApp" startPc="268436099">
+<param id="state"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436129" name="getServiceDelegate" parent="BatteryMonitorApp" startPc="268436102">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436242" name="getInitialView" parent="BatteryMonitorApp" startPc="268436130">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436257" name="initialize" parent="BatteryMonitorApp" startPc="268436243">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436282" name="onBackgroundData" parent="BatteryMonitorApp" startPc="268436258">
+<param id="data"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436386" name="getGlanceView" parent="BatteryMonitorApp" startPc="268436283">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436389" name="onStop" parent="BatteryMonitorApp" startPc="268436387">
+<param id="state"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436401" name="&lt;init&gt;" parent="BatteryMonitorGlanceView" startPc="268436390">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" name="onShow" parent="BatteryMonitorGlanceView">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436404" name="onLayout" parent="BatteryMonitorGlanceView" startPc="268436402">
+<param id="dc"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436419" name="initialize" parent="BatteryMonitorGlanceView" startPc="268436405">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" name="onHide" parent="BatteryMonitorGlanceView">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436531" name="onUpdate" parent="BatteryMonitorGlanceView" startPc="268436420">
+<param id="dc"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436551" name="&lt;init&gt;" parent="Rez" startPc="268436532">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436563" name="&lt;init&gt;" parent="ConfirmationDialogDelegate" startPc="268436552">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436632" name="getData" startPc="268436564">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436644" name="&lt;init&gt;" parent="BatteryMonitorInitDelegate" startPc="268436633">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436656" name="&lt;init&gt;" parent="BatteryMonitorView" startPc="268436645">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" name="&lt;init&gt;" parent="Drawables">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" name="&lt;init&gt;" parent="Strings">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436712" name="onResponse" parent="ConfirmationDialogDelegate" startPc="268436657">
+<param id="value"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436727" name="initialize" parent="ConfirmationDialogDelegate" startPc="268436713">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436731" name="goBack" parent="BatteryMonitorInitDelegate" startPc="268436728">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436784" name="onPreviousPage" parent="BatteryMonitorInitDelegate" startPc="268436732">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436852" name="onMenu" parent="BatteryMonitorInitDelegate" startPc="268436785">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436905" name="onSwipe" parent="BatteryMonitorInitDelegate" startPc="268436853">
+<param id="swipeEvent"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436920" name="initialize" parent="BatteryMonitorInitDelegate" startPc="268436906">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436931" name="onTap" parent="BatteryMonitorInitDelegate" startPc="268436921">
+<param id="evt"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436961" name="onSelect" parent="BatteryMonitorInitDelegate" startPc="268436932">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268437014" name="onNextPage" parent="BatteryMonitorInitDelegate" startPc="268436962">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268437066" name="onKey" parent="BatteryMonitorInitDelegate" startPc="268437015">
+<param id="evt"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268437090" name="onExitSleep" parent="BatteryMonitorView" startPc="268437067">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268437201" name="onShow" parent="BatteryMonitorView" startPc="268437091">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268439433" name="drawChart2" parent="BatteryMonitorView" startPc="268437202">
+<param id="dc"/>
+<param id="xy"/>
+<param id="chartDataNormalOrder"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268439453" name="MAX" parent="BatteryMonitorView" startPc="268439434">
+<param id="val1"/>
+<param id="val2"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268439490" name="onLayout" parent="BatteryMonitorView" startPc="268439454">
+<param id="dc"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268439570" name="LastChargeData" parent="BatteryMonitorView" startPc="268439491">
+<param id="data"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268439641" name="timeLastFullCharge" parent="BatteryMonitorView" startPc="268439571">
+<param id="data"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268439908" name="minToStr" parent="BatteryMonitorView" startPc="268439642">
+<param id="min"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268439928" name="MIN" parent="BatteryMonitorView" startPc="268439909">
+<param id="val1"/>
+<param id="val2"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268439952" name="refreshTimer" parent="BatteryMonitorView" startPc="268439929">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268440517" name="downSlope" parent="BatteryMonitorView" startPc="268439953">
+<param id="data"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268440541" name="onEnterSleep" parent="BatteryMonitorView" startPc="268440518">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268440556" name="initialize" parent="BatteryMonitorView" startPc="268440542">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268440636" name="onHide" parent="BatteryMonitorView" startPc="268440557">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268440984" name="onUpdate" parent="BatteryMonitorView" startPc="268440637">
+<param id="dc"/>
+<documentation/>
+</functionEntry>
+</functions>
+</debugInfo>

@@ -1,0 +1,5 @@
+<strings>
+    <string id="AppName">Battery Monitor</string>
+    <string id="shortComplicationLabel">BM</string>
+    <string id="longComplicationLabel">BatteryMonitor</string>
+</strings>

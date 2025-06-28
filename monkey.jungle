@@ -1,0 +1,3 @@
+project.manifest = manifest.xml
+
+fenix7spro.resourcePath=$(fenix7spro.resourcePath);resources-complications

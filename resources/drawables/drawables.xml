@@ -1,0 +1,4 @@
+<drawables>
+    <bitmap id="LauncherIcon" filename="battery_icon.png" />
+    <bitmap id="ComplicationIcon" filename="battery_icon.svg" />
+</drawables>
