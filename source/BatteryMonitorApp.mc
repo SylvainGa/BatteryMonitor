@@ -9,8 +9,8 @@ using Toybox.Lang;
 using Toybox.Application.Storage;
 
 //! App constants
-const HISTORY_MAX = 500; // 5000 points = 5 times a full discharge
-const INTERVAL_MIN = 60;//temporal event in minutes
+const HISTORY_MAX = 3000; // At 5 minutes per interval is over 10 days of data
+const INTERVAL_MIN = 5;//temporal event in minutes
 
 //! Object store keys (now they keys are in Storage and are texts, not numbers)
 // const HISTORY_KEY = 2;
@@ -18,6 +18,9 @@ const INTERVAL_MIN = 60;//temporal event in minutes
 // const COUNT = 1;
 // const LAST_VIEWED_DATA = 4;
 // const LAST_CHARGED_DATA = 5;
+// const UPDATE_DATA = 6; //  This guy is set if we need to upgrade our data structure to the new version without using the history
+// const VIEW_RUNNING = 7; // When True, the main view updates the history data so we skip the background process
+
 
 const COLOR_BAT_OK = Gfx.COLOR_GREEN;
 const COLOR_BAT_LOW = Gfx.COLOR_YELLOW;
@@ -42,15 +45,35 @@ var gViewScreen = SCREEN_DATA_HR;
 
 (:background)
 class BatteryMonitorApp extends App.AppBase {
-    var mGlanceView;
-    
     function initialize() {
         AppBase.initialize();
     }
 
     // onStart() is called on application start up
     function onStart(state) {
-    	//objectStorePut("HISTORY_KEY",null);
+		// var update = objectStoreGet("UPDATE_DATA", 0);
+
+		// if (update < 2) {
+		// 	var history = objectStoreGet("HISTORY_KEY", null);
+		// 	if (history instanceof Toybox.Lang.Array) {
+		// 		if (history[0][BATTERY] instanceof Toybox.Lang.Float) {
+		// 			for (var i = 0; i < history.size(); i++) {
+		// 				history[i][BATTERY] = (history[i][BATTERY] * 1000).toNumber();
+		// 			}
+		// 			objectStorePut("HISTORY_KEY", history);
+		// 		}
+		// 	}
+
+		// 	history = objectStoreGet("LAST_HISTORY_KEY", null);
+		// 	if (history != null) {
+		// 		if (history[BATTERY] instanceof Toybox.Lang.Float) {
+		// 			history[BATTERY] = (history[BATTERY] * 1000).toNumber();
+		// 			objectStorePut("LAST_HISTORY_KEY", history);
+		// 		}
+		// 	}
+
+		// 	objectStorePut("UPDATE_DATA", 2);
+		// }
     }
 
     // onStop() is called when your application is exiting
@@ -63,8 +86,7 @@ class BatteryMonitorApp extends App.AppBase {
             gAbleBackground = true;
             Background.registerForTemporalEvent(new Time.Duration(INTERVAL_MIN * 60));//x mins - total in seconds
         }
-        mGlanceView = new BatteryMonitorGlanceView();
-        return [ mGlanceView ];
+        return [ new BatteryMonitorGlanceView() ];
     }
 
     // Return the initial view of your application here
@@ -84,8 +106,10 @@ class BatteryMonitorApp extends App.AppBase {
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
     	//DEBUG*/ logMessage("data received " + data);
-		analyzeAndStoreData(data);    	
-        Ui.requestUpdate();
+		if (data != null) {
+			analyzeAndStoreData(data);
+        	Ui.requestUpdate();
+		}
     }    
 }
 
@@ -166,7 +190,7 @@ function objectStoreErase(key) {
     Storage.deleteValue(key);
 }
 
-(:background)
+(:debug, :background)
 function logMessage(message) {
 	var clockTime = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
 	var dateStr = clockTime.hour + ":" + clockTime.min.format("%02d") + ":" + clockTime.sec.format("%02d");

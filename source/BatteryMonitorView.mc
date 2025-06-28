@@ -12,6 +12,7 @@ class BatteryMonitorView extends Ui.View {
 	var mTimer;
 	var mLastData;
 	var mNowData;
+	var mRefreshCount;
 
     function initialize() {
         View.initialize();
@@ -21,10 +22,13 @@ class BatteryMonitorView extends Ui.View {
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
     function onShow() {
+		objectStorePut("VIEW_RUNNING", true);
+
 		mTimer = new Timer.Timer();
-		mTimer.start(method(:refreshTimer), 1000, true); // Check every second    
+		mTimer.start(method(:refreshTimer), 5000, true); // Check every five second
     	
     	// add data to ensure most recent data is shown and no time delay on the graph.
+		mRefreshCount = 0;
 		mLastData = objectStoreGet("LAST_VIEWED_DATA", null);
 		mNowData = getData();
 		analyzeAndStoreData(mNowData);
@@ -35,6 +39,8 @@ class BatteryMonitorView extends Ui.View {
     // memory.
 
     function onHide() {
+		objectStorePut("VIEW_RUNNING", false);
+
 		if (mTimer) {
 			mTimer.stop();
 		}
@@ -63,7 +69,16 @@ class BatteryMonitorView extends Ui.View {
 		if (System.getSystemStats().charging) {
 			// Update UI, log charging status, etc.
 		}
-		//Ui.requestUpdate();
+
+		mRefreshCount++;
+		if (mRefreshCount == 60) { // Refresh is 5 seconds, 5 * 60 is 300 seconds, which is the same time the backghround process runs
+			var data = getData();
+			/*DEBUG*/ logMessage("Adding data " + data);
+			analyzeAndStoreData(data);
+			mRefreshCount = 0;
+
+		}
+		Ui.requestUpdate();
 	}
 
     // Load your resources here
@@ -87,23 +102,25 @@ class BatteryMonitorView extends Ui.View {
         }
 		else {
         	var history = objectStoreGet("HISTORY_KEY", null);
-       		var battery = Sys.getSystemStats().battery;
-        	if (!(history instanceof Toybox.Lang.Array)){
+        	if (!(history instanceof Toybox.Lang.Array)) {
+	       		var battery = Sys.getSystemStats().battery;
         		dc.drawText(mCtrX, mCtrY, Gfx.FONT_MEDIUM, "No data has yet\nbeen recorded\n\nBattery = " + battery.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER |  Gfx.TEXT_JUSTIFY_VCENTER);
         	}
 			else { //there is an array
-        		drawChart2(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], history);
+        		drawChart(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], history);
         	}
         }
     }
     
-	function drawChart2(dc, xy, chartDataNormalOrder) {
+	function drawChart(dc, xy, chartDataNormalOrder) {
     	var X1 = xy[0], X2 = xy[1], Y1 = xy[2], Y2 = xy[3];
     	var chartData = chartDataNormalOrder.reverse();
 		var scale = mCtrY * 2.0 /240.0; // 240 was the default resolution of the watch used at the time this widget was created
 
 		//! Display current charge level with the appropriate color
 		var colorBat;
+		var battery = Sys.getSystemStats().battery;
+
 		if (battery >= 20) {
 			colorBat = COLOR_BAT_OK;
 		}
@@ -137,7 +154,7 @@ class BatteryMonitorView extends Ui.View {
 	    		}	
 	    		downSlopeStr = "Discharge " + downSlopeStr;
 	    		
-				var timeLeftSec = -(chartData[0][BATTERY] / (downSlopeSec));
+				var timeLeftSec = -((chartData[0][BATTERY].toFloat() / 1000.0) / (downSlopeSec));
 				timeLeftSecUNIX = timeLeftSec + chartData[0][TIMESTAMP_END];
 				dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 				dc.drawText(mCtrX, 33, Gfx.FONT_TINY, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
@@ -156,7 +173,7 @@ class BatteryMonitorView extends Ui.View {
 				var batUsage;
 				var timeDiff = 0;
 				if (mNowData && mLastData) {
-					batUsage = mNowData[BATTERY] - mLastData[BATTERY];
+					batUsage = (mNowData[BATTERY] - mLastData[BATTERY]).toFloat() / 1000.0;
 					timeDiff = mNowData[TIMESTAMP_END] - mLastData[TIMESTAMP_START];
 				}
 
@@ -188,13 +205,18 @@ class BatteryMonitorView extends Ui.View {
 
 				var lastChargeData = LastChargeData(chartData);
 				if (lastChargeData != null) {
-					batUsage = chartData[0][BATTERY] - lastChargeData[BATTERY];
+					batUsage = (chartData[0][BATTERY] - lastChargeData[BATTERY]).toFloat() / 1000.0;
 					timeDiff = chartData[0][TIMESTAMP_END] - lastChargeData[TIMESTAMP_START];
-					var dischargeRate = batUsage * 60 * 60 * (gViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
-					dischargeRate = dischargeRate.abs().format("%0.3f") + (gViewScreen == SCREEN_DATA_HR ? "%/h" : "%/day");
-					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
-
-					/*DEBUG*/ logMessage("Discharge since last charge: " + dischargeRate);
+					if (timeDiff != 0.0) {
+						var dischargeRate = batUsage * 60 * 60 * (gViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
+						dischargeRate = dischargeRate.abs().format("%0.3f") + (gViewScreen == SCREEN_DATA_HR ? "%/h" : "%/day");
+						dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
+						/*DEBUG*/ logMessage("Discharge since last charge: " + dischargeRate);
+					}
+					else {
+						dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "N/A", Gfx.TEXT_JUSTIFY_CENTER);
+						/*DEBUG*/ logMessage("Discharge since last charge: N/A");
+					}
 				}
 				else {
 					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "N/A", Gfx.TEXT_JUSTIFY_CENTER);
@@ -245,11 +267,12 @@ class BatteryMonitorView extends Ui.View {
 					// End (closer to now)
 					var timeEnd = chartData[i][TIMESTAMP_END];
 					var dataTimeDistanceInMinEnd = ((timeMostRecentPoint - timeEnd) / 60).toNumber();
-					
-					if (chartData[i][BATTERY] >= 20) {
+
+					battery = chartData[i][BATTERY].toFloat() / 1000.0;
+					if (battery >= 20) {
 						colorBat = COLOR_BAT_OK;
 					}
-					else if (chartData[i][BATTERY] >= 10) {
+					else if (battery >= 10) {
 						colorBat = COLOR_BAT_LOW;
 					}
 					else {
@@ -260,7 +283,7 @@ class BatteryMonitorView extends Ui.View {
 						continue; // This data point is outside of the graph view, ignore it
 					}
 					else {
-						var dataHeightBat = (chartData[i][BATTERY] * Yframe) / Ymax * scale;
+						var dataHeightBat = (battery * Yframe) / Ymax * scale;
 						var yBat = Y2 - dataHeightBat;
 						var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / XscaleMinPerPxl;
 						var x = X1 + Xnow - dataTimeDistanceInPxl;
@@ -296,10 +319,10 @@ class BatteryMonitorView extends Ui.View {
 						var timeDistanceMin = pixelsAvail * XscaleMinPerPxl;
 						var xStart = X1 + Xnow;
 						var xEnd = xStart + pixelsAvail;
-						var valueStart = chartData[0][BATTERY];
-						var valueEnd = chartData[0][BATTERY] + downSlopeSec * 60 * timeDistanceMin;
+						var valueStart = chartData[0][BATTERY].toFloat() / 1000.0;
+						var valueEnd = valueStart + downSlopeSec * 60 * timeDistanceMin;
 						if (valueEnd < 0){
-							timeDistanceMin = - chartData[0][BATTERY] / (downSlopeSec * 60);
+							timeDistanceMin = -valueStart / (downSlopeSec * 60);
 							valueEnd = 0;
 							xEnd = xStart + timeDistanceMin / XscaleMinPerPxl;
 						}
@@ -340,12 +363,12 @@ class BatteryMonitorView extends Ui.View {
 				return data[i];
 			}
 		}
-    	return data[data.size() - 1][TIMESTAMP_START];
+    	return null;
     }
     
     function timeLastFullCharge(data){
 		for (var i = 0; i < data.size(); i++){
-			if (data[i][BATTERY] == 100){
+			if (data[i][BATTERY] == 100000) { // 100% is 100000 here as we * by 1000 to get three digit precision
 				return data[i][TIMESTAMP_END];
 			}
 		}
@@ -360,7 +383,7 @@ class BatteryMonitorView extends Ui.View {
     	var slopes = new [0];
 	    var i = 0, j = 0;
 	    
-	    var timeMostRecent = data[0][TIMESTAMP_END], timeLeastRecent, valueMostRecent = data[0][BATTERY], valueLeastRecent;
+	    var timeMostRecent = data[0][TIMESTAMP_END], timeLeastRecent, valueMostRecent = data[0][BATTERY].toFloat() / 1000.0, valueLeastRecent;
 	    for (; i < data.size() - 1; i++) {
 		    // goal is to store X1 X2 Y1 Y2 for each downslope (actually up-slope because reversed array) and store all slopes in array to later do array average.
 	    	/*DEBUG*/ logMessage("data[" + i + "]=" + data[i] + " diff time is " + (data[i][TIMESTAMP_END] - data[i][TIMESTAMP_START]));
@@ -372,9 +395,9 @@ class BatteryMonitorView extends Ui.View {
 			else { //battery charged or ran out of data
 	    		/*DEBUG*/ logMessage("action... " + i);
 	    		timeLeastRecent = data[i][TIMESTAMP_START];
-    			valueLeastRecent = data[i][BATTERY];
+    			valueLeastRecent = data[i][BATTERY].toFloat() / 1000.0;
     			timeMostRecent = data[j + 1][TIMESTAMP_END];
-    			valueMostRecent = data[j + 1][BATTERY];
+    			valueMostRecent = data[j + 1][BATTERY].toFloat() / 1000.0;
     			/*DEBUG*/ logMessage(timeLeastRecent + " " + timeMostRecent + " " + valueLeastRecent + " " + valueMostRecent);
 	    		if (timeMostRecent - timeLeastRecent < 1 * 60 * 60) { // if less than 1 hours data
 	    			/*DEBUG*/ logMessage("discard... " + i + " time diff is " + (timeMostRecent - timeLeastRecent) + " sec");

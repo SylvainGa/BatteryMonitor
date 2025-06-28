@@ -16,16 +16,22 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
     // and the main application is not open. Prompt the user to let them
     // know the timer expired.
     function onTemporalEvent() {
-        var stats = Sys.getSystemStats();
-	    var battery = stats.battery;//.toNumber();// out of 100
-	    var now = Time.now().value(); //in seconds from UNIX epoch in UTC
-        Background.exit([now, now, battery]);
+        var viewRunning = objectStoreGet("VIEW_RUNNING", false);
+        if (viewRunning == false) {
+            var stats = Sys.getSystemStats();
+            var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
+            var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+            Background.exit([now, now, battery]);
+        }
+        else {
+            Background.exit(null);
+        }
     }
 }
 
 function getData(){
     var stats = Sys.getSystemStats();
-    var battery = stats.battery;//.toNumber();// out of 100
+    var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
     return [now, now, battery];
 }
