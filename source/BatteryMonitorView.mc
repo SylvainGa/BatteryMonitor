@@ -359,7 +359,7 @@ class BatteryMonitorView extends Ui.View {
 			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
 			dc.drawRoundedRectangle(27, mCtrY - (fontHeight + fontHeight / 2), mCtrX * 2 - 2 * 27, 2 * (fontHeight + fontHeight / 2), 5);
 			battery = Sys.getSystemStats().battery;
-			dc.drawText(mCtrX, mCtrY - (fontHeight + fontHeight / 4), Gfx.FONT_SMALL, "Charging " + battery.format("%2d") + "%", Gfx.TEXT_JUSTIFY_CENTER);
+			dc.drawText(mCtrX, mCtrY - (fontHeight + fontHeight / 4), Gfx.FONT_SMALL, "Charging " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
 			var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
 			if (chargingData) {
 				var batUsage = battery - (chargingData[BATTERY]).toFloat() / 1000.0;
@@ -369,7 +369,7 @@ class BatteryMonitorView extends Ui.View {
 				/*DEBUG*/ logMessage("Time diff: " + timeDiff);
 				var chargeRate;
 				if (timeDiff > 0) {
-					chargeRate = (batUsage * 60 * 60 / timeDiff).format("%0.3f");
+					chargeRate = (batUsage * 60 * 60 / timeDiff).format("%0.1f");
 				}
 				else {
 					chargeRate = 0.0f;
