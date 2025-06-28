@@ -72,7 +72,7 @@ class BatteryMonitorView extends Ui.View {
 		mRefreshCount++;
 		if (mRefreshCount == 60) { // Refresh is 5 seconds, 5 * 60 is 300 seconds, which is the same time the backghround process runs
 			mNowData = getData();
-			/*DEBUG*/ logMessage("Adding data " + data);
+			/*DEBUG*/ logMessage("Adding data " + mNowData);
 			analyzeAndStoreData(mNowData);
 			mRefreshCount = 0;
 		}
