@@ -17,7 +17,6 @@ class BatteryMonitorInitDelegate extends Ui.InputDelegate{
     }
 
     function onSelect(){
-	 //Sys.println("onSelect");
 		analyzeAndStoreData(getData());
         Ui.requestUpdate();
         return true;    
@@ -31,7 +30,7 @@ class BatteryMonitorInitDelegate extends Ui.InputDelegate{
     function onNextPage() {
 		gViewScreen++;
 		if (gViewScreen > SCREEN_PROJECTION) {
-			gViewScreen = SCREEN_DATA;
+			gViewScreen = SCREEN_DATA_HR;
 		}
         Ui.requestUpdate();
 		return true;
@@ -39,7 +38,7 @@ class BatteryMonitorInitDelegate extends Ui.InputDelegate{
 
     function onPreviousPage() {
 		gViewScreen--;
-		if (gViewScreen < SCREEN_DATA) {
+		if (gViewScreen < SCREEN_DATA_HR) {
 			gViewScreen = SCREEN_PROJECTION;
 		}
         Ui.requestUpdate();
@@ -61,8 +60,6 @@ class BatteryMonitorInitDelegate extends Ui.InputDelegate{
 	}
 
     function onMenu() {
-	 //Sys.println("onMenu");
-    	
         var dialog = new Ui.Confirmation("Erase history");
         Ui.pushView(dialog, new ConfirmationDialogDelegate(), Ui.SLIDE_IMMEDIATE);
         return true;

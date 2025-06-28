@@ -3,6 +3,9 @@ using Toybox.Background;
 using Toybox.System as Sys;
 using Toybox.WatchUi as Ui;
 using Toybox.Graphics as Gfx;
+using Toybox.Time;
+using Toybox.Time.Gregorian;
+using Toybox.Lang;
 using Toybox.Application.Storage;
 
 //! App constants
@@ -21,9 +24,10 @@ const COLOR_BAT_LOW = Gfx.COLOR_YELLOW;
 const COLOR_BAT_CRITICAL = Gfx.COLOR_RED;
 const COLOR_PROJECTION = Gfx.COLOR_DK_BLUE;
 
-const SCREEN_DATA = 1;
-const SCREEN_HISTORY = 2;
-const SCREEN_PROJECTION = 3;
+const SCREEN_DATA_HR = 1;
+const SCREEN_DATA_DAY = 2;
+const SCREEN_HISTORY = 3;
+const SCREEN_PROJECTION = 4;
 
 //! History Array data type
 enum{
@@ -34,7 +38,7 @@ enum{
 }
 
 var gAbleBackground = false;
-var gViewScreen = SCREEN_DATA;
+var gViewScreen = SCREEN_DATA_HR;
 
 (:background)
 class BatteryMonitorApp extends App.AppBase {
@@ -65,7 +69,6 @@ class BatteryMonitorApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {	
-    	//Sys.println("App/getInitialView");
     	//register for temporal events if they are supported
     	if (Toybox.System has :ServiceDelegate) {
     		gAbleBackground = true;
@@ -75,13 +78,12 @@ class BatteryMonitorApp extends App.AppBase {
     }
     
     function getServiceDelegate(){
-    	//Sys.println("App/getServiceDelegate");
         return [new BatteryMonitorServiceDelegate()];
     }
 
     function onBackgroundData(data) {
-    	//Sys.println("App/onBackgroundData");
-    	//Sys.println("data received " + data);
+    	//DEBUG*/ logMessage("App/onBackgroundData");
+    	//DEBUG*/ logMessage("data received " + data);
 		analyzeAndStoreData(data);    	
         Ui.requestUpdate();
     }    
@@ -89,7 +91,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 (:background)
 function analyzeAndStoreData(data){
-	//Sys.println("analyzeAndStoreData");
+	//DEBUG*/ logMessage("analyzeAndStoreData");
 	var lastHistory = objectStoreGet("LAST_HISTORY_KEY", null);
 	if (lastHistory == null){ // no data yet
 		objectStoreAdd("HISTORY_KEY", data);
@@ -115,7 +117,7 @@ function analyzeAndStoreData(data){
 // store, the default will be saved and returned.
 (:background)
 function objectStoreAdd(key, newValue) {
-    //Sys.println("objectStoreAdd");
+    //DEBUG*/ logMessage("objectStoreAdd");
     var existingArray = objectStoreGet(key, []);
     if (newValue != null) {
     	if (!(existingArray instanceof Toybox.Lang.Array)) {//if not array (incl is null), then create first item of array
@@ -142,7 +144,6 @@ function objectStoreAdd(key, newValue) {
 // store, the default will be saved and returned.
 (:background)
 function objectStoreGet(key, defaultValue) {
-    //Sys.println("objectStoreGet");
     var value = Storage.getValue(key);
     if ((value == null) && (defaultValue != null)) {
         value = defaultValue;
@@ -157,12 +158,21 @@ function objectStoreGet(key, defaultValue) {
 // to the objectStoreGet method above.
 (:background)
 function objectStorePut(key, value) {
-    //Sys.println("objectStorePut");
     Storage.setValue(key, value);
 }
 
 (:background)
 function objectStoreErase(key) {
-    //Sys.println("objectStorePut");
     Storage.deleteValue(key);
+}
+
+(:background)
+function logMessage(message) {
+	var clockTime = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
+	var dateStr = clockTime.hour + ":" + clockTime.min.format("%02d") + ":" + clockTime.sec.format("%02d");
+	Sys.println(dateStr + " : " + message);
+}
+
+(:release, :background)
+function logMessage(message) {
 }

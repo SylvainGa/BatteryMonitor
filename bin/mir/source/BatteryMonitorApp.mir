@@ -8,346 +8,354 @@ using Toybox.System as :Sys;
 using Toybox.WatchUi as :Ui;
 [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 5; @symbol_usingdef<0> = [Toybox,5,6,12]; @symbol_usingdef<1> = [Graphics,5,13,21]; @symbol_usingAlias = [Gfx,5,25,28]; ]
 using Toybox.Graphics as :Gfx;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 6; @symbol_usingdef<0> = [Toybox,6,6,12]; @symbol_usingdef<1> = [Application,6,13,24]; @symbol_usingdef<2> = [Storage,6,25,32]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 6; @symbol_usingdef<0> = [Toybox,6,6,12]; @symbol_usingdef<1> = [Time,6,13,17]; ]
+using Toybox.Time;
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 7; @symbol_usingdef<0> = [Toybox,7,6,12]; @symbol_usingdef<1> = [Time,7,13,17]; @symbol_usingdef<2> = [Gregorian,7,18,27]; ]
+using Toybox.Time.Gregorian;
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 8; @symbol_usingdef<0> = [Toybox,8,6,12]; @symbol_usingdef<1> = [Lang,8,13,17]; ]
+using Toybox.Lang;
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 9; @symbol_usingdef<0> = [Toybox,9,6,12]; @symbol_usingdef<1> = [Application,9,13,24]; @symbol_usingdef<2> = [Storage,9,25,32]; ]
 using Toybox.Application.Storage;
 //! App constants
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 9; @position = 6; @symbol_constdef = [HISTORY_MAX,9,6,17]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 12; @position = 6; @symbol_constdef = [HISTORY_MAX,12,6,17]; ]
 const HISTORY_MAX = 500;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 10; @position = 6; @symbol_constdef = [INTERVAL_MIN,10,6,18]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 13; @position = 6; @symbol_constdef = [INTERVAL_MIN,13,6,18]; ]
 const INTERVAL_MIN = 60;
 //! Object store keys (now they keys are in Storage and are texts, not numbers)
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 19; @position = 6; @symbol_constdef = [COLOR_BAT_OK,19,6,18]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 22; @position = 6; @symbol_constdef = [COLOR_BAT_OK,22,6,18]; ]
 const COLOR_BAT_OK;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 20; @position = 6; @symbol_constdef = [COLOR_BAT_LOW,20,6,19]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 23; @position = 6; @symbol_constdef = [COLOR_BAT_LOW,23,6,19]; ]
 const COLOR_BAT_LOW;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 21; @position = 6; @symbol_constdef = [COLOR_BAT_CRITICAL,21,6,24]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 24; @position = 6; @symbol_constdef = [COLOR_BAT_CRITICAL,24,6,24]; ]
 const COLOR_BAT_CRITICAL;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 22; @position = 6; @symbol_constdef = [COLOR_PROJECTION,22,6,22]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 25; @position = 6; @symbol_constdef = [COLOR_PROJECTION,25,6,22]; ]
 const COLOR_PROJECTION;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 24; @position = 6; @symbol_constdef = [SCREEN_DATA,24,6,17]; ]
-const SCREEN_DATA = 1;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 25; @position = 6; @symbol_constdef = [SCREEN_HISTORY,25,6,20]; ]
-const SCREEN_HISTORY = 2;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 26; @position = 6; @symbol_constdef = [SCREEN_PROJECTION,26,6,23]; ]
-const SCREEN_PROJECTION = 3;
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 27; @position = 6; @symbol_constdef = [SCREEN_DATA_HR,27,6,20]; ]
+const SCREEN_DATA_HR = 1;
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 28; @position = 6; @symbol_constdef = [SCREEN_DATA_DAY,28,6,21]; ]
+const SCREEN_DATA_DAY = 2;
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 29; @position = 6; @symbol_constdef = [SCREEN_HISTORY,29,6,20]; ]
+const SCREEN_HISTORY = 3;
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 30; @position = 6; @symbol_constdef = [SCREEN_PROJECTION,30,6,23]; ]
+const SCREEN_PROJECTION = 4;
 //! History Array data type
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 29; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 33; ]
 enum {
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 30; @position = 1; @symbol_enumdec = [TIMESTAMP_START,30,1,16]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 34; @position = 1; @symbol_enumdec = [TIMESTAMP_START,34,1,16]; ]
     TIMESTAMP_START,
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 31; @position = 1; @symbol_enumdec = [TIMESTAMP_END,31,1,14]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 35; @position = 1; @symbol_enumdec = [TIMESTAMP_END,35,1,14]; ]
     TIMESTAMP_END,
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 32; @position = 1; @symbol_enumdec = [BATTERY,32,1,8]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 36; @position = 1; @symbol_enumdec = [BATTERY,36,1,8]; ]
     BATTERY,
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 33; @position = 1; @symbol_enumdec = [FREEMEMORY,33,1,11]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 37; @position = 1; @symbol_enumdec = [FREEMEMORY,37,1,11]; ]
     FREEMEMORY
 }
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 36; @position = 4; @symbol_vardef = [gAbleBackground,36,4,19]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 40; @position = 4; @symbol_vardef = [gAbleBackground,40,4,19]; ]
 var gAbleBackground = false;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 37; @position = 4; @symbol_vardef = [gViewScreen,37,4,15]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 41; @position = 4; @symbol_vardef = [gViewScreen,41,4,15]; ]
 var gViewScreen;
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 40; background = true; @symbol_classdef = [BatteryMonitorApp,40,6,23]; @symbol_extends<0> = [App,40,32,35]; @symbol_extends<1> = [AppBase,40,36,43]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 44; background = true; @symbol_classdef = [BatteryMonitorApp,44,6,23]; @symbol_extends<0> = [App,44,32,35]; @symbol_extends<1> = [AppBase,44,36,43]; ]
 class BatteryMonitorApp extends App.AppBase {
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 40; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 44; ]
     <init> {
     }
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 40; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 44; ]
     static
     <init> {
     }
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 41; @position = 8; @symbol_vardef = [mGlanceView,41,8,19]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 45; @position = 8; @symbol_vardef = [mGlanceView,45,8,19]; ]
     var mGlanceView;
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 43; @symbol_functiondef = [initialize,43,13,23]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 47; @symbol_functiondef = [initialize,47,13,23]; ]
     function initialize() as Void {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_43_26_45_4_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 44 8 ]
-        symbol [ AppBase %tmp.2 44 8 15 ];
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_47_26_49_4_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 48 8 ]
+        symbol [ AppBase %tmp.2 48 8 15 ];
         %tmp.2 = getv ? :AppBase;
-        symbol [ initialize %tmp.3 44 16 26 ];
+        symbol [ initialize %tmp.3 48 16 26 ];
         %tmp.3 = getv function %tmp.2 :initialize;
         invoke %tmp.2 %tmp.3();
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_43_26_45_4_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_47_26_49_4_stop:
     }
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 48; @symbol_functiondef = [onStart,48,13,20]; @symbol_param<0> = [state,48,21,26]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 52; @symbol_functiondef = [onStart,52,13,20]; @symbol_param<0> = [state,52,21,26]; ]
     function onStart(state) {
     }
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 53; @symbol_functiondef = [onStop,53,13,19]; @symbol_param<0> = [state,53,20,25]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 57; @symbol_functiondef = [onStop,57,13,19]; @symbol_param<0> = [state,57,20,25]; ]
     function onStop(state) {
     }
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 57; glance = true; @symbol_functiondef = [getGlanceView,57,13,26]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 61; glance = true; @symbol_functiondef = [getGlanceView,61,13,26]; ]
     function getGlanceView() {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_57_29_64_4_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 58 5 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_58_5_61_8_if_stmt:
-        symbol [ Toybox %tmp.2 58 9 15 ];
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_61_29_68_4_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 62 5 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_62_5_65_8_if_stmt:
+        symbol [ Toybox %tmp.2 62 9 15 ];
         %tmp.2 = getv ? :Toybox;
-        symbol [ System %tmp.3 58 16 22 ];
+        symbol [ System %tmp.3 62 16 22 ];
         %tmp.3 = getv %tmp.2 :System;
         %tmp.5 = const :ServiceDelegate;
-        symbol [ ServiceDelegate %tmp.5 58 28 43 const ];
+        symbol [ ServiceDelegate %tmp.5 62 28 43 const ];
         %tmp.6 = canhazplz %tmp.3 %tmp.5;
-        bf %tmp.6 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_58_5_61_8_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_58_5_61_8_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_58_45_61_8_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 59 12 ]
+        bf %tmp.6 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_62_5_65_8_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_62_5_65_8_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_62_45_65_8_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 63 12 ]
         %tmp.7 = true;
-        symbol [ gAbleBackground ? 59 12 27 ];
+        symbol [ gAbleBackground ? 63 12 27 ];
         putv self :gAbleBackground %tmp.7;
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 60 12 ]
-        symbol [ Background %tmp.8 60 12 22 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 64 12 ]
+        symbol [ Background %tmp.8 64 12 22 ];
         %tmp.8 = getm $.Toybox.Background;
-        symbol [ registerForTemporalEvent %tmp.9 60 23 47 ];
+        symbol [ registerForTemporalEvent %tmp.9 64 23 47 ];
         %tmp.9 = getv function %tmp.8 :registerForTemporalEvent;
-        symbol [ Time %tmp.13 60 52 56 ];
-        %tmp.13 = getv ? :Time;
-        symbol [ Duration %tmp.14 60 57 65 ];
-        %tmp.14 = getv function ? %tmp.13 :Duration;
-        symbol [ INTERVAL_MIN %tmp.16 60 66 78 ];
-        %tmp.16 = getv ? :INTERVAL_MIN;
-        %tmp.17 = 60;
-        %tmp.18 = mul %tmp.16 %tmp.17;
-        %tmp.10 = newc %tmp.14 (%tmp.18);
+        symbol [ Time %tmp.12 64 52 56 ];
+        %tmp.12 = getm $.Toybox.Time;
+        symbol [ Duration %tmp.13 64 57 65 ];
+        %tmp.13 = getv function ? %tmp.12 :Duration;
+        symbol [ INTERVAL_MIN %tmp.15 64 66 78 ];
+        %tmp.15 = getv ? :INTERVAL_MIN;
+        %tmp.16 = 60;
+        %tmp.17 = mul %tmp.15 %tmp.16;
+        %tmp.10 = newc %tmp.13 (%tmp.17);
         invoke %tmp.8 %tmp.9(%tmp.10);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_58_45_61_8_stop:
-        goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_58_5_61_8_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_58_5_61_8_if_end:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 62 8 ]
-        symbol [ BatteryMonitorGlanceView %tmp.22 62 26 50 ];
-        %tmp.22 = getv ? :BatteryMonitorGlanceView;
-        %tmp.19 = newc %tmp.22 ();
-        symbol [ mGlanceView ? 62 8 19 ];
-        putv self :mGlanceView %tmp.19;
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 63 8 ]
-        %tmp.23 = newa 1;
-        symbol [ mGlanceView %tmp.25 63 17 28 ];
-        %tmp.25 = getv ? :mGlanceView;
-        %tmp.26 = dup %tmp.23;
-        %tmp.27 = aputv %tmp.26 0 %tmp.25;
-        ret %tmp.27;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_57_29_64_4_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_62_45_65_8_stop:
+        goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_62_5_65_8_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_62_5_65_8_if_end:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 66 8 ]
+        symbol [ BatteryMonitorGlanceView %tmp.21 66 26 50 ];
+        %tmp.21 = getv ? :BatteryMonitorGlanceView;
+        %tmp.18 = newc %tmp.21 ();
+        symbol [ mGlanceView ? 66 8 19 ];
+        putv self :mGlanceView %tmp.18;
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 67 8 ]
+        %tmp.22 = newa 1;
+        symbol [ mGlanceView %tmp.24 67 17 28 ];
+        %tmp.24 = getv ? :mGlanceView;
+        %tmp.25 = dup %tmp.22;
+        %tmp.26 = aputv %tmp.25 0 %tmp.24;
+        ret %tmp.26;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_61_29_68_4_stop:
     }
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 67; @symbol_functiondef = [getInitialView,67,13,27]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 71; @symbol_functiondef = [getInitialView,71,13,27]; ]
     function getInitialView() {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_67_30_75_4_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 70 5 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_70_5_73_5_if_stmt:
-        symbol [ Toybox %tmp.2 70 9 15 ];
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_71_30_78_4_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 73 5 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_73_5_76_5_if_stmt:
+        symbol [ Toybox %tmp.2 73 9 15 ];
         %tmp.2 = getv ? :Toybox;
-        symbol [ System %tmp.3 70 16 22 ];
+        symbol [ System %tmp.3 73 16 22 ];
         %tmp.3 = getv %tmp.2 :System;
         %tmp.5 = const :ServiceDelegate;
-        symbol [ ServiceDelegate %tmp.5 70 28 43 const ];
+        symbol [ ServiceDelegate %tmp.5 73 28 43 const ];
         %tmp.6 = canhazplz %tmp.3 %tmp.5;
-        bf %tmp.6 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_70_5_73_5_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_70_5_73_5_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_70_45_73_5_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 71 6 ]
+        bf %tmp.6 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_73_5_76_5_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_73_5_76_5_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_73_45_76_5_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 74 6 ]
         %tmp.7 = true;
-        symbol [ gAbleBackground ? 71 6 21 ];
+        symbol [ gAbleBackground ? 74 6 21 ];
         putv self :gAbleBackground %tmp.7;
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 72 6 ]
-        symbol [ Background %tmp.8 72 6 16 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 75 6 ]
+        symbol [ Background %tmp.8 75 6 16 ];
         %tmp.8 = getm $.Toybox.Background;
-        symbol [ registerForTemporalEvent %tmp.9 72 17 41 ];
+        symbol [ registerForTemporalEvent %tmp.9 75 17 41 ];
         %tmp.9 = getv function %tmp.8 :registerForTemporalEvent;
-        symbol [ Time %tmp.13 72 46 50 ];
-        %tmp.13 = getv ? :Time;
-        symbol [ Duration %tmp.14 72 51 59 ];
-        %tmp.14 = getv function ? %tmp.13 :Duration;
-        symbol [ INTERVAL_MIN %tmp.16 72 60 72 ];
-        %tmp.16 = getv ? :INTERVAL_MIN;
-        %tmp.17 = 60;
-        %tmp.18 = mul %tmp.16 %tmp.17;
-        %tmp.10 = newc %tmp.14 (%tmp.18);
+        symbol [ Time %tmp.12 75 46 50 ];
+        %tmp.12 = getm $.Toybox.Time;
+        symbol [ Duration %tmp.13 75 51 59 ];
+        %tmp.13 = getv function ? %tmp.12 :Duration;
+        symbol [ INTERVAL_MIN %tmp.15 75 60 72 ];
+        %tmp.15 = getv ? :INTERVAL_MIN;
+        %tmp.16 = 60;
+        %tmp.17 = mul %tmp.15 %tmp.16;
+        %tmp.10 = newc %tmp.13 (%tmp.17);
         invoke %tmp.8 %tmp.9(%tmp.10);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_70_45_73_5_stop:
-        goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_70_5_73_5_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_70_5_73_5_if_end:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 74 8 ]
-        %tmp.19 = newa 2;
-        symbol [ BatteryMonitorView %tmp.23 74 21 39 ];
-        %tmp.23 = getv ? :BatteryMonitorView;
-        %tmp.20 = newc %tmp.23 ();
-        %tmp.24 = dup %tmp.19;
-        %tmp.25 = aputv %tmp.24 0 %tmp.20;
-        symbol [ BatteryMonitorInitDelegate %tmp.29 74 48 74 ];
-        %tmp.29 = getv ? :BatteryMonitorInitDelegate;
-        %tmp.26 = newc %tmp.29 ();
-        %tmp.30 = dup %tmp.25;
-        %tmp.31 = aputv %tmp.30 1 %tmp.26;
-        ret %tmp.31;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_67_30_75_4_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_73_45_76_5_stop:
+        goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_73_5_76_5_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_73_5_76_5_if_end:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 77 8 ]
+        %tmp.18 = newa 2;
+        symbol [ BatteryMonitorView %tmp.22 77 21 39 ];
+        %tmp.22 = getv ? :BatteryMonitorView;
+        %tmp.19 = newc %tmp.22 ();
+        %tmp.23 = dup %tmp.18;
+        %tmp.24 = aputv %tmp.23 0 %tmp.19;
+        symbol [ BatteryMonitorInitDelegate %tmp.28 77 48 74 ];
+        %tmp.28 = getv ? :BatteryMonitorInitDelegate;
+        %tmp.25 = newc %tmp.28 ();
+        %tmp.29 = dup %tmp.24;
+        %tmp.30 = aputv %tmp.29 1 %tmp.25;
+        ret %tmp.30;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_71_30_78_4_stop:
     }
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 77; @symbol_functiondef = [getServiceDelegate,77,13,31]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 80; @symbol_functiondef = [getServiceDelegate,80,13,31]; ]
     function getServiceDelegate() {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_77_33_80_4_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 79 8 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_80_33_82_4_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 81 8 ]
         %tmp.1 = newa 1;
-        symbol [ BatteryMonitorServiceDelegate %tmp.5 79 20 49 ];
+        symbol [ BatteryMonitorServiceDelegate %tmp.5 81 20 49 ];
         %tmp.5 = getv ? :BatteryMonitorServiceDelegate;
         %tmp.2 = newc %tmp.5 ();
         %tmp.6 = dup %tmp.1;
         %tmp.7 = aputv %tmp.6 0 %tmp.2;
         ret %tmp.7;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_77_33_80_4_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_80_33_82_4_stop:
     }
-    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 82; @symbol_functiondef = [onBackgroundData,82,13,29]; @symbol_param<0> = [data,82,30,34]; ]
+    [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 84; @symbol_functiondef = [onBackgroundData,84,13,29]; @symbol_param<0> = [data,84,30,34]; ]
     function onBackgroundData(data) {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_82_36_87_4_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 85 2 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_84_36_89_4_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 87 2 ]
         %tmp.1 = self;
-        symbol [ analyzeAndStoreData %tmp.2 85 2 21 ];
+        symbol [ analyzeAndStoreData %tmp.2 87 2 21 ];
         %tmp.2 = getv function %tmp.1 :analyzeAndStoreData;
         %tmp.3 = lgetv %data;
-        symbol [ data %tmp.3 85 22 26 ];
+        symbol [ data %tmp.3 87 22 26 ];
         invoke %tmp.1 %tmp.2(%tmp.3);
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 86 8 ]
-        symbol [ Ui %tmp.4 86 8 10 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 88 8 ]
+        symbol [ Ui %tmp.4 88 8 10 ];
         %tmp.4 = getm $.Toybox.WatchUi;
-        symbol [ requestUpdate %tmp.5 86 11 24 ];
+        symbol [ requestUpdate %tmp.5 88 11 24 ];
         %tmp.5 = getv function %tmp.4 :requestUpdate;
         invoke %tmp.4 %tmp.5();
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_82_36_87_4_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_84_36_89_4_stop:
     }
 }
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 91; background = true; @symbol_functiondef = [analyzeAndStoreData,91,9,28]; @symbol_param<0> = [data,91,29,33]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 93; background = true; @symbol_functiondef = [analyzeAndStoreData,93,9,28]; @symbol_param<0> = [data,93,29,33]; ]
 function analyzeAndStoreData(data) {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_91_34_111_0_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 93 1 ]
-    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_91_34_111_0_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_91_34_111_0_stop" ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_93_34_113_0_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 95 1 ]
+    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_93_34_113_0_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_93_34_113_0_stop" ]
     %lastHistory.1 = local;
-    symbol [ lastHistory %lastHistory.1 93 5 16 ];
+    symbol [ lastHistory %lastHistory.1 95 5 16 ];
     %tmp.1 = self;
-    symbol [ objectStoreGet %tmp.2 93 19 33 ];
+    symbol [ objectStoreGet %tmp.2 95 19 33 ];
     %tmp.2 = getv function %tmp.1 :objectStoreGet;
     %tmp.3 = "LAST_HISTORY_KEY";
     %tmp.4 = null;
     %tmp.5 = invoke %tmp.1 %tmp.2(%tmp.3, %tmp.4);
     lputv %lastHistory.1 %tmp.5;
-    symbol [ lastHistory %lastHistory.1 93 5 16 ];
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 94 1 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_94_1_108_1_if_stmt:
+    symbol [ lastHistory %lastHistory.1 95 5 16 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 96 1 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_96_1_110_1_if_stmt:
     %tmp.6 = lgetv %lastHistory.1;
-    symbol [ lastHistory %tmp.6 94 5 16 ];
+    symbol [ lastHistory %tmp.6 96 5 16 ];
     %tmp.7 = null;
     %tmp.8 = eq %tmp.6 %tmp.7;
-    bf %tmp.8 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_94_1_108_1_if_else_false;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_94_1_108_1_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_94_25_96_1_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 95 2 ]
+    bf %tmp.8 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_96_1_110_1_if_else_false;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_96_1_110_1_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_96_25_98_1_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 97 2 ]
     %tmp.9 = self;
-    symbol [ objectStoreAdd %tmp.10 95 2 16 ];
+    symbol [ objectStoreAdd %tmp.10 97 2 16 ];
     %tmp.10 = getv function %tmp.9 :objectStoreAdd;
     %tmp.11 = "HISTORY_KEY";
     %tmp.12 = lgetv %data;
-    symbol [ data %tmp.12 95 32 36 ];
+    symbol [ data %tmp.12 97 32 36 ];
     invoke %tmp.9 %tmp.10(%tmp.11, %tmp.12);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_94_25_96_1_stop:
-    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_94_1_108_1_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_94_1_108_1_if_else_false:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_97_6_108_1_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 98 2 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_2_107_2_if_stmt:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_96_25_98_1_stop:
+    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_96_1_110_1_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_96_1_110_1_if_else_false:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_99_6_110_1_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 100 2 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_2_109_2_if_stmt:
     %tmp.13 = lgetv %lastHistory.1;
-    symbol [ lastHistory %tmp.13 98 6 17 ];
+    symbol [ lastHistory %tmp.13 100 6 17 ];
     %tmp.14 = as %tmp.13 { (!Null) };
-    symbol [ BATTERY %tmp.16 98 18 25 ];
+    symbol [ BATTERY %tmp.16 100 18 25 ];
     %tmp.16 = getv ? :BATTERY;
     %tmp.17 = agetv %tmp.14 %tmp.16;
     %tmp.18 = lgetv %data;
-    symbol [ data %tmp.18 98 30 34 ];
-    symbol [ BATTERY %tmp.20 98 35 42 ];
+    symbol [ data %tmp.18 100 30 34 ];
+    symbol [ BATTERY %tmp.20 100 35 42 ];
     %tmp.20 = getv ? :BATTERY;
     %tmp.21 = agetv %tmp.18 %tmp.20;
     %tmp.22 = eq %tmp.17 %tmp.21;
-    bf %tmp.22 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_2_107_2_if_else_false;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_2_107_2_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_44_104_2_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 99 3 ]
-    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_44_104_2_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_44_104_2_stop" ]
+    bf %tmp.22 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_2_109_2_if_else_false;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_2_109_2_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_44_106_2_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 101 3 ]
+    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_44_106_2_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_44_106_2_stop" ]
     %history.2 = local;
-    symbol [ history %history.2 99 7 14 ];
+    symbol [ history %history.2 101 7 14 ];
     %tmp.23 = self;
-    symbol [ objectStoreGet %tmp.24 99 17 31 ];
+    symbol [ objectStoreGet %tmp.24 101 17 31 ];
     %tmp.24 = getv function %tmp.23 :objectStoreGet;
     %tmp.25 = "HISTORY_KEY";
     %tmp.26 = null;
     %tmp.27 = invoke %tmp.23 %tmp.24(%tmp.25, %tmp.26);
     lputv %history.2 %tmp.27;
-    symbol [ history %history.2 99 7 14 ];
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 100 3 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_3_103_3_if_stmt:
+    symbol [ history %history.2 101 7 14 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 102 3 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_102_3_105_3_if_stmt:
     %tmp.28 = lgetv %history.2;
-    symbol [ history %tmp.28 100 7 14 ];
+    symbol [ history %tmp.28 102 7 14 ];
     %tmp.29 = null;
     %tmp.30 = ne %tmp.28 %tmp.29;
-    bf %tmp.30 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_3_103_3_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_3_103_3_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_24_103_3_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 101 4 ]
+    bf %tmp.30 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_102_3_105_3_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_102_3_105_3_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_102_24_105_3_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 103 4 ]
     %tmp.31 = lgetv %history.2;
-    symbol [ history %tmp.31 101 4 11 ];
+    symbol [ history %tmp.31 103 4 11 ];
     %tmp.32 = as %tmp.31 { (!Null) };
     %tmp.33 = lgetv %history.2;
-    symbol [ history %tmp.33 101 12 19 ];
+    symbol [ history %tmp.33 103 12 19 ];
     %tmp.34 = as %tmp.33 { (!Null) };
-    symbol [ size %tmp.35 101 20 24 ];
+    symbol [ size %tmp.35 103 20 24 ];
     %tmp.35 = getv function %tmp.34 :size;
     %tmp.36 = invoke %tmp.34 %tmp.35();
     %tmp.37 = 1;
     %tmp.38 = sub %tmp.36 %tmp.37;
     %tmp.39 = agetv %tmp.32 %tmp.38;
     %tmp.40 = lgetv %data;
-    symbol [ data %tmp.40 101 49 53 ];
-    symbol [ TIMESTAMP_END %tmp.42 101 54 67 ];
+    symbol [ data %tmp.40 103 49 53 ];
+    symbol [ TIMESTAMP_END %tmp.42 103 54 67 ];
     %tmp.42 = getv ? :TIMESTAMP_END;
     %tmp.43 = agetv %tmp.40 %tmp.42;
-    symbol [ TIMESTAMP_END %tmp.45 101 32 45 ];
+    symbol [ TIMESTAMP_END %tmp.45 103 32 45 ];
     %tmp.45 = getv ? :TIMESTAMP_END;
     aputv %tmp.39 %tmp.45 %tmp.43;
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 102 4 ]
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 104 4 ]
     %tmp.46 = self;
-    symbol [ objectStorePut %tmp.47 102 4 18 ];
+    symbol [ objectStorePut %tmp.47 104 4 18 ];
     %tmp.47 = getv function %tmp.46 :objectStorePut;
     %tmp.48 = "HISTORY_KEY";
     %tmp.49 = lgetv %history.2;
-    symbol [ history %tmp.49 102 34 41 ];
+    symbol [ history %tmp.49 104 34 41 ];
     %tmp.50 = as %tmp.49 { (!Null) };
     invoke %tmp.46 %tmp.47(%tmp.48, %tmp.50);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_24_103_3_stop:
-    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_3_103_3_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_3_103_3_if_end:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_44_104_2_stop:
-    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_2_107_2_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_2_107_2_if_else_false:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_105_7_107_2_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 106 3 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_102_24_105_3_stop:
+    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_102_3_105_3_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_102_3_105_3_if_end:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_44_106_2_stop:
+    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_2_109_2_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_2_109_2_if_else_false:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_107_7_109_2_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 108 3 ]
     %tmp.51 = self;
-    symbol [ objectStoreAdd %tmp.52 106 3 17 ];
+    symbol [ objectStoreAdd %tmp.52 108 3 17 ];
     %tmp.52 = getv function %tmp.51 :objectStoreAdd;
     %tmp.53 = "HISTORY_KEY";
     %tmp.54 = lgetv %data;
-    symbol [ data %tmp.54 106 33 37 ];
+    symbol [ data %tmp.54 108 33 37 ];
     invoke %tmp.51 %tmp.52(%tmp.53, %tmp.54);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_105_7_107_2_stop:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_98_2_107_2_if_end:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_97_6_108_1_stop:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_94_1_108_1_if_end:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 109 1 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_107_7_109_2_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_100_2_109_2_if_end:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_99_6_110_1_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_96_1_110_1_if_end:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 111 1 ]
     %tmp.55 = self;
-    symbol [ objectStorePut %tmp.56 109 1 15 ];
+    symbol [ objectStorePut %tmp.56 111 1 15 ];
     %tmp.56 = getv function %tmp.55 :objectStorePut;
     %tmp.57 = "LAST_HISTORY_KEY";
     %tmp.58 = lgetv %data;
-    symbol [ data %tmp.58 109 36 40 ];
+    symbol [ data %tmp.58 111 36 40 ];
     invoke %tmp.55 %tmp.56(%tmp.57, %tmp.58);
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 110 1 ]
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 112 1 ]
     %tmp.59 = self;
-    symbol [ objectStorePut %tmp.60 110 1 15 ];
+    symbol [ objectStorePut %tmp.60 112 1 15 ];
     %tmp.60 = getv function %tmp.59 :objectStorePut;
     %tmp.61 = "COUNT";
     %tmp.62 = self;
-    symbol [ objectStoreGet %tmp.63 110 25 39 ];
+    symbol [ objectStoreGet %tmp.63 112 25 39 ];
     %tmp.63 = getv function %tmp.62 :objectStoreGet;
     %tmp.64 = "COUNT";
     %tmp.65 = 0;
@@ -355,241 +363,241 @@ C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_94_1_108_1_if_en
     %tmp.67 = 1;
     %tmp.68 = add %tmp.66 %tmp.67;
     invoke %tmp.59 %tmp.60(%tmp.61, %tmp.68);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_91_34_111_0_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_93_34_113_0_stop:
 }
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 117; background = true; @symbol_functiondef = [objectStoreAdd,117,9,23]; @symbol_param<0> = [key,117,24,27]; @symbol_param<1> = [newValue,117,29,37]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 119; background = true; @symbol_functiondef = [objectStoreAdd,119,9,23]; @symbol_param<0> = [key,119,24,27]; @symbol_param<1> = [newValue,119,29,37]; ]
 function objectStoreAdd(key, newValue) {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_117_39_138_0_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 119 4 ]
-    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_117_39_138_0_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_117_39_138_0_stop" ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_119_39_140_0_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 121 4 ]
+    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_119_39_140_0_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_119_39_140_0_stop" ]
     %existingArray.1 = local;
-    symbol [ existingArray %existingArray.1 119 8 21 ];
+    symbol [ existingArray %existingArray.1 121 8 21 ];
     %tmp.1 = self;
-    symbol [ objectStoreGet %tmp.2 119 24 38 ];
+    symbol [ objectStoreGet %tmp.2 121 24 38 ];
     %tmp.2 = getv function %tmp.1 :objectStoreGet;
     %tmp.3 = lgetv %key;
-    symbol [ key %tmp.3 119 39 42 ];
+    symbol [ key %tmp.3 121 39 42 ];
     %tmp.4 = newa 0;
     %tmp.5 = invoke %tmp.1 %tmp.2(%tmp.3, %tmp.4);
     lputv %existingArray.1 %tmp.5;
-    symbol [ existingArray %existingArray.1 119 8 21 ];
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 120 4 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_120_4_137_1_if_stmt:
+    symbol [ existingArray %existingArray.1 121 8 21 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 122 4 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_122_4_139_1_if_stmt:
     %tmp.6 = lgetv %newValue;
-    symbol [ newValue %tmp.6 120 8 16 ];
+    symbol [ newValue %tmp.6 122 8 16 ];
     %tmp.7 = null;
     %tmp.8 = ne %tmp.6 %tmp.7;
-    bf %tmp.8 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_120_4_137_1_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_120_4_137_1_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_120_26_137_1_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 121 5 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_121_5_136_5_if_stmt:
+    bf %tmp.8 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_122_4_139_1_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_122_4_139_1_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_122_26_139_1_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 123 5 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_123_5_138_5_if_stmt:
     %tmp.9 = lgetv %existingArray.1;
-    symbol [ existingArray %tmp.9 121 11 24 ];
-    symbol [ Toybox %tmp.11 121 36 42 ];
+    symbol [ existingArray %tmp.9 123 11 24 ];
+    symbol [ Toybox %tmp.11 123 36 42 ];
     %tmp.11 = getv ? :Toybox;
-    symbol [ Lang %tmp.12 121 43 47 ];
+    symbol [ Lang %tmp.12 123 43 47 ];
     %tmp.12 = getv %tmp.11 :Lang;
-    symbol [ Array %tmp.13 121 48 53 ];
+    symbol [ Array %tmp.13 123 48 53 ];
     %tmp.13 = getv %tmp.12 :Array;
     %tmp.14 = isa %tmp.9 %tmp.13;
     %tmp.15 = not %tmp.14;
-    bf %tmp.15 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_121_5_136_5_if_else_false;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_121_5_136_5_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_121_56_123_5_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 122 9 ]
+    bf %tmp.15 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_123_5_138_5_if_else_false;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_123_5_138_5_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_123_56_125_5_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 124 9 ]
     %tmp.16 = self;
-    symbol [ objectStorePut %tmp.17 122 9 23 ];
+    symbol [ objectStorePut %tmp.17 124 9 23 ];
     %tmp.17 = getv function %tmp.16 :objectStorePut;
     %tmp.18 = lgetv %key;
-    symbol [ key %tmp.18 122 24 27 ];
+    symbol [ key %tmp.18 124 24 27 ];
     %tmp.19 = newa 1;
     %tmp.20 = lgetv %newValue;
-    symbol [ newValue %tmp.20 122 30 38 ];
+    symbol [ newValue %tmp.20 124 30 38 ];
     %tmp.21 = as %tmp.20 { (!Null) };
     %tmp.22 = dup %tmp.19;
     %tmp.23 = aputv %tmp.22 0 %tmp.21;
     invoke %tmp.16 %tmp.17(%tmp.18, %tmp.23);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_121_56_123_5_stop:
-    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_121_5_136_5_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_121_5_136_5_if_else_false:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_124_7_136_5_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 125 3 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_125_3_135_3_if_stmt:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_123_56_125_5_stop:
+    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_123_5_138_5_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_123_5_138_5_if_else_false:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_126_7_138_5_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 127 3 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_127_3_137_3_if_stmt:
     %tmp.24 = lgetv %existingArray.1;
-    symbol [ existingArray %tmp.24 125 7 20 ];
+    symbol [ existingArray %tmp.24 127 7 20 ];
     %tmp.25 = as %tmp.24 { (Toybox.Lang.Array) };
-    symbol [ size %tmp.26 125 21 25 ];
+    symbol [ size %tmp.26 127 21 25 ];
     %tmp.26 = getv function %tmp.25 :size;
     %tmp.27 = invoke %tmp.25 %tmp.26();
-    symbol [ HISTORY_MAX %tmp.29 125 30 41 ];
+    symbol [ HISTORY_MAX %tmp.29 127 30 41 ];
     %tmp.29 = getv ? :HISTORY_MAX;
     %tmp.30 = gt %tmp.27 %tmp.29;
-    bf %tmp.30 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_125_3_135_3_if_else_false;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_125_3_135_3_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_125_42_127_3_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 126 4 ]
+    bf %tmp.30 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_127_3_137_3_if_else_false;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_127_3_137_3_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_127_42_129_3_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 128 4 ]
     %tmp.31 = self;
-    symbol [ objectStorePut %tmp.32 126 4 18 ];
+    symbol [ objectStorePut %tmp.32 128 4 18 ];
     %tmp.32 = getv function %tmp.31 :objectStorePut;
     %tmp.33 = lgetv %key;
-    symbol [ key %tmp.33 126 19 22 ];
+    symbol [ key %tmp.33 128 19 22 ];
     %tmp.34 = lgetv %existingArray.1;
-    symbol [ existingArray %tmp.34 126 24 37 ];
+    symbol [ existingArray %tmp.34 128 24 37 ];
     %tmp.35 = as %tmp.34 { (Toybox.Lang.Array) };
-    symbol [ slice %tmp.36 126 38 43 ];
+    symbol [ slice %tmp.36 128 38 43 ];
     %tmp.36 = getv function %tmp.35 :slice;
     %tmp.37 = 1;
-    symbol [ HISTORY_MAX %tmp.39 126 47 58 ];
+    symbol [ HISTORY_MAX %tmp.39 128 47 58 ];
     %tmp.39 = getv ? :HISTORY_MAX;
     %tmp.40 = 1;
     %tmp.41 = sub %tmp.39 %tmp.40;
     %tmp.42 = invoke %tmp.35 %tmp.36(%tmp.37, %tmp.41);
-    symbol [ add %tmp.43 126 64 67 ];
+    symbol [ add %tmp.43 128 64 67 ];
     %tmp.43 = getv function %tmp.42 :add;
     %tmp.44 = lgetv %newValue;
-    symbol [ newValue %tmp.44 126 68 76 ];
+    symbol [ newValue %tmp.44 128 68 76 ];
     %tmp.45 = as %tmp.44 { (!Null) };
     %tmp.46 = invoke %tmp.42 %tmp.43(%tmp.45);
     invoke %tmp.31 %tmp.32(%tmp.33, %tmp.46);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_125_42_127_3_stop:
-    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_125_3_135_3_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_125_3_135_3_if_else_false:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_128_8_135_3_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 129 4 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_129_4_134_4_if_stmt:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_127_42_129_3_stop:
+    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_127_3_137_3_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_127_3_137_3_if_else_false:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_130_8_137_3_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 131 4 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_131_4_136_4_if_stmt:
     %tmp.47 = lgetv %existingArray.1;
-    symbol [ existingArray %tmp.47 129 8 21 ];
+    symbol [ existingArray %tmp.47 131 8 21 ];
     %tmp.48 = as %tmp.47 { (Toybox.Lang.Array) };
-    symbol [ size %tmp.49 129 22 26 ];
+    symbol [ size %tmp.49 131 22 26 ];
     %tmp.49 = getv function %tmp.48 :size;
     %tmp.50 = invoke %tmp.48 %tmp.49();
-    symbol [ HISTORY_MAX %tmp.52 129 31 42 ];
+    symbol [ HISTORY_MAX %tmp.52 131 31 42 ];
     %tmp.52 = getv ? :HISTORY_MAX;
     %tmp.53 = lt %tmp.50 %tmp.52;
-    bf %tmp.53 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_129_4_134_4_if_else_false;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_129_4_134_4_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_129_43_131_4_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 130 11 ]
+    bf %tmp.53 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_131_4_136_4_if_else_false;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_131_4_136_4_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_131_43_133_4_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 132 11 ]
     %tmp.54 = self;
-    symbol [ objectStorePut %tmp.55 130 11 25 ];
+    symbol [ objectStorePut %tmp.55 132 11 25 ];
     %tmp.55 = getv function %tmp.54 :objectStorePut;
     %tmp.56 = lgetv %key;
-    symbol [ key %tmp.56 130 26 29 ];
+    symbol [ key %tmp.56 132 26 29 ];
     %tmp.57 = lgetv %existingArray.1;
-    symbol [ existingArray %tmp.57 130 31 44 ];
+    symbol [ existingArray %tmp.57 132 31 44 ];
     %tmp.58 = as %tmp.57 { (Toybox.Lang.Array) };
-    symbol [ add %tmp.59 130 45 48 ];
+    symbol [ add %tmp.59 132 45 48 ];
     %tmp.59 = getv function %tmp.58 :add;
     %tmp.60 = lgetv %newValue;
-    symbol [ newValue %tmp.60 130 49 57 ];
+    symbol [ newValue %tmp.60 132 49 57 ];
     %tmp.61 = as %tmp.60 { (!Null) };
     %tmp.62 = invoke %tmp.58 %tmp.59(%tmp.61);
     invoke %tmp.54 %tmp.55(%tmp.56, %tmp.62);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_129_43_131_4_stop:
-    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_129_4_134_4_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_129_4_134_4_if_else_false:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_132_9_134_4_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 133 5 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_131_43_133_4_stop:
+    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_131_4_136_4_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_131_4_136_4_if_else_false:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_134_9_136_4_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 135 5 ]
     %tmp.63 = self;
-    symbol [ objectStorePut %tmp.64 133 5 19 ];
+    symbol [ objectStorePut %tmp.64 135 5 19 ];
     %tmp.64 = getv function %tmp.63 :objectStorePut;
     %tmp.65 = lgetv %key;
-    symbol [ key %tmp.65 133 20 23 ];
+    symbol [ key %tmp.65 135 20 23 ];
     %tmp.66 = lgetv %existingArray.1;
-    symbol [ existingArray %tmp.66 133 25 38 ];
+    symbol [ existingArray %tmp.66 135 25 38 ];
     %tmp.67 = as %tmp.66 { (Toybox.Lang.Array) };
-    symbol [ slice %tmp.68 133 39 44 ];
+    symbol [ slice %tmp.68 135 39 44 ];
     %tmp.68 = getv function %tmp.67 :slice;
     %tmp.69 = 1;
     %tmp.70 = lgetv %existingArray.1;
-    symbol [ existingArray %tmp.70 133 48 61 ];
+    symbol [ existingArray %tmp.70 135 48 61 ];
     %tmp.71 = as %tmp.70 { (Toybox.Lang.Array) };
-    symbol [ size %tmp.72 133 62 66 ];
+    symbol [ size %tmp.72 135 62 66 ];
     %tmp.72 = getv function %tmp.71 :size;
     %tmp.73 = invoke %tmp.71 %tmp.72();
     %tmp.74 = invoke %tmp.67 %tmp.68(%tmp.69, %tmp.73);
-    symbol [ add %tmp.75 133 70 73 ];
+    symbol [ add %tmp.75 135 70 73 ];
     %tmp.75 = getv function %tmp.74 :add;
     %tmp.76 = lgetv %newValue;
-    symbol [ newValue %tmp.76 133 74 82 ];
+    symbol [ newValue %tmp.76 135 74 82 ];
     %tmp.77 = as %tmp.76 { (!Null) };
     %tmp.78 = invoke %tmp.74 %tmp.75(%tmp.77);
     invoke %tmp.63 %tmp.64(%tmp.65, %tmp.78);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_132_9_134_4_stop:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_129_4_134_4_if_end:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_128_8_135_3_stop:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_125_3_135_3_if_end:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_124_7_136_5_stop:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_121_5_136_5_if_end:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_120_26_137_1_stop:
-    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_120_4_137_1_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_120_4_137_1_if_end:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_117_39_138_0_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_134_9_136_4_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_131_4_136_4_if_end:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_130_8_137_3_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_127_3_137_3_if_end:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_126_7_138_5_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_123_5_138_5_if_end:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_122_26_139_1_stop:
+    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_122_4_139_1_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_122_4_139_1_if_end:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_119_39_140_0_stop:
 }
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 144; background = true; @symbol_functiondef = [objectStoreGet,144,9,23]; @symbol_param<0> = [key,144,24,27]; @symbol_param<1> = [defaultValue,144,29,41]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 146; background = true; @symbol_functiondef = [objectStoreGet,146,9,23]; @symbol_param<0> = [key,146,24,27]; @symbol_param<1> = [defaultValue,146,29,41]; ]
 function objectStoreGet(key, defaultValue) {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_144_43_152_0_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 146 4 ]
-    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_144_43_152_0_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_144_43_152_0_stop" ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_146_43_153_0_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 147 4 ]
+    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_146_43_153_0_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_146_43_153_0_stop" ]
     %value.1 = local;
-    symbol [ value %value.1 146 8 13 ];
-    symbol [ Storage %tmp.1 146 16 23 ];
+    symbol [ value %value.1 147 8 13 ];
+    symbol [ Storage %tmp.1 147 16 23 ];
     %tmp.1 = getm $.Toybox.Application.Storage;
-    symbol [ getValue %tmp.2 146 24 32 ];
+    symbol [ getValue %tmp.2 147 24 32 ];
     %tmp.2 = getv function %tmp.1 :getValue;
     %tmp.3 = lgetv %key;
-    symbol [ key %tmp.3 146 33 36 ];
+    symbol [ key %tmp.3 147 33 36 ];
     %tmp.4 = invoke %tmp.1 %tmp.2(%tmp.3);
     lputv %value.1 %tmp.4;
-    symbol [ value %value.1 146 8 13 ];
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 147 4 ]
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_4_150_1_if_stmt:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_8_147_48_begin:
+    symbol [ value %value.1 147 8 13 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 148 4 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_4_151_1_if_stmt:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_8_148_48_begin:
     %tmp.5 = lgetv %value.1;
-    symbol [ value %tmp.5 147 9 14 ];
+    symbol [ value %tmp.5 148 9 14 ];
     %tmp.6 = null;
     %tmp.7 = eq %tmp.5 %tmp.6;
-    bf %tmp.7 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_4_150_1_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_27_147_48_true:
+    bf %tmp.7 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_4_151_1_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_27_148_48_true:
     %tmp.8 = lgetv %defaultValue;
-    symbol [ defaultValue %tmp.8 147 28 40 ];
+    symbol [ defaultValue %tmp.8 148 28 40 ];
     %tmp.9 = null;
     %tmp.10 = ne %tmp.8 %tmp.9;
     push %tmp.10;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_27_147_48_end:
-    %tmp.11 = phi [%tmp.7 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_8_147_48_begin] [%tmp.10 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_27_147_48_true] [%tmp.11 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_27_147_48_end];
-    bf %tmp.11 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_4_150_1_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_4_150_1_if_true:
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_51_150_1_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 148 8 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_27_148_48_end:
+    %tmp.11 = phi [%tmp.7 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_8_148_48_begin] [%tmp.10 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_27_148_48_true] [%tmp.11 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_27_148_48_end];
+    bf %tmp.11 @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_4_151_1_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_4_151_1_if_true:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_51_151_1_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 149 8 ]
     %tmp.12 = lgetv %defaultValue;
-    symbol [ defaultValue %tmp.12 148 16 28 ];
+    symbol [ defaultValue %tmp.12 149 16 28 ];
     %tmp.13 = as %tmp.12 { (!Null) };
     lputv %value.1 %tmp.13;
-    symbol [ value %value.1 148 8 13 ];
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 149 8 ]
-    symbol [ Storage %tmp.14 149 8 15 ];
+    symbol [ value %value.1 149 8 13 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 150 8 ]
+    symbol [ Storage %tmp.14 150 8 15 ];
     %tmp.14 = getm $.Toybox.Application.Storage;
-    symbol [ setValue %tmp.15 149 16 24 ];
+    symbol [ setValue %tmp.15 150 16 24 ];
     %tmp.15 = getv function %tmp.14 :setValue;
     %tmp.16 = lgetv %key;
-    symbol [ key %tmp.16 149 25 28 ];
+    symbol [ key %tmp.16 150 25 28 ];
     %tmp.17 = lgetv %value.1;
-    symbol [ value %tmp.17 149 30 35 ];
+    symbol [ value %tmp.17 150 30 35 ];
     invoke %tmp.14 %tmp.15(%tmp.16, %tmp.17);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_51_150_1_stop:
-    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_4_150_1_if_end;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_147_4_150_1_if_end:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 151 4 ]
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_51_151_1_stop:
+    goto @C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_4_151_1_if_end;
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_148_4_151_1_if_end:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 152 4 ]
     %tmp.18 = lgetv %value.1;
-    symbol [ value %tmp.18 151 11 16 ];
+    symbol [ value %tmp.18 152 11 16 ];
     ret %tmp.18;
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_144_43_152_0_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_146_43_153_0_stop:
 }
-[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 159; background = true; @symbol_functiondef = [objectStorePut,159,9,23]; @symbol_param<0> = [key,159,24,27]; @symbol_param<1> = [value,159,29,34]; ]
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 160; background = true; @symbol_functiondef = [objectStorePut,160,9,23]; @symbol_param<0> = [key,160,24,27]; @symbol_param<1> = [value,160,29,34]; ]
 function objectStorePut(key, value) {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_159_36_162_0_start:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_160_36_162_0_start:
 [ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 161 4 ]
     symbol [ Storage %tmp.1 161 4 11 ];
     %tmp.1 = getm $.Toybox.Application.Storage;
@@ -600,49 +608,122 @@ C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_159_36_162_0_sta
     %tmp.4 = lgetv %value;
     symbol [ value %tmp.4 161 26 31 ];
     invoke %tmp.1 %tmp.2(%tmp.3, %tmp.4);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_159_36_162_0_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_160_36_162_0_stop:
 }
 [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 165; background = true; @symbol_functiondef = [objectStoreErase,165,9,25]; @symbol_param<0> = [key,165,26,29]; ]
 function objectStoreErase(key) {
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_165_31_168_0_start:
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 167 4 ]
-    symbol [ Storage %tmp.1 167 4 11 ];
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_165_31_167_0_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 166 4 ]
+    symbol [ Storage %tmp.1 166 4 11 ];
     %tmp.1 = getm $.Toybox.Application.Storage;
-    symbol [ deleteValue %tmp.2 167 12 23 ];
+    symbol [ deleteValue %tmp.2 166 12 23 ];
     %tmp.2 = getv function %tmp.1 :deleteValue;
     %tmp.3 = lgetv %key;
-    symbol [ key %tmp.3 167 24 27 ];
+    symbol [ key %tmp.3 166 24 27 ];
     invoke %tmp.1 %tmp.2(%tmp.3);
-C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_165_31_168_0_stop:
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_165_31_167_0_stop:
+}
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 170; background = true; @symbol_functiondef = [logMessage,170,9,19]; @symbol_param<0> = [message,170,20,27]; ]
+function logMessage(message) {
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_170_29_174_0_start:
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 171 1 ]
+    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_170_29_174_0_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_170_29_174_0_stop" ]
+    %clockTime.1 = local;
+    symbol [ clockTime %clockTime.1 171 5 14 ];
+    symbol [ Gregorian %tmp.1 171 17 26 ];
+    %tmp.1 = getm $.Toybox.Time.Gregorian;
+    symbol [ info %tmp.2 171 27 31 ];
+    %tmp.2 = getv function %tmp.1 :info;
+    symbol [ Time %tmp.3 171 32 36 ];
+    %tmp.3 = getm $.Toybox.Time;
+    symbol [ now %tmp.4 171 37 40 ];
+    %tmp.4 = getv function %tmp.3 :now;
+    %tmp.5 = invoke %tmp.3 %tmp.4();
+    symbol [ Time %tmp.6 171 44 48 ];
+    %tmp.6 = getm $.Toybox.Time;
+    symbol [ FORMAT_MEDIUM %tmp.7 171 49 62 ];
+    %tmp.7 = getv %tmp.6 :FORMAT_MEDIUM;
+    %tmp.8 = invoke %tmp.1 %tmp.2(%tmp.5, %tmp.7);
+    lputv %clockTime.1 %tmp.8;
+    symbol [ clockTime %clockTime.1 171 5 14 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 172 1 ]
+    [ "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_170_29_174_0_start" "C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_170_29_174_0_stop" ]
+    %dateStr.2 = local;
+    symbol [ dateStr %dateStr.2 172 5 12 ];
+    %tmp.9 = lgetv %clockTime.1;
+    symbol [ clockTime %tmp.9 172 15 24 ];
+    symbol [ hour %tmp.10 172 25 29 ];
+    %tmp.10 = getv %tmp.9 :hour;
+    %tmp.11 = ":";
+    %tmp.12 = add %tmp.10 %tmp.11;
+    %tmp.13 = lgetv %clockTime.1;
+    symbol [ clockTime %tmp.13 172 38 47 ];
+    symbol [ min %tmp.14 172 48 51 ];
+    %tmp.14 = getv %tmp.13 :min;
+    symbol [ format %tmp.15 172 52 58 ];
+    %tmp.15 = getv function %tmp.14 :format;
+    %tmp.16 = "%02d";
+    %tmp.17 = invoke %tmp.14 %tmp.15(%tmp.16);
+    %tmp.18 = add %tmp.12 %tmp.17;
+    %tmp.19 = ":";
+    %tmp.20 = add %tmp.18 %tmp.19;
+    %tmp.21 = lgetv %clockTime.1;
+    symbol [ clockTime %tmp.21 172 75 84 ];
+    symbol [ sec %tmp.22 172 85 88 ];
+    %tmp.22 = getv %tmp.21 :sec;
+    symbol [ format %tmp.23 172 89 95 ];
+    %tmp.23 = getv function %tmp.22 :format;
+    %tmp.24 = "%02d";
+    %tmp.25 = invoke %tmp.22 %tmp.23(%tmp.24);
+    %tmp.26 = add %tmp.20 %tmp.25;
+    lputv %dateStr.2 %tmp.26;
+    symbol [ dateStr %dateStr.2 172 5 12 ];
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 173 1 ]
+    symbol [ Sys %tmp.27 173 1 4 ];
+    %tmp.27 = getm $.Toybox.System;
+    symbol [ println %tmp.28 173 5 12 ];
+    %tmp.28 = getv function %tmp.27 :println;
+    %tmp.29 = lgetv %dateStr.2;
+    symbol [ dateStr %tmp.29 173 13 20 ];
+    %tmp.30 = " : ";
+    %tmp.31 = add %tmp.29 %tmp.30;
+    %tmp.32 = lgetv %message;
+    symbol [ message %tmp.32 173 31 38 ];
+    %tmp.33 = add %tmp.31 %tmp.32;
+    invoke %tmp.27 %tmp.28(%tmp.33);
+C__Users_Sylvain_git_BatteryMonitor_source_BatteryMonitorApp_mc_170_29_174_0_stop:
+}
+[ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 177; release = true; background = true; @symbol_functiondef = [logMessage,177,9,19]; @symbol_param<0> = [message,177,20,27]; ]
+function logMessage(message) {
 }
 [ @file = "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc"; @line = 1; ]
 <init> {
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 19 6 ]
-    symbol [ Gfx %tmp.4 19 21 24 ];
-    %tmp.4 = getm $.Toybox.Graphics;
-    symbol [ COLOR_GREEN %tmp.5 19 25 36 ];
-    %tmp.5 = getv %tmp.4 :COLOR_GREEN;
-    putv self :COLOR_BAT_OK %tmp.5;
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 20 6 ]
-    symbol [ Gfx %tmp.6 20 22 25 ];
-    %tmp.6 = getm $.Toybox.Graphics;
-    symbol [ COLOR_YELLOW %tmp.7 20 26 38 ];
-    %tmp.7 = getv %tmp.6 :COLOR_YELLOW;
-    putv self :COLOR_BAT_LOW %tmp.7;
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 21 6 ]
-    symbol [ Gfx %tmp.8 21 27 30 ];
-    %tmp.8 = getm $.Toybox.Graphics;
-    symbol [ COLOR_RED %tmp.9 21 31 40 ];
-    %tmp.9 = getv %tmp.8 :COLOR_RED;
-    putv self :COLOR_BAT_CRITICAL %tmp.9;
 [ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 22 6 ]
-    symbol [ Gfx %tmp.10 22 25 28 ];
-    %tmp.10 = getm $.Toybox.Graphics;
-    symbol [ COLOR_DK_BLUE %tmp.11 22 29 42 ];
-    %tmp.11 = getv %tmp.10 :COLOR_DK_BLUE;
-    putv self :COLOR_PROJECTION %tmp.11;
-[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 37 4 ]
-    symbol [ SCREEN_DATA %tmp.13 37 18 29 ];
-    %tmp.13 = getv ? :SCREEN_DATA;
-    putv self :gViewScreen %tmp.13;
+    symbol [ Gfx %tmp.1 22 21 24 ];
+    %tmp.1 = getm $.Toybox.Graphics;
+    symbol [ COLOR_GREEN %tmp.2 22 25 36 ];
+    %tmp.2 = getv %tmp.1 :COLOR_GREEN;
+    putv self :COLOR_BAT_OK %tmp.2;
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 23 6 ]
+    symbol [ Gfx %tmp.3 23 22 25 ];
+    %tmp.3 = getm $.Toybox.Graphics;
+    symbol [ COLOR_YELLOW %tmp.4 23 26 38 ];
+    %tmp.4 = getv %tmp.3 :COLOR_YELLOW;
+    putv self :COLOR_BAT_LOW %tmp.4;
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 24 6 ]
+    symbol [ Gfx %tmp.5 24 27 30 ];
+    %tmp.5 = getm $.Toybox.Graphics;
+    symbol [ COLOR_RED %tmp.6 24 31 40 ];
+    %tmp.6 = getv %tmp.5 :COLOR_RED;
+    putv self :COLOR_BAT_CRITICAL %tmp.6;
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 25 6 ]
+    symbol [ Gfx %tmp.7 25 25 28 ];
+    %tmp.7 = getm $.Toybox.Graphics;
+    symbol [ COLOR_DK_BLUE %tmp.8 25 29 42 ];
+    %tmp.8 = getv %tmp.7 :COLOR_DK_BLUE;
+    putv self :COLOR_PROJECTION %tmp.8;
+[ "C:\Users\Sylvain\git\BatteryMonitor\source\BatteryMonitorApp.mc" 41 4 ]
+    symbol [ SCREEN_DATA_HR %tmp.10 41 18 32 ];
+    %tmp.10 = getv ? :SCREEN_DATA_HR;
+    putv self :gViewScreen %tmp.10;
 }
