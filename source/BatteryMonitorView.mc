@@ -48,7 +48,6 @@ class BatteryMonitorView extends Ui.View {
 		mLastData = getData();
 		objectStorePut("LAST_VIEWED_DATA", mLastData);
 		analyzeAndStoreData(mLastData);
-		
 	}
 
 	function onEnterSleep() {
@@ -72,11 +71,10 @@ class BatteryMonitorView extends Ui.View {
 
 		mRefreshCount++;
 		if (mRefreshCount == 60) { // Refresh is 5 seconds, 5 * 60 is 300 seconds, which is the same time the backghround process runs
-			var data = getData();
+			mNowData = getData();
 			/*DEBUG*/ logMessage("Adding data " + data);
-			analyzeAndStoreData(data);
+			analyzeAndStoreData(mNowData);
 			mRefreshCount = 0;
-
 		}
 		Ui.requestUpdate();
 	}
@@ -136,7 +134,9 @@ class BatteryMonitorView extends Ui.View {
 
     	dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
     	dc.setPenWidth(2);
-    	
+
+		var fontHeight = Graphics.getFontHeight(Gfx.FONT_TINY);
+
 		//! Calculate projected usage slope
     	var downSlopeSec = null;
     	if (chartData instanceof Array && chartData[0] != null) {
@@ -180,7 +180,6 @@ class BatteryMonitorView extends Ui.View {
 				/*DEBUG*/ logMessage("Bat usage: " + batUsage);
 				/*DEBUG*/ logMessage("Time diff: " + timeDiff);
 
-				var fontHeight = Graphics.getFontHeight(Gfx.FONT_TINY);
 				var yPos = 33 * scale + fontHeight;
 				
 				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Since last view", Gfx.TEXT_JUSTIFY_CENTER);
@@ -352,6 +351,33 @@ class BatteryMonitorView extends Ui.View {
 			}
     	}
 			
+		//! Now add the 'popup' if the device is currently charging
+		if (System.getSystemStats().charging) {
+			dc.setPenWidth(2);
+			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+			dc.fillRoundedRectangle(27, mCtrY - (fontHeight + fontHeight / 2), mCtrX * 2 - 2 * 27, 2 * (fontHeight + fontHeight / 2), 5);
+			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+			dc.drawRoundedRectangle(27, mCtrY - (fontHeight + fontHeight / 2), mCtrX * 2 - 2 * 27, 2 * (fontHeight + fontHeight / 2), 5);
+			battery = Sys.getSystemStats().battery;
+			dc.drawText(mCtrX, mCtrY - (fontHeight + fontHeight / 4), Gfx.FONT_SMALL, "Charging " + battery.format("%2d") + "%", Gfx.TEXT_JUSTIFY_CENTER);
+			var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
+			if (chargingData) {
+				var batUsage = battery - (chargingData[BATTERY]).toFloat() / 1000.0;
+				var timeDiff = Time.now().value() - chargingData[TIMESTAMP_START];
+
+				/*DEBUG*/ logMessage("Bat usage: " + batUsage);
+				/*DEBUG*/ logMessage("Time diff: " + timeDiff);
+				var chargeRate;
+				if (timeDiff > 0) {
+					chargeRate = (batUsage * 60 * 60 / timeDiff).format("%0.3f");
+				}
+				else {
+					chargeRate = 0.0f;
+				}
+				dc.drawText(mCtrX, mCtrY + fontHeight / 8, Gfx.FONT_SMALL, "Rate " + chargeRate + "%/h", Gfx.TEXT_JUSTIFY_CENTER);
+			}
+		}
+		
 		//DEBUG
 	    //dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
     	//dc.drawText(mCtrX, Y2 +1, Gfx.FONT_TINY, charDataSize, Gfx.TEXT_JUSTIFY_CENTER);

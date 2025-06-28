@@ -18,8 +18,9 @@ const INTERVAL_MIN = 5;//temporal event in minutes
 // const COUNT = 1;
 // const LAST_VIEWED_DATA = 4;
 // const LAST_CHARGED_DATA = 5;
-// const UPDATE_DATA = 6; //  This guy is set if we need to upgrade our data structure to the new version without using the history
-// const VIEW_RUNNING = 7; // When True, the main view updates the history data so we skip the background process
+// const STARTED_CHARGING_DATA = 6;
+// const UPDATE_DATA = 7; //  This guy is set if we need to upgrade our data structure to the new version without using the history
+// const VIEW_RUNNING = 8; // When True, the main view updates the history data so we skip the background process
 
 
 const COLOR_BAT_OK = Gfx.COLOR_GREEN;

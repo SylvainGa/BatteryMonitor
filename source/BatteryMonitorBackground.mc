@@ -21,6 +21,17 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             var stats = Sys.getSystemStats();
             var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
             var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+
+            if (Sys.getSystemStats().charging) {
+                var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
+                if (chargingData == null) {
+                    objectStorePut("STARTED_CHARGING_DATA", [now, now, battery]);
+                }
+            }
+            else {
+                objectStoreErase("STARTED_CHARGING_DATA");
+            }
+
             Background.exit([now, now, battery]);
         }
         else {
@@ -33,5 +44,16 @@ function getData(){
     var stats = Sys.getSystemStats();
     var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+
+    if (Sys.getSystemStats().charging) {
+        var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
+        if (chargingData == null) {
+            objectStorePut("STARTED_CHARGING_DATA", [now, now, battery]);
+        }
+    }
+    else {
+        objectStoreErase("STARTED_CHARGING_DATA");
+    }
+
     return [now, now, battery];
 }
