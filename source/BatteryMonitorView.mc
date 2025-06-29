@@ -3,6 +3,7 @@ using Toybox.System as Sys;
 using Toybox.Timer;
 using Toybox.Application as App;
 using Toybox.Time;
+using Toybox.Math;
 using Toybox.Time.Gregorian;
 using Toybox.Graphics as Gfx;
 
@@ -13,6 +14,7 @@ class BatteryMonitorView extends Ui.View {
 	var mLastData;
 	var mNowData;
 	var mRefreshCount;
+	var mFontHeight;
 
     function initialize() {
         View.initialize();
@@ -83,6 +85,8 @@ class BatteryMonitorView extends Ui.View {
     function onLayout(dc) {
     	mCtrX = dc.getWidth()/2;
     	mCtrY = dc.getHeight()/2; 
+
+		mFontHeight = Graphics.getFontHeight(Gfx.FONT_TINY);
     }
 
     // Update the view
@@ -135,8 +139,6 @@ class BatteryMonitorView extends Ui.View {
     	dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
     	dc.setPenWidth(2);
 
-		var fontHeight = Graphics.getFontHeight(Gfx.FONT_TINY);
-
 		//! Calculate projected usage slope
     	var downSlopeSec = null;
     	if (chartData instanceof Array && chartData[0] != null) {
@@ -151,7 +153,7 @@ class BatteryMonitorView extends Ui.View {
 					var downSlopeMin = downSlopeSec * 60;
 					downSlopeStr = minToStr(battery / downSlopeMin);
 					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Remaining", Gfx.TEXT_JUSTIFY_CENTER);
-					yPos += fontHeight;
+					yPos += mFontHeight;
 					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
 				}
 				else if (gViewScreen == SCREEN_DATA_DAY) {
@@ -163,7 +165,7 @@ class BatteryMonitorView extends Ui.View {
 						downSlopeStr = (downSlopeHours).toNumber() + "%/hour";
 					}	
 					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Discharging", Gfx.TEXT_JUSTIFY_CENTER);
-					yPos += fontHeight;
+					yPos += mFontHeight;
 					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
 				}
 
@@ -175,7 +177,7 @@ class BatteryMonitorView extends Ui.View {
 				dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
 				dc.drawText(mCtrX, yPos, Gfx.FONT_XTINY, "More data needed...", Gfx.TEXT_JUSTIFY_CENTER);		    	
 		    }
-			yPos += fontHeight;
+			yPos += mFontHeight;
 
 			//! Data views
 			if (gViewScreen == SCREEN_DATA_HR || gViewScreen == SCREEN_DATA_DAY) {
@@ -194,7 +196,7 @@ class BatteryMonitorView extends Ui.View {
 				/*DEBUG*/ logMessage("Time diff: " + timeDiff);
 
 				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Since last view", Gfx.TEXT_JUSTIFY_CENTER);
-				yPos += fontHeight;
+				yPos += mFontHeight;
 
 				if (timeDiff > 0 && batUsage < 0) {
 					var dischargeRate = batUsage * 60 * 60 * (gViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
@@ -209,9 +211,9 @@ class BatteryMonitorView extends Ui.View {
 				}
 
 				//! Bat usage since last charge
-				yPos += fontHeight;
+				yPos += mFontHeight;
 				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Since Last charge", Gfx.TEXT_JUSTIFY_CENTER);
-				yPos += fontHeight;
+				yPos += mFontHeight;
 
 				var lastChargeData = LastChargeData(chartData);
 				if (lastChargeData != null) {
@@ -234,10 +236,10 @@ class BatteryMonitorView extends Ui.View {
 				}
 
 				//! How long for last charge?
-				var lastChargeHappened = Time.now().value() - lastChargeData[TIMESTAMP_START];
-				yPos += fontHeight;
+				var lastChargeHappened = (Time.now().value() - lastChargeData[TIMESTAMP_END]) / 60;
+				yPos += mFontHeight;
 				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Last charge happened", Gfx.TEXT_JUSTIFY_CENTER);
-				yPos += fontHeight;
+				yPos += mFontHeight;
 				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, minToStr(lastChargeHappened) + " ago", Gfx.TEXT_JUSTIFY_CENTER);
 			}
 
@@ -364,7 +366,7 @@ class BatteryMonitorView extends Ui.View {
 					var timeLeftMin = (100.0 / (downSlopeSec * 60.0)).toNumber();
 					timeStr = minToStr(timeLeftMin);
 					dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-					dc.drawText(mCtrX, mCtrY * 2 - fontHeight * 1.5, Gfx.FONT_SMALL, "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
+					dc.drawText(mCtrX, mCtrY * 2 - mFontHeight - mFontHeight / 2, Gfx.FONT_SMALL, "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
 				}
 			}
     	}
@@ -373,11 +375,11 @@ class BatteryMonitorView extends Ui.View {
 		if (System.getSystemStats().charging) {
 			dc.setPenWidth(2);
 			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-			dc.fillRoundedRectangle(27, mCtrY - (fontHeight + fontHeight / 2), mCtrX * 2 - 2 * 27, 2 * (fontHeight + fontHeight / 2), 5);
+			dc.fillRoundedRectangle(27, mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * 27, 2 * (mFontHeight + mFontHeight / 2), 5);
 			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-			dc.drawRoundedRectangle(27, mCtrY - (fontHeight + fontHeight / 2), mCtrX * 2 - 2 * 27, 2 * (fontHeight + fontHeight / 2), 5);
+			dc.drawRoundedRectangle(27, mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * 27, 2 * (mFontHeight + mFontHeight / 2), 5);
 			battery = Sys.getSystemStats().battery;
-			dc.drawText(mCtrX, mCtrY - (fontHeight + fontHeight / 4), Gfx.FONT_SMALL, "Charging " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
+			dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), Gfx.FONT_SMALL, "Charging " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
 			var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
 			if (chargingData) {
 				var batUsage = battery - (chargingData[BATTERY]).toFloat() / 1000.0;
@@ -392,7 +394,7 @@ class BatteryMonitorView extends Ui.View {
 				else {
 					chargeRate = 0.0f;
 				}
-				dc.drawText(mCtrX, mCtrY + fontHeight / 8, Gfx.FONT_SMALL, "Rate " + chargeRate + "%/h", Gfx.TEXT_JUSTIFY_CENTER);
+				dc.drawText(mCtrX, mCtrY + mFontHeight / 8, Gfx.FONT_SMALL, "Rate " + chargeRate + "%/h", Gfx.TEXT_JUSTIFY_CENTER);
 			}
 		}
 		
@@ -401,7 +403,7 @@ class BatteryMonitorView extends Ui.View {
     	//dc.drawText(mCtrX, Y2 +1, Gfx.FONT_TINY, charDataSize, Gfx.TEXT_JUSTIFY_CENTER);
     }
 
-    function LastChargeData(data){
+    function LastChargeData(data) {
 		for (var i = 0; i < data.size() - 1; i++){
 			if (data[i][BATTERY] > data[i + 1][BATTERY]){
 				return data[i];
@@ -410,7 +412,7 @@ class BatteryMonitorView extends Ui.View {
     	return null;
     }
     
-    function timeLastFullCharge(data){
+    function timeLastFullCharge(data) {
 		for (var i = 0; i < data.size(); i++){
 			if (data[i][BATTERY] == 100000) { // 100% is 100000 here as we * by 1000 to get three digit precision
 				return data[i][TIMESTAMP_END];
@@ -419,87 +421,7 @@ class BatteryMonitorView extends Ui.View {
     	return data[data.size() - 1][TIMESTAMP_START];
     }
     
-    function downSlope(data){ //data is history data as array / return a slope in percentage point per second
-    	if (data.size() <= 2){
-    		return null;
-    	}
-    	
-    	var slopes = new [0];
-	    var i = 0, j = 0;
-	    
-	    var timeMostRecent = data[0][TIMESTAMP_END], timeLeastRecent, valueMostRecent = data[0][BATTERY].toFloat() / 1000.0, valueLeastRecent;
-	    for (; i < data.size() - 1; i++) {
-		    // goal is to store X1 X2 Y1 Y2 for each downslope (actually up-slope because reversed array) and store all slopes in array to later do array average.
-	    	/*DEBUG*/ logMessage("data[" + i + "]=" + data[i] + " diff time is " + (data[i][TIMESTAMP_END] - data[i][TIMESTAMP_START]));
-    	
-	    	if (data[i][BATTERY] <= data[i + 1][BATTERY] && i < data.size() - 2 && ((data[0][TIMESTAMP_END] - data[i][TIMESTAMP_END]) / 60 / 60 / 24 < 10)) { // Normal case, battery going down or staying level, less than 10 days ago
-	    		// do nothing, keep progressing in data
-	    		/*DEBUG*/ logMessage("progressing... " + i + " time diff is : " + (data[0][TIMESTAMP_END] - data[i][TIMESTAMP_END]));
-	    	}
-			else { //battery charged or ran out of data
-	    		/*DEBUG*/ logMessage("action... " + i);
-	    		timeLeastRecent = data[i][TIMESTAMP_START];
-    			valueLeastRecent = data[i][BATTERY].toFloat() / 1000.0;
-    			timeMostRecent = data[j + 1][TIMESTAMP_END];
-    			valueMostRecent = data[j + 1][BATTERY].toFloat() / 1000.0;
-    			/*DEBUG*/ logMessage(timeLeastRecent + " " + timeMostRecent + " " + valueLeastRecent + " " + valueMostRecent);
-	    		if (timeMostRecent - timeLeastRecent < 1 * 60 * 60) { // if less than 1 hours data
-	    			/*DEBUG*/ logMessage("discard... " + i + " time diff is " + (timeMostRecent - timeLeastRecent) + " sec");
-	    			//discard
-	    		}
-				else { //save
-	    			/*DEBUG*/ logMessage("save... " + i);
-	    			var slope = (0.0 + valueLeastRecent - valueMostRecent) / (timeLeastRecent - timeMostRecent);
-	    			if (slope < 0){
-	    				slopes.add(slope);
-	    			}
-	    			/*DEBUG*/ logMessage("slopes " + slopes);
-	    		}
-	    		j = i;
-	    	}
-    	}
-    	if (slopes.size() == 0){
-    		return null;
-    	}
-		else {
-    		var sumSlopes = 0;
-    		for (i = 0; i < slopes.size(); i++){
-    			sumSlopes += slopes[i];
-    			/*DEBUG*/ logMessage("sumSlopes " + sumSlopes);
-    		}
-    		var avgSlope = sumSlopes / slopes.size();
-    		/*DEBUG*/ logMessage("avgSlope " + avgSlope);
-    		return -avgSlope;
-    	}
-    }
-    
-    function minToStr(min){
-    	var str;
-    	if (min < 1){
-    		str = "Now";
-    	}
-		else if (min < 60){
-    		str = min.toNumber() + "m";
-    	}
-		else if (min < 60 * 2){
-    		var hours = Math.floor(min / 60);
-    		var mins = min - hours * 60;
-    		str = hours.toNumber() + "h" + mins.format("%02d");
-    	}
-		else if (min < 60 * 24){
-    		var hours = Math.floor(min / 60);
-    		var mins = min - hours * 60;
-    		str = hours.toNumber() + "h" + mins.format("%02d");
-    	}
-		else {
-    		var days = Math.floor(min / 60 / 24);
-    		var hours = Math.floor((min / 60) - days * 24);
-    		str = days.toNumber() + "d " + hours.toNumber() + "h";
-    	}
-    	return str;
-    }
-    
-	function MAX (val1, val2){
+	function MAX (val1, val2) {
 		if (val1 > val2){
 			return val1;
 		}
@@ -508,7 +430,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 	}
 
-	function MIN (val1, val2){
+	function MIN (val1, val2) {
 		if (val1 < val2){
 			return val1;
 		}
@@ -517,3 +439,87 @@ class BatteryMonitorView extends Ui.View {
 		}
 	}
 }
+
+
+(:background)
+function downSlope(data) { //data is history data as array / return a slope in percentage point per second
+	if (data.size() <= 2){
+		return null;
+	}
+	
+	var slopes = new [0];
+	var i = 0, j = 0;
+	
+	var timeMostRecent = data[0][TIMESTAMP_END], timeLeastRecent, valueMostRecent = data[0][BATTERY].toFloat() / 1000.0, valueLeastRecent;
+	for (; i < data.size() - 1; i++) {
+		// goal is to store X1 X2 Y1 Y2 for each downslope (actually up-slope because reversed array) and store all slopes in array to later do array average.
+		/*DEBUG*/ logMessage("data[" + i + "]=" + data[i] + " diff time is " + (data[i][TIMESTAMP_END] - data[i][TIMESTAMP_START]));
+	
+		if (data[i][BATTERY] <= data[i + 1][BATTERY] && i < data.size() - 2 && ((data[0][TIMESTAMP_END] - data[i][TIMESTAMP_END]) / 60 / 60 / 24 < 10)) { // Normal case, battery going down or staying level, less than 10 days ago
+			// do nothing, keep progressing in data
+			/*DEBUG*/ logMessage("progressing... " + i + " time diff is : " + (data[0][TIMESTAMP_END] - data[i][TIMESTAMP_END]));
+		}
+		else { //battery charged or ran out of data
+			/*DEBUG*/ logMessage("action... " + i);
+			timeLeastRecent = data[i][TIMESTAMP_START];
+			valueLeastRecent = data[i][BATTERY].toFloat() / 1000.0;
+			timeMostRecent = data[j + 1][TIMESTAMP_END];
+			valueMostRecent = data[j + 1][BATTERY].toFloat() / 1000.0;
+			/*DEBUG*/ logMessage(timeLeastRecent + " " + timeMostRecent + " " + valueLeastRecent + " " + valueMostRecent);
+			if (timeMostRecent - timeLeastRecent < 1 * 60 * 60) { // if less than 1 hours data
+				/*DEBUG*/ logMessage("discard... " + i + " time diff is " + (timeMostRecent - timeLeastRecent) + " sec");
+				//discard
+			}
+			else { //save
+				/*DEBUG*/ logMessage("save... " + i);
+				var slope = (0.0 + valueLeastRecent - valueMostRecent) / (timeLeastRecent - timeMostRecent);
+				if (slope < 0){
+					slopes.add(slope);
+				}
+				/*DEBUG*/ logMessage("slopes " + slopes);
+			}
+			j = i;
+		}
+	}
+	if (slopes.size() == 0){
+		return null;
+	}
+	else {
+		var sumSlopes = 0;
+		for (i = 0; i < slopes.size(); i++){
+			sumSlopes += slopes[i];
+			/*DEBUG*/ logMessage("sumSlopes " + sumSlopes);
+		}
+		var avgSlope = sumSlopes / slopes.size();
+		/*DEBUG*/ logMessage("avgSlope " + avgSlope);
+		return -avgSlope;
+	}
+}
+
+(:background)
+function minToStr(min) {
+	var str;
+	if (min < 1){
+		str = "Now";
+	}
+	else if (min < 60){
+		str = min.toNumber() + "m";
+	}
+	else if (min < 60 * 2){
+		var hours = Math.floor(min / 60);
+		var mins = min - hours * 60;
+		str = hours.toNumber() + "h" + mins.format("%02d");
+	}
+	else if (min < 60 * 24){
+		var hours = Math.floor(min / 60);
+		var mins = min - hours * 60;
+		str = hours.toNumber() + "h" + mins.format("%02d");
+	}
+	else {
+		var days = Math.floor(min / 60 / 24);
+		var hours = Math.floor((min / 60) - days * 24);
+		str = days.toNumber() + "d " + hours.toNumber() + "h";
+	}
+	return str;
+}
+

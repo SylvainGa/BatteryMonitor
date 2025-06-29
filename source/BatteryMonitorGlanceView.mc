@@ -8,6 +8,8 @@ using Toybox.Time.Gregorian;
 
 (:glance)
 class BatteryMonitorGlanceView extends Ui.GlanceView {
+    var mFontHeight;
+
     function initialize() {
         GlanceView.initialize();
     }
@@ -19,6 +21,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     }
 
     function onLayout(dc) {
+		mFontHeight = Graphics.getFontHeight(Gfx.FONT_TINY);
     }
 
     function onUpdate(dc) {
@@ -34,14 +37,38 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         else {
             colorBat = COLOR_BAT_CRITICAL;
         }
-        dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
 
-        dc.drawText(
-            0,
-            0,
-            Graphics.FONT_TINY,
-            "Battery Monitor\nCharge: " + battery.toNumber() + "%",
-            Graphics.TEXT_JUSTIFY_LEFT
-        );
+        dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
+        var batteryStr = battery.toNumber() + "%";
+        var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", Graphics.FONT_TINY);
+        dc.drawText(0, 0, Graphics.FONT_TINY, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
+
+        var remainingStr = "N/D";
+        var dischargeStr = "N/D";
+        var remainingStrLen;
+        var chartData = objectStoreGet("HISTORY_KEY", null);
+        if ((chartData instanceof Toybox.Lang.Array)) {
+        	chartData = chartData.reverse();
+
+    		var downSlopeSec = downSlope(chartData);
+		    if (downSlopeSec != null) {
+				dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+                var downSlopeMin = downSlopeSec * 60;
+                remainingStr = minToStr(battery / downSlopeMin);
+                remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", Graphics.FONT_TINY);
+
+                var downSlopeHours = downSlopeSec * 60 * 60;
+                if (downSlopeHours * 24 <= 100){
+                    dischargeStr = (downSlopeHours * 24).toNumber() + "%/day";
+                }
+                else {
+                    dischargeStr = (downSlopeHours).toNumber() + "%/hour";
+                }	
+            }            
+        }
+        dc.drawText(0, mFontHeight, Gfx.FONT_TINY, remainingStr, Gfx.TEXT_JUSTIFY_LEFT);
+
+        var xPos = (batteryStrLen > remainingStrLen ? batteryStrLen : remainingStrLen);
+        dc.drawText(xPos, mFontHeight / 2, Gfx.FONT_TINY, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
     }
 }
