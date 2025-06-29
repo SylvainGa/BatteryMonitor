@@ -17,7 +17,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
     }
 
     function onSelect() {
-		// analyzeAndStoreData(getData());
+		analyzeAndStoreData(getData());
         // Ui.requestUpdate();
         onNextPage();
         return true;    

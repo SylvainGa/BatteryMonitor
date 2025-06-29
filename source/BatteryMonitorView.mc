@@ -74,7 +74,7 @@ class BatteryMonitorView extends Ui.View {
 		mRefreshCount++;
 		if (mRefreshCount == 60) { // Refresh is 5 seconds, 5 * 60 is 300 seconds, which is the same time the backghround process runs
 			mNowData = getData();
-			/*DEBUG*/ logMessage("Adding data " + mNowData);
+			//DEBUG*/ logMessage("Adding data " + mNowData);
 			analyzeAndStoreData(mNowData);
 			mRefreshCount = 0;
 		}
@@ -181,8 +181,8 @@ class BatteryMonitorView extends Ui.View {
 
 			//! Data views
 			if (gViewScreen == SCREEN_DATA_HR || gViewScreen == SCREEN_DATA_DAY) {
-				/*DEBUG*/ logMessage(mNowData);
-				/*DEBUG*/ logMessage(mLastData);
+				//DEBUG*/ logMessage(mNowData);
+				//DEBUG*/ logMessage(mLastData);
 
 				//! Bat usage since last view
 				var batUsage;
@@ -192,8 +192,8 @@ class BatteryMonitorView extends Ui.View {
 					timeDiff = mNowData[TIMESTAMP_END] - mLastData[TIMESTAMP_START];
 				}
 
-				/*DEBUG*/ logMessage("Bat usage: " + batUsage);
-				/*DEBUG*/ logMessage("Time diff: " + timeDiff);
+				//DEBUG*/ logMessage("Bat usage: " + batUsage);
+				//DEBUG*/ logMessage("Time diff: " + timeDiff);
 
 				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Since last view", Gfx.TEXT_JUSTIFY_CENTER);
 				yPos += mFontHeight;
@@ -203,11 +203,11 @@ class BatteryMonitorView extends Ui.View {
 					dischargeRate = dischargeRate.abs().format("%0.3f") + (gViewScreen == SCREEN_DATA_HR ? "%/h" : "%/day");
 					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
 
-					/*DEBUG*/ logMessage("Discharge since last view: " + dischargeRate);
+					//DEBUG*/ logMessage("Discharge since last view: " + dischargeRate);
 				}
 				else {
 					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "N/A", Gfx.TEXT_JUSTIFY_CENTER);
-					/*DEBUG*/ logMessage("Discharge since last view: N/A");
+					//DEBUG*/ logMessage("Discharge since last view: N/A");
 				}
 
 				//! Bat usage since last charge
@@ -223,24 +223,30 @@ class BatteryMonitorView extends Ui.View {
 						var dischargeRate = batUsage * 60 * 60 * (gViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
 						dischargeRate = dischargeRate.abs().format("%0.3f") + (gViewScreen == SCREEN_DATA_HR ? "%/h" : "%/day");
 						dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
-						/*DEBUG*/ logMessage("Discharge since last charge: " + dischargeRate);
+						//DEBUG*/ logMessage("Discharge since last charge: " + dischargeRate);
 					}
 					else {
 						dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "N/A", Gfx.TEXT_JUSTIFY_CENTER);
-						/*DEBUG*/ logMessage("Discharge since last charge: N/A");
+						//DEBUG*/ logMessage("Discharge since last charge: N/A");
 					}
 				}
 				else {
 					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "N/A", Gfx.TEXT_JUSTIFY_CENTER);
-					/*DEBUG*/ logMessage("Discharge since last charge: N/A");
+					//DEBUG*/ logMessage("Discharge since last charge: N/A");
 				}
 
 				//! How long for last charge?
-				var lastChargeHappened = (Time.now().value() - lastChargeData[TIMESTAMP_END]) / 60;
 				yPos += mFontHeight;
 				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Last charge happened", Gfx.TEXT_JUSTIFY_CENTER);
+				var lastChargeHappened;
+				if (lastChargeData) {
+					lastChargeHappened = minToStr((Time.now().value() - lastChargeData[TIMESTAMP_END]) / 60) + " ago";
+				}
+				else {
+					lastChargeHappened = "N/A";
+				}
 				yPos += mFontHeight;
-				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, minToStr(lastChargeHappened) + " ago", Gfx.TEXT_JUSTIFY_CENTER);
+				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, lastChargeHappened, Gfx.TEXT_JUSTIFY_CENTER);
 			}
 
 			//! Graphical views
@@ -385,8 +391,8 @@ class BatteryMonitorView extends Ui.View {
 				var batUsage = battery - (chargingData[BATTERY]).toFloat() / 1000.0;
 				var timeDiff = Time.now().value() - chargingData[TIMESTAMP_START];
 
-				/*DEBUG*/ logMessage("Bat usage: " + batUsage);
-				/*DEBUG*/ logMessage("Time diff: " + timeDiff);
+				//DEBUG*/ logMessage("Bat usage: " + batUsage);
+				//DEBUG*/ logMessage("Time diff: " + timeDiff);
 				var chargeRate;
 				if (timeDiff > 0) {
 					chargeRate = (batUsage * 60 * 60 / timeDiff).format("%0.1f");
@@ -443,83 +449,132 @@ class BatteryMonitorView extends Ui.View {
 
 (:background)
 function downSlope(data) { //data is history data as array / return a slope in percentage point per second
-	if (data.size() <= 2){
+//	data = [[2, 9, 90000], [10, 20, 100000], [21, 31, 90000], [40, 50, 80000], [55, 60, 85000], [61, 71, 90000], [73, 83, 80000], [85, 100, 75000], [101, 150, 80000]].reverse();
+//	data = [[1751167593, 1751167604, 82430],[1751167561, 1751167563, 82315],[1751167536, 1751167536, 81904],[1751167236, 1751167236, 77626],[1751166936, 1751166939, 73255],[1751166636, 1751166636, 68834],[1751166336, 1751166336, 64400],[1751166036, 1751166036, 59967],[1751165736, 1751165736, 55533],[1751165550, 1751165550, 52872],[1751165436, 1751165436, 51100],[1751165136, 1751165136, 46662],[1751164929, 1751164929, 43553],[1751164836, 1751164836, 42229],[1751164536, 1751164536, 37807],[1751164236, 1751164236, 33415],[1751164149, 1751164149, 32091],[1751163979, 1751163979, 29442],[1751163936, 1751163936, 29006],[1751163883, 1751163883, 28118],[1751163707, 1751163707, 26280],[1751163636, 1751163636, 26382],[1751163408, 1751163408, 26448],[1751159506, 1751159506, 27361],[1751159372, 1751159381, 27604],[1751159206, 1751159206, 27682],[1751149002, 1751149002, 30096],[1751148962, 1751148970, 30162],[1751148919, 1751148919, 30265],[1751148702, 1751148702, 30302],[1751148469, 1751148469, 30639],[1751148265, 1751148265, 31034],[1751147965, 1751147965, 31577],[1751147665, 1751147665, 32103],[1751147365, 1751147365, 32605],[1751147221, 1751147221, 32642],[1751147180, 1751147180, 32745],[1751146880, 1751146880, 33234],[1751146602, 1751146602, 33271],[1751145486, 1751145486, 33621],[1751145469, 1751145469, 33645],[1751145402, 1751145402, 33658],[1751142485, 1751142488, 34094],[1751142401, 1751142401, 34106],[1751142162, 1751142170, 34505],[1751142101, 1751142101, 34649],[1751140590, 1751140607, 35751],[1751140585, 1751140585, 35792],[1751140300, 1751140300, 35842],[1751140000, 1751140046, 36150],[1751139365, 1751139383, 36319],[1751139100, 1751139100, 36343],[1751138287, 1751138292, 36483],[1751138199, 1751138199, 36500],[1751138131, 1751138131, 36561],[1751138038, 1751138038, 36792],[1751137982, 1751137982, 35920],[1751137682, 1751137682, 31511],[1751137382, 1751137382, 27090],[1751137372, 1751137373, 26654],[1751137142, 1751137142, 23569],[1751137090, 1751137090, 22681],[1751136946, 1751136946, 20485],[1751136884, 1751136884, 19596],[1751136790, 1751136790, 18992],[1751136765, 1751136774, 19095],[1751136679, 1751136679, 19366],[1751136373, 1751136379, 20049],[1751136099, 1751136099, 20098],[1751133222, 1751133222, 20830],[1751133113, 1751133113, 21192],[1751132813, 1751132813, 22076],[1751132513, 1751132513, 22874]];
+	var size = data.size();
+	//DEBUG*/ Sys.print("["); for (var i = 0; i < size; i++) { Sys.print(data[i]); if (i < size - 1) { Sys.print(","); } } Sys.println("]");
+
+	//DEBUG*/ logMessage(data);
+	if (size <= 2){
 		return null;
 	}
 	
 	var slopes = new [0];
-	var i = 0, j = 0;
-	
-	var timeMostRecent = data[0][TIMESTAMP_END], timeLeastRecent, valueMostRecent = data[0][BATTERY].toFloat() / 1000.0, valueLeastRecent;
-	for (; i < data.size() - 1; i++) {
-		// goal is to store X1 X2 Y1 Y2 for each downslope (actually up-slope because reversed array) and store all slopes in array to later do array average.
-		/*DEBUG*/ logMessage("data[" + i + "]=" + data[i] + " diff time is " + (data[i][TIMESTAMP_END] - data[i][TIMESTAMP_START]));
-	
-		if (data[i][BATTERY] <= data[i + 1][BATTERY] && i < data.size() - 2 && ((data[0][TIMESTAMP_END] - data[i][TIMESTAMP_END]) / 60 / 60 / 24 < 10)) { // Normal case, battery going down or staying level, less than 10 days ago
-			// do nothing, keep progressing in data
-			/*DEBUG*/ logMessage("progressing... " + i + " time diff is : " + (data[0][TIMESTAMP_END] - data[i][TIMESTAMP_END]));
+
+	var count = 0;
+	var sumXY = 0, sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0;
+	var arrayX = new [0];
+	var arrayY = new [0];
+	var keepGoing = true;
+	var batDiff = data[0][BATTERY] - data[1][BATTERY];
+
+	for (var i = 0, j = 0; i < size; i++) {
+		if (batDiff < 0) { // Battery going down or staying level (or we are the last point in the dataset), build data for Correlation Coefficient and Standard Deviation calculation
+			var diffX = data[j][TIMESTAMP_END] - (data[i][TIMESTAMP_START] + (data[i][TIMESTAMP_END] - data[i][TIMESTAMP_START]) / 2);
+			var battery = data[i][BATTERY].toFloat() / 1000.0;
+			//DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff + " diffX=" + secToStr(diffX) + " battery=" + battery + " count=" + count);
+			sumXY += diffX * battery;
+			sumX += diffX;
+			sumY += battery;
+			sumX2 += (diffX.toLong() * diffX.toLong()).toLong();
+			//DEBUG*/ logMessage("diffX=" + diffX + " diffX * diffX=" + diffX * diffX + " sumX2=" + sumX2);
+			sumY2 += battery * battery;
+			arrayX.add(diffX);
+			arrayY.add(battery);
+			count++;
+
+			if (i == size - 1) {
+				//DEBUG*/ logMessage("Stopping this serie because 'i == size - 1'");
+				keepGoing = false; // We reached the end of the array, calc the last slope if we have more than one data
+			}
+			else if (i < size - 2) {
+				batDiff = data[i + 1][BATTERY] - data[i + 2][BATTERY]; // Get direction of the next battery level for next pass
+			}
+			else {
+				//DEBUG*/ logMessage("Doing last data entry in the array");
+				// Next pass is for the last data in the array, process it 'as is' since we were going down until then (leave batDiff like it was)
+			}
 		}
-		else { //battery charged or ran out of data
-			/*DEBUG*/ logMessage("action... " + i);
-			timeLeastRecent = data[i][TIMESTAMP_START];
-			valueLeastRecent = data[i][BATTERY].toFloat() / 1000.0;
-			timeMostRecent = data[j + 1][TIMESTAMP_END];
-			valueMostRecent = data[j + 1][BATTERY].toFloat() / 1000.0;
-			/*DEBUG*/ logMessage(timeLeastRecent + " " + timeMostRecent + " " + valueLeastRecent + " " + valueMostRecent);
-			if (timeMostRecent - timeLeastRecent < 1 * 60 * 60) { // if less than 1 hours data
-				/*DEBUG*/ logMessage("discard... " + i + " time diff is " + (timeMostRecent - timeLeastRecent) + " sec");
-				//discard
-			}
-			else { //save
-				/*DEBUG*/ logMessage("save... " + i);
-				var slope = (0.0 + valueLeastRecent - valueMostRecent) / (timeLeastRecent - timeMostRecent);
-				if (slope < 0){
-					slopes.add(slope);
-				}
-				/*DEBUG*/ logMessage("slopes " + slopes);
-			}
-			j = i;
+		else {
+			keepGoing = false;
+			//DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff);
+		}
+
+		if (keepGoing) {
+			continue;
+		}
+
+		if (count > 1) { // We reached the end (i == size - 1) or we're starting to go up in battery level, if we have at least two data (count > 1), calculate the slope
+			var standardDeviationX = Math.stdev(arrayX, sumX / count);
+			var standardDeviationY = Math.stdev(arrayY, sumY / count);
+			var r = (count * sumXY - sumX * sumY) / Math.sqrt((count * sumX2 - sumX * sumX) * (count * sumY2 - sumY * sumY));
+			var slope = r * (standardDeviationY / standardDeviationX);
+			//DEBUG*/ logMessage("count=" + count + " sumX=" + sumX + " sumY=" + sumY.format("%0.3f") + " sumXY=" + sumXY.format("%0.3f") + " sumX2=" + sumX2 + " sumY2=" + sumY2.format("%0.3f") + " stdevX=" + standardDeviationX.format("%0.3f") + " stdevY=" + standardDeviationY.format("%0.3f") + " r=" + r.format("%0.3f") + " slope=" + slope);
+
+			slopes.add(slope);
+		}
+
+		// Reset of variables for next pass if we had something in them from last pass
+		if (count > 0) {
+			sumXY = 0; sumX = 0; sumY = 0; sumX2 = 0; sumY2 = 0;
+			count = 0;
+			arrayX = new [0];
+			arrayY = new [0];
+		}
+
+		// Prepare for the next set of data
+		j = i + 1;
+		keepGoing = true;
+
+		if (j < size - 2) {
+			batDiff = data[j][BATTERY] - data[j + 1][BATTERY]; // Get direction of thr next battery level for next pass
+			//DEBUG*/ logMessage("i=" + j + " batDiff=" + batDiff);
 		}
 	}
+
 	if (slopes.size() == 0){
+		//DEBUG*/ logMessage("No slope to calculate");
 		return null;
 	}
 	else {
+		//DEBUG*/ logMessage("Slopes=" + slopes);
 		var sumSlopes = 0;
-		for (i = 0; i < slopes.size(); i++){
+		for (var i = 0; i < slopes.size(); i++){
 			sumSlopes += slopes[i];
-			/*DEBUG*/ logMessage("sumSlopes " + sumSlopes);
 		}
+		//DEBUG*/ logMessage("sumSlopes=" + sumSlopes);
 		var avgSlope = sumSlopes / slopes.size();
-		/*DEBUG*/ logMessage("avgSlope " + avgSlope);
-		return -avgSlope;
+		//DEBUG*/ logMessage("avgSlope=" + avgSlope);
+		return avgSlope;
 	}
 }
 
-(:background)
-function minToStr(min) {
-	var str;
-	if (min < 1){
-		str = "Now";
-	}
-	else if (min < 60){
-		str = min.toNumber() + "m";
-	}
-	else if (min < 60 * 2){
-		var hours = Math.floor(min / 60);
-		var mins = min - hours * 60;
-		str = hours.toNumber() + "h" + mins.format("%02d");
-	}
-	else if (min < 60 * 24){
-		var hours = Math.floor(min / 60);
-		var mins = min - hours * 60;
-		str = hours.toNumber() + "h" + mins.format("%02d");
-	}
-	else {
-		var days = Math.floor(min / 60 / 24);
-		var hours = Math.floor((min / 60) - days * 24);
-		str = days.toNumber() + "d " + hours.toNumber() + "h";
-	}
-	return str;
-}
 
+		// // goal is to store X1 X2 Y1 Y2 for each downslope (actually up-slope because reversed array) and store all slopes in array to later do array average.
+		// /*DEBUG*/ logMessage("data[" + i + "]=" + data[i] + " diff time is " + (data[i][TIMESTAMP_END] - data[i][TIMESTAMP_START]));
+	
+		// if (data[i][BATTERY] <= data[i + 1][BATTERY] && i < size - 2 && ((data[0][TIMESTAMP_END] - data[i][TIMESTAMP_END]) / 60 / 60 / 24 < 10)) { // Normal case, battery going down or staying level, less than 10 days ago
+		// 	// do nothing, keep progressing in data
+		// 	/*DEBUG*/ logMessage("progressing... " + i + " time diff is : " + (data[0][TIMESTAMP_END] - data[i][TIMESTAMP_END]));
+		// }
+		// else { //battery charged or ran out of data
+		// 	/*DEBUG*/ logMessage("action... " + i);
+		// 	timeLeastRecent = data[i][TIMESTAMP_START];
+		// 	valueLeastRecent = data[i][BATTERY].toFloat() / 1000.0;
+		// 	timeMostRecent = data[j + 1][TIMESTAMP_END];
+		// 	valueMostRecent = data[j + 1][BATTERY].toFloat() / 1000.0;
+		// 	/*DEBUG*/ logMessage(timeLeastRecent + " " + timeMostRecent + " " + valueLeastRecent + " " + valueMostRecent);
+		// 	if (timeMostRecent - timeLeastRecent < 1 * 60 * 60) { // if less than 1 hours data
+		// 		/*DEBUG*/ logMessage("discard... " + i + " time diff is " + (timeMostRecent - timeLeastRecent) + " sec");
+		// 		//discard
+		// 	}
+		// 	else { //save
+		// 		/*DEBUG*/ logMessage("save... " + i);
+		// 		var slope = (valueLeastRecent - valueMostRecent).toFloat() / (timeLeastRecent - timeMostRecent).toFloat();
+		// 		if (slope < 0){
+		// 			slopes.add(slope);
+		// 		}
+		// 		/*DEBUG*/ logMessage("slopes " + slopes);
+		// 	}
+		// 	j = i;
+		// }

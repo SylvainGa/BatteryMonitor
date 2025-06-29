@@ -43,9 +43,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", Graphics.FONT_TINY);
         dc.drawText(0, 0, Graphics.FONT_TINY, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
 
-        var remainingStr = "N/D";
-        var dischargeStr = "N/D";
-        var remainingStrLen;
+        var remainingStr = "N/A";
+        var dischargeStr = "N/A";
+        var remainingStrLen = 0;
         var chartData = objectStoreGet("HISTORY_KEY", null);
         if ((chartData instanceof Toybox.Lang.Array)) {
         	chartData = chartData.reverse();
@@ -59,10 +59,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
                 var downSlopeHours = downSlopeSec * 60 * 60;
                 if (downSlopeHours * 24 <= 100){
-                    dischargeStr = (downSlopeHours * 24).toNumber() + "%/day";
+                    dischargeStr = (downSlopeHours * 24).toNumber() + "%/d";
                 }
                 else {
-                    dischargeStr = (downSlopeHours).toNumber() + "%/hour";
+                    dischargeStr = (downSlopeHours).toNumber() + "%/h";
                 }	
             }            
         }
