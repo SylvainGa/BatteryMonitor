@@ -113,7 +113,7 @@ class BatteryMonitorView extends Ui.View {
 	function drawChart(dc, xy, chartDataNormalOrder) {
     	var X1 = xy[0], X2 = xy[1], Y1 = xy[2], Y2 = xy[3];
     	var chartData = chartDataNormalOrder.reverse();
-		var scale = mCtrY * 2.0 /240.0; // 240 was the default resolution of the watch used at the time this widget was created
+		var scale = mCtrY * 2.0 / 240.0; // 240 was the default resolution of the watch used at the time this widget was created
 
 		//! Display current charge level with the appropriate color
 		var colorBat;
@@ -130,7 +130,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
-		dc.drawText(mCtrX, 15 * mCtrY * 2 /240, Gfx.FONT_MEDIUM, battery.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER |  Gfx.TEXT_JUSTIFY_VCENTER);
+		dc.drawText(mCtrX, 20 * mCtrY * 2 / 240, Gfx.FONT_LARGE, battery.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER |  Gfx.TEXT_JUSTIFY_VCENTER);
 
     	dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
     	dc.setPenWidth(2);
@@ -143,26 +143,39 @@ class BatteryMonitorView extends Ui.View {
     		downSlopeSec = downSlope(chartData);
 	    	var downSlopeStr = "";
 	    	var timeLeftSecUNIX = null;
-		    dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+			
+			var yPos = 35 * scale;
 		    if (downSlopeSec != null) {
-	    		var downSlopeHours = (downSlopeSec * 60 * 60);
-	    		if (downSlopeHours * 24 <= 100){
-	    			downSlopeStr = -(downSlopeHours * 24).toNumber() + "%/day";
-	    		}
-				else {
-	    			downSlopeStr = -(downSlopeHours).toNumber() + "%/hour";
-	    		}	
-	    		downSlopeStr = "Discharge " + downSlopeStr;
-	    		
-				var timeLeftSec = -((chartData[0][BATTERY].toFloat() / 1000.0) / (downSlopeSec));
-				timeLeftSecUNIX = timeLeftSec + chartData[0][TIMESTAMP_END];
 				dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-				dc.drawText(mCtrX, 33, Gfx.FONT_TINY, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
+				if (gViewScreen == SCREEN_DATA_HR) {
+					var downSlopeMin = downSlopeSec * 60;
+					downSlopeStr = minToStr(battery / downSlopeMin);
+					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Remaining", Gfx.TEXT_JUSTIFY_CENTER);
+					yPos += fontHeight;
+					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
+				}
+				else if (gViewScreen == SCREEN_DATA_DAY) {
+					var downSlopeHours = downSlopeSec * 60 * 60;
+					if (downSlopeHours * 24 <= 100){
+						downSlopeStr = (downSlopeHours * 24).toNumber() + "%/day";
+					}
+					else {
+						downSlopeStr = (downSlopeHours).toNumber() + "%/hour";
+					}	
+					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Discharging", Gfx.TEXT_JUSTIFY_CENTER);
+					yPos += fontHeight;
+					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
+				}
+
+				battery = (chartData[0][BATTERY].toFloat() / 1000.0).toNumber();
+				var timeLeftSec = (battery / downSlopeSec).toNumber();
+				timeLeftSecUNIX = timeLeftSec + chartData[0][TIMESTAMP_END];
 		    }
 			else {
 				dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-				dc.drawText(mCtrX, 33 * scale, Gfx.FONT_XTINY, "More time needed...", Gfx.TEXT_JUSTIFY_CENTER);		    	
+				dc.drawText(mCtrX, yPos, Gfx.FONT_XTINY, "More data needed...", Gfx.TEXT_JUSTIFY_CENTER);		    	
 		    }
+			yPos += fontHeight;
 
 			//! Data views
 			if (gViewScreen == SCREEN_DATA_HR || gViewScreen == SCREEN_DATA_DAY) {
@@ -180,8 +193,6 @@ class BatteryMonitorView extends Ui.View {
 				/*DEBUG*/ logMessage("Bat usage: " + batUsage);
 				/*DEBUG*/ logMessage("Time diff: " + timeDiff);
 
-				var yPos = 33 * scale + fontHeight;
-				
 				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Since last view", Gfx.TEXT_JUSTIFY_CENTER);
 				yPos += fontHeight;
 
@@ -199,7 +210,7 @@ class BatteryMonitorView extends Ui.View {
 
 				//! Bat usage since last charge
 				yPos += fontHeight;
-				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Since Last Chg", Gfx.TEXT_JUSTIFY_CENTER);
+				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Since Last charge", Gfx.TEXT_JUSTIFY_CENTER);
 				yPos += fontHeight;
 
 				var lastChargeData = LastChargeData(chartData);
@@ -221,6 +232,13 @@ class BatteryMonitorView extends Ui.View {
 					dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "N/A", Gfx.TEXT_JUSTIFY_CENTER);
 					/*DEBUG*/ logMessage("Discharge since last charge: N/A");
 				}
+
+				//! How long for last charge?
+				var lastChargeHappened = Time.now().value() - lastChargeData[TIMESTAMP_START];
+				yPos += fontHeight;
+				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, "Last charge happened", Gfx.TEXT_JUSTIFY_CENTER);
+				yPos += fontHeight;
+				dc.drawText(mCtrX, yPos, Gfx.FONT_TINY, minToStr(lastChargeHappened) + " ago", Gfx.TEXT_JUSTIFY_CENTER);
 			}
 
 			//! Graphical views
@@ -230,14 +248,14 @@ class BatteryMonitorView extends Ui.View {
 				var timeMostRecentPoint = chartData[0][TIMESTAMP_END];
 				var timeMostFuturePoint = (timeLeftSecUNIX != null && gViewScreen == SCREEN_PROJECTION) ? timeLeftSecUNIX : timeMostRecentPoint;
 				var timeLeastRecentPoint = timeLastFullCharge(chartData);
-				var xHistoryInMin = (0.0 + timeMostRecentPoint - timeLeastRecentPoint) / 60; // max value for time in minutes
-				xHistoryInMin = MIN(MAX(xHistoryInMin, 60), 60 * 25 * 30);
-				var xFutureInMin = (0.0 + timeMostFuturePoint - timeMostRecentPoint) / 60; // max value for time in minutes
-				xFutureInMin = MIN(MAX(xFutureInMin, 60), (gViewScreen == SCREEN_PROJECTION ? 60 * 25 * 30 : 0));
+				var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint).toFloat() / 60.0; // max value for time in minutes
+				xHistoryInMin = MIN(MAX(xHistoryInMin, 60.0), 60.0 * 25.0 * 30.0);
+				var xFutureInMin = (timeMostFuturePoint - timeMostRecentPoint).toFloat() / 60.0; // max value for time in minutes
+				xFutureInMin = MIN(MAX(xFutureInMin, 60.0), (gViewScreen == SCREEN_PROJECTION ? 60.0 * 25.0 * 30.0 : 0));
 				var XmaxInMin = xHistoryInMin + xFutureInMin;// max value for time in minutes
-				var XscaleMinPerPxl = (0.0 + XmaxInMin) / Xframe;// in minutes per pixel
+				var XscaleMinPerPxl = XmaxInMin / Xframe;// in minutes per pixel
 		    	var Xnow; // position of now in the graph, equivalent to: pixels available for left part of chart, with history only (right part is future prediction)
-				Xnow = xHistoryInMin / XscaleMinPerPxl;
+				Xnow = (xHistoryInMin / XscaleMinPerPxl).toNumber();
 				
 				//! draw now position on axis
 				dc.setPenWidth(2);
@@ -253,7 +271,7 @@ class BatteryMonitorView extends Ui.View {
 					else {
 						dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
 					}
-					dc.drawLine(X1 - 10, Y2 - (i * Yframe * scale), X2 + 10, Y2 - (i * Yframe * scale));
+					dc.drawLine(X1 - 10, Y2 - i * Yframe, X2 + 10, Y2 - i * Yframe);
 				}
 
 				dc.setPenWidth(1);
@@ -282,7 +300,7 @@ class BatteryMonitorView extends Ui.View {
 						continue; // This data point is outside of the graph view, ignore it
 					}
 					else {
-						var dataHeightBat = (battery * Yframe) / Ymax * scale;
+						var dataHeightBat = (battery * Yframe) / Ymax;
 						var yBat = Y2 - dataHeightBat;
 						var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / XscaleMinPerPxl;
 						var x = X1 + Xnow - dataTimeDistanceInPxl;
@@ -319,14 +337,14 @@ class BatteryMonitorView extends Ui.View {
 						var xStart = X1 + Xnow;
 						var xEnd = xStart + pixelsAvail;
 						var valueStart = chartData[0][BATTERY].toFloat() / 1000.0;
-						var valueEnd = valueStart + downSlopeSec * 60 * timeDistanceMin;
+						var valueEnd = valueStart + -downSlopeSec * 60.0 * timeDistanceMin;
 						if (valueEnd < 0){
-							timeDistanceMin = -valueStart / (downSlopeSec * 60);
+							timeDistanceMin = valueStart / (downSlopeSec * 60.0);
 							valueEnd = 0;
 							xEnd = xStart + timeDistanceMin / XscaleMinPerPxl;
 						}
-						var yStart = Y2 - (valueStart * Yframe) / Ymax * scale;
-						var yEnd = Y2 - (valueEnd * Yframe) / Ymax * scale;
+						var yStart = Y2 - (valueStart * Yframe) / Ymax;
+						var yEnd = Y2 - (valueEnd * Yframe) / Ymax;
 					
 						dc.setColor(COLOR_PROJECTION, Gfx.COLOR_TRANSPARENT);
 						var triangle = [[xStart, yStart], [xEnd, yEnd], [xStart, yEnd], [xStart, yStart]];
@@ -343,10 +361,10 @@ class BatteryMonitorView extends Ui.View {
 				dc.drawText(mCtrX * 2 - 27, Y2 + 1, Gfx.FONT_TINY, timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
 				
 				if (downSlopeSec != null){
-					var timeLeftMin = -(100 / (downSlopeSec * 60));
+					var timeLeftMin = (100.0 / (downSlopeSec * 60.0)).toNumber();
 					timeStr = minToStr(timeLeftMin);
 					dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-					dc.drawText(mCtrX, mCtrY * 2 - 43, Gfx.FONT_SMALL, "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
+					dc.drawText(mCtrX, mCtrY * 2 - fontHeight * 1.5, Gfx.FONT_SMALL, "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
 				}
 			}
     	}
@@ -451,7 +469,7 @@ class BatteryMonitorView extends Ui.View {
     		}
     		var avgSlope = sumSlopes / slopes.size();
     		/*DEBUG*/ logMessage("avgSlope " + avgSlope);
-    		return avgSlope;
+    		return -avgSlope;
     	}
     }
     

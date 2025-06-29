@@ -97,7 +97,7 @@ class BatteryMonitorApp extends App.AppBase {
     		gAbleBackground = true;
     		Background.registerForTemporalEvent(new Time.Duration(INTERVAL_MIN * 60));//x mins - total in seconds
     	}
-        return [ new BatteryMonitorView() , new BatteryMonitorInitDelegate() ];
+        return [ new BatteryMonitorView() , new BatteryMonitorDelegate() ];
     }
     
     function getServiceDelegate(){

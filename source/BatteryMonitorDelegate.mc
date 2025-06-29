@@ -6,24 +6,26 @@ using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.Graphics as Gfx;
 
-class BatteryMonitorInitDelegate extends Ui.InputDelegate{
+class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	
-	function initialize(){
-        InputDelegate.initialize();
+	function initialize() {
+        BehaviorDelegate.initialize();
 	}
 	
-	function goBack(){
+	function goBack() {
 		return false;
     }
 
-    function onSelect(){
-		analyzeAndStoreData(getData());
-        Ui.requestUpdate();
+    function onSelect() {
+		// analyzeAndStoreData(getData());
+        // Ui.requestUpdate();
+        onNextPage();
         return true;    
     }
 	
     function onTap(evt) {
-		onSelect();
+		// onSelect();
+        onNextPage();
 		return true;
     }
 
@@ -48,15 +50,17 @@ class BatteryMonitorInitDelegate extends Ui.InputDelegate{
 	function onSwipe(swipeEvent) {
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_DOWN) {
 			onPreviousPage();
-			return true;
 		}
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_UP) {
 			onNextPage();
-			return true;
 		}
 
-		return false;
+		if (swipeEvent.getDirection() == WatchUi.SWIPE_LEFT) {
+			onNextPage();
+		}
+
+		return true;
 	}
 
     function onMenu() {
