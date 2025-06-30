@@ -25,14 +25,14 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             if (Sys.getSystemStats().charging) {
                 var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
                 if (chargingData == null) {
-                    objectStorePut("STARTED_CHARGING_DATA", [now, now, battery]);
+                    objectStorePut("STARTED_CHARGING_DATA", [now, battery]);
                 }
             }
             else {
                 objectStoreErase("STARTED_CHARGING_DATA");
             }
 
-            Background.exit([now, now, battery]);
+            Background.exit([now, battery]);
         }
         else {
             Background.exit(null);
@@ -48,12 +48,12 @@ function getData(){
     if (Sys.getSystemStats().charging) {
         var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
         if (chargingData == null) {
-            objectStorePut("STARTED_CHARGING_DATA", [now, now, battery]);
+            objectStorePut("STARTED_CHARGING_DATA", [now, battery]);
         }
     }
     else {
         objectStoreErase("STARTED_CHARGING_DATA");
     }
 
-    return [now, now, battery];
+    return [now, battery];
 }

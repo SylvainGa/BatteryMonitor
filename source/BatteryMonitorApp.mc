@@ -11,7 +11,8 @@ using Toybox.Application.Storage;
 
 //! App constants
 const HISTORY_MAX = 3000; // At 5 minutes per interval is over 10 days of data
-const INTERVAL_MIN = 5;//temporal event in minutes
+const INTERVAL_MIN = 5; // temporal event in minutes
+const UPDATE_VERSION = 1; // What version our array structures should be at
 
 //! Object store keys (now they keys are in Storage and are texts, not numbers)
 // const HISTORY_KEY = 2;
@@ -39,10 +40,8 @@ const SCREEN_PROJECTION = 5;
 
 //! History Array data type
 enum{
-	TIMESTAMP_START,
-	TIMESTAMP_END,
-	BATTERY,
-	FREEMEMORY
+	TIMESTAMP,
+	BATTERY
 }
 
 var gAbleBackground = false;
@@ -56,29 +55,69 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
+		/**** UNCOMMEMT TO UPGRADE ARRAYS STRUCTURES ****/
 		// var update = objectStoreGet("UPDATE_DATA", 0);
-
-		// if (update < 2) {
+		// /*DEBUG*/ logMessage("UPDATE_DATA is " + update);
+		// if (update == null || update != UPDATE_VERSION) {
+		// 	/*DEBUG*/ logMessage("Updating arrays");
+		// 	var count = 0;
 		// 	var history = objectStoreGet("HISTORY_KEY", null);
 		// 	if (history instanceof Toybox.Lang.Array) {
-		// 		if (history[0][BATTERY] instanceof Toybox.Lang.Float) {
+		// 		if (history[0][BATTERY] instanceof Toybox.Lang.Number) {
+		// 			/*DEBUG*/ logMessage("HISTORY_KEY is the right format to update");
+		// 			var newHistory = new [history.size()];
 		// 			for (var i = 0; i < history.size(); i++) {
-		// 				history[i][BATTERY] = (history[i][BATTERY] * 1000).toNumber();
+		// 				newHistory[i] = [history[i][TIMESTAMP], history[i][BATTERY]];
 		// 			}
-		// 			objectStorePut("HISTORY_KEY", history);
+		// 			objectStorePut("HISTORY_KEY", newHistory);
+		// 			count++;
 		// 		}
 		// 	}
 
 		// 	history = objectStoreGet("LAST_HISTORY_KEY", null);
 		// 	if (history != null) {
-		// 		if (history[BATTERY] instanceof Toybox.Lang.Float) {
-		// 			history[BATTERY] = (history[BATTERY] * 1000).toNumber();
-		// 			objectStorePut("LAST_HISTORY_KEY", history);
+		// 		if (history[BATTERY] instanceof Toybox.Lang.Number) {
+		// 			/*DEBUG*/ logMessage("LAST_HISTORY_KEY is the right format to update");
+		// 			var newHistory = [history[TIMESTAMP], history[BATTERY]];
+		// 			objectStorePut("LAST_HISTORY_KEY", newHistory);
+		// 			count++;
 		// 		}
 		// 	}
 
-		// 	objectStorePut("UPDATE_DATA", 2);
+		// 	history = objectStoreGet("LAST_VIEWED_DATA", null);
+		// 	if (history != null) {
+		// 		if (history[BATTERY] instanceof Toybox.Lang.Number) {
+		// 			/*DEBUG*/ logMessage("LAST_VIEWED_DATA is the right format to update");
+		// 			var newHistory = [history[TIMESTAMP], history[BATTERY]];
+		// 			objectStorePut("LAST_HISTORY_KEY", newHistory);
+		// 			count++;
+		// 		}
+		// 	}
+
+		// 	history = objectStoreGet("LAST_CHARGED_DATA", null);
+		// 	if (history != null) {
+		// 		if (history[BATTERY] instanceof Toybox.Lang.Number) {
+		// 			/*DEBUG*/ logMessage("LAST_CHARGED_DATA is the right format to update");
+		// 			var newHistory = [history[TIMESTAMP], history[BATTERY]];
+		// 			objectStorePut("LAST_HISTORY_KEY", newHistory);
+		// 			count++;
+		// 		}
+		// 	}
+
+		// 	history = objectStoreGet("STARTED_CHARGING_DATA", null);
+		// 	if (history != null) {
+		// 		if (history[BATTERY] instanceof Toybox.Lang.Number) {
+		// 			/*DEBUG*/ logMessage("STARTED_CHARGING_DATA is the right format to update");
+		// 			var newHistory = [history[TIMESTAMP], history[BATTERY]];
+		// 			objectStorePut("LAST_HISTORY_KEY", newHistory);
+		// 			count++;
+		// 		}
+		// 	}
+
+		// 	/*DEBUG*/ logMessage("Update to version " + UPDATE_VERSION + " complete" + (count != 5 ? " but with some arrays not being updated." : "."));
+		// 	objectStorePut("UPDATE_DATA", UPDATE_VERSION);
 		// }
+		/**** UNCOMMEMT TO UPGRADE ARRAYS STRUCTURES ****/
     }
 
     // onStop() is called when your application is exiting
