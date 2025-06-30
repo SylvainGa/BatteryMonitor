@@ -43,17 +43,12 @@ function objectStoreAdd(key, newValue) {
     	if (!(existingArray instanceof Toybox.Lang.Array)) {//if not array (incl is null), then create first item of array
 	        objectStorePut(key, [newValue]);
 	    }
-		else { //existing value is an array -> append data to array end
-			if (existingArray.size() > HISTORY_MAX){
-				objectStorePut(key, existingArray.slice(1, HISTORY_MAX - 1).add(newValue));
+		else { //existing value is an array
+			if (existingArray.size() >= HISTORY_MAX) {
+                objectStorePut(key, existingArray.slice(1, HISTORY_MAX).add(newValue));
 			}
 			else {
-				if (existingArray.size() < HISTORY_MAX){
-		        	objectStorePut(key, existingArray.add(newValue));
-				}
-				else {
-					objectStorePut(key, existingArray.slice(1, existingArray.size()).add(newValue));
-				}
+                objectStorePut(key, existingArray.add(newValue));
 			}
 	    }
 	}
@@ -87,28 +82,43 @@ function objectStoreErase(key) {
 }
 
 (:background)
-function minToStr(min) {
+function getBatteryColor(battery) {
+    var colorBat;
+
+    if (battery >= 50) {
+        colorBat = COLOR_BAT_OK;
+    }
+    else if (battery >= 30) {
+        colorBat = COLOR_BAT_WARNING;
+    }
+    else if (battery >= 10) {
+        colorBat = COLOR_BAT_LOW;
+    }
+    else {
+        colorBat = COLOR_BAT_CRITICAL;
+    }
+
+    return colorBat;
+}
+
+(:background)
+function minToStr(min, fullText) {
 	var str;
 	if (min < 1){
 		str = "Now";
 	}
 	else if (min < 60){
-		str = min.toNumber() + "m";
+		str = min.toNumber() + (fullText ? " minute" + (min >= 2 ? "s" : "") : "m");
 	}
-	else if (min < 60 * 2){
+	else if (min < 60 * 24) {
 		var hours = Math.floor(min / 60);
 		var mins = min - hours * 60;
-		str = hours.toNumber() + "h" + mins.format("%02d");
-	}
-	else if (min < 60 * 24){
-		var hours = Math.floor(min / 60);
-		var mins = min - hours * 60;
-		str = hours.toNumber() + "h" + mins.format("%02d");
+		str = hours.toNumber() + (fullText ? " hour" + (hours >= 2 ? "s " : " ") + mins.format("%2d") + " minute" + (mins >= 2 ? "s" : "") : "h" + mins.format("%02d"));
 	}
 	else {
 		var days = Math.floor(min / 60 / 24);
 		var hours = Math.floor((min / 60) - days * 24);
-		str = days.toNumber() + "d " + hours.toNumber() + "h";
+		str = days.toNumber() + (fullText ? " day" + (days >= 2 ? "s " : " ") : "d ") + hours.toNumber() + (fullText ? " hour" + (hours >= 2 ? "s" : "") : "h");
 	}
 	return str;
 }
@@ -125,14 +135,14 @@ function secToStr(sec) {
 	else if (sec < 60 * 60 ) {
 		var mins = Math.floor(sec / 60);
 		var secs = sec - mins * 60;
-		str = mins.toNumber() + "m" + secs.format("%02d");
+		str = mins.toNumber() + "m" + secs.format("%02d") + "s";
 	}
 	else if (sec < 60 * 60 * 24) {
 		var hours = Math.floor(sec / (60 * 60));
 		var min = sec - hours * 60 * 60;
 		var mins = Math.floor(min / 60);
 		var secs = min - mins * 60;
-		str = hours.toNumber() + "h" + mins.format("%02d") + "m" + secs.format("%02d");
+		str = hours.toNumber() + "h" + mins.format("%02d") + "m" + secs.format("%02d") + "s";
 	}
 	else {
 		var days = Math.floor(sec / (60 * 60 * 24));
@@ -141,7 +151,7 @@ function secToStr(sec) {
 		var min = hour - hours * 60 * 60;
 		var mins = Math.floor(min / 60);
 		var secs = min - mins * 60;
-		str = days.toNumber() + "d " + hours.toNumber() + "h" + mins.format("%02d") + "m" + secs.format("%02d");
+		str = days.toNumber() + "d " + hours.toNumber() + "h" + mins.format("%02d") + "m" + secs.format("%02d") + "s";
 	}
 	return str;
 }

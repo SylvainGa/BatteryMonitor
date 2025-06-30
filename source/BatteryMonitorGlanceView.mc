@@ -39,7 +39,8 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         }
 
         dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
-        var batteryStr = battery.toNumber() + "%";
+        var batteryStr = battery.toNumber() + "%" + (Sys.getSystemStats().charging ? "+" : "");
+;
         var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", Graphics.FONT_TINY);
         dc.drawText(0, 0, Graphics.FONT_TINY, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
 
@@ -54,7 +55,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		    if (downSlopeSec != null) {
 				dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
                 var downSlopeMin = downSlopeSec * 60;
-                remainingStr = minToStr(battery / downSlopeMin);
+                remainingStr = minToStr(battery / downSlopeMin, false);
                 remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", Graphics.FONT_TINY);
 
                 var downSlopeHours = downSlopeSec * 60 * 60;

@@ -32,7 +32,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
     function onNextPage() {
 		gViewScreen++;
 		if (gViewScreen > SCREEN_PROJECTION) {
-			gViewScreen = SCREEN_DATA_HR;
+			gViewScreen = SCREEN_DATA_MAIN;
 		}
         Ui.requestUpdate();
 		return true;
@@ -40,7 +40,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
     function onPreviousPage() {
 		gViewScreen--;
-		if (gViewScreen < SCREEN_DATA_HR) {
+		if (gViewScreen < SCREEN_DATA_MAIN) {
 			gViewScreen = SCREEN_PROJECTION;
 		}
         Ui.requestUpdate();

@@ -22,17 +22,20 @@ const INTERVAL_MIN = 5;//temporal event in minutes
 // const STARTED_CHARGING_DATA = 6;
 // const UPDATE_DATA = 7; //  This guy is set if we need to upgrade our data structure to the new version without using the history
 // const VIEW_RUNNING = 8; // When True, the main view updates the history data so we skip the background process
-
+// const LAST_SLOPE_CALC = 9;
+// const LAST_SLOPE_VALUE = 10;
 
 const COLOR_BAT_OK = Gfx.COLOR_GREEN;
-const COLOR_BAT_LOW = Gfx.COLOR_YELLOW;
+const COLOR_BAT_WARNING = Gfx.COLOR_YELLOW;
+const COLOR_BAT_LOW = Gfx.COLOR_ORANGE;
 const COLOR_BAT_CRITICAL = Gfx.COLOR_RED;
 const COLOR_PROJECTION = Gfx.COLOR_DK_BLUE;
 
-const SCREEN_DATA_HR = 1;
-const SCREEN_DATA_DAY = 2;
-const SCREEN_HISTORY = 3;
-const SCREEN_PROJECTION = 4;
+const SCREEN_DATA_MAIN = 1;
+const SCREEN_DATA_HR = 2;
+const SCREEN_DATA_DAY = 3;
+const SCREEN_HISTORY = 4;
+const SCREEN_PROJECTION = 5;
 
 //! History Array data type
 enum{
@@ -43,13 +46,13 @@ enum{
 }
 
 var gAbleBackground = false;
-var gViewScreen = SCREEN_DATA_HR;
+var gViewScreen = SCREEN_DATA_MAIN;
 
 (:background)
 class BatteryMonitorApp extends App.AppBase {
     function initialize() {
         AppBase.initialize();
-    }
+    }	
 
     // onStart() is called on application start up
     function onStart(state) {
