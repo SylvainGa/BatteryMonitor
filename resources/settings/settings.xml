@@ -1,0 +1,23 @@
+<settings>
+	<setting propertyKey="@Properties.AppVersion" title="@Strings.AppNameVersion">
+		<settingConfig type="alphaNumeric" readonly="true"/>
+	</setting>
+
+    <setting propertyKey="@Properties.InitialView" title="@Strings.InitialView">
+        <settingConfig type="list">
+            <listEntry value="1">@Strings.SummaryView</listEntry>
+            <listEntry value="2">@Strings.DataHour</listEntry>
+            <listEntry value="3">@Strings.DataDay</listEntry>
+            <listEntry value="4">@Strings.History</listEntry>
+            <listEntry value="5">@Strings.Projection</listEntry>
+        </settingConfig>
+    </setting>
+
+    <setting propertyKey="@Properties.SummaryMode" title="@Strings.SummaryMode">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.Auto</listEntry>
+            <listEntry value="1">@Strings.Hour</listEntry>
+            <listEntry value="2">@Strings.Day</listEntry>
+        </settingConfig>
+    </setting>
+</settings>

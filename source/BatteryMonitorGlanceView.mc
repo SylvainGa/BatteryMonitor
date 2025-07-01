@@ -9,12 +9,14 @@ using Toybox.Time.Gregorian;
 (:glance)
 class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mFontHeight;
+	var mSummaryMode;
 
     function initialize() {
         GlanceView.initialize();
     }
 
     function onShow() {
+        onSettingsChanged();
     }
 
     function onHide() {
@@ -22,6 +24,15 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
     function onLayout(dc) {
 		mFontHeight = Graphics.getFontHeight(Gfx.FONT_TINY);
+    }
+
+    function onSettingsChanged() {
+		try {
+			mSummaryMode = Properties.getValue("SummaryMode");
+		}
+		catch (e) {
+			mSummaryMode = 0;
+		}
     }
 
     function onUpdate(dc) {
@@ -40,12 +51,12 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
         dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
         var batteryStr = battery.toNumber() + "%" + (Sys.getSystemStats().charging ? "+" : "");
-;
+
         var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", Graphics.FONT_TINY);
         dc.drawText(0, 0, Graphics.FONT_TINY, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
 
-        var remainingStr = "N/A";
-        var dischargeStr = "N/A";
+        var remainingStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
+        var dischargeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
         var remainingStrLen = 0;
         var chartData = objectStoreGet("HISTORY_KEY", null);
         if ((chartData instanceof Toybox.Lang.Array)) {
@@ -59,11 +70,11 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", Graphics.FONT_TINY);
 
                 var downSlopeHours = downSlopeSec * 60 * 60;
-                if (downSlopeHours * 24 <= 100){
-                    dischargeStr = (downSlopeHours * 24).toNumber() + "%/d";
+                if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
+                    dischargeStr = (downSlopeHours * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDay);
                 }
                 else {
-                    dischargeStr = (downSlopeHours).toNumber() + "%/h";
+                    dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
                 }	
             }            
         }

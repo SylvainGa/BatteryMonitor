@@ -1,0 +1,5 @@
+<properties>
+	<property id="AppVersion" type="string"></property>
+	<property id="InitialView" type="number">1</property>
+	<property id="SummaryMode" type="number">0</property>
+</properties>

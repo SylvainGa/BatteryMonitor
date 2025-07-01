@@ -1,5 +1,49 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="shortComplicationLabel">BM</string>
-    <string id="longComplicationLabel">BatteryMonitor</string>
+    <string id="AppNameVersion">Battery Monitor V0.2.0.b37</string>
+    <string id="shortComplicationLabel" scope="background">BM</string>
+    <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
+
+    <string id="NotAvailableShort" scope="glance">N/A</string>
+    <string id="PercentPerDay" scope="glance">%/d</string>
+    <string id="PercentPerHour" scope="glance">%/h</string>
+    <string id="PercentPerDayLong">%/day</string>
+    <string id="PercentPerHourLong">%/hour</string>
+
+    <string id="NoRecordedData">No data has yet\nbeen recorded\n\nBattery = </string>
+    <string id="Remaining">Remaining</string>
+    <string id="Discharging">Discharging</string>
+    <string id="Charging">Charging</string>
+    <string id="Rate">Rate</string>
+
+    <string id="MoreDataNeeded">More data needed...</string>
+
+    <string id="BatteryLevel">Battery\nLevel</string>
+    <string id="TimeRemaining">Time\nRemaining</string>
+
+    <string id="SinceLastView">Since last view</string>
+    <string id="SinceLastCharge">Since last charge</string>
+
+    <string id="LastChargeHappened">Last charge happened</string>
+    <string id="LastChargeHappenedPrefix"></string>
+    <string id="LastChargeHappenedSuffix"> ago</string>
+
+    <string id="Now" scope="glance">Now</string>
+    <string id="Minute">Minute</string>
+    <string id="MinuteShort" scope="glance">m</string>
+    <string id="Hour">Hour</string>
+    <string id="HourShort" scope="glance">h</string>
+    <string id="Day">Day</string>
+    <string id="DayShort" scope="glance">d</string>
+    <string id="PluralSuffix">s</string>
+
+    <string id="InitialView">Startup View</string>
+    <string id="SummaryView">Summary View</string>
+    <string id="DataHour">Data/Hour </string>
+    <string id="DataDay">Data/Day</string>
+    <string id="History">History graph</string>
+    <string id="Projection">Projection graph</string>
+
+    <string id="SummaryMode">Summary projection unit</string>
+    <string id="Auto">Auto</string>
 </strings>

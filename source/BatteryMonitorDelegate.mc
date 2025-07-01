@@ -7,8 +7,13 @@ using Toybox.Time.Gregorian;
 using Toybox.Graphics as Gfx;
 
 class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
+	var mView;
+	var mHandler;
 	
-	function initialize() {
+	function initialize(view, handler) {
+		mView = view;
+		mHandler = handler;
+
         BehaviorDelegate.initialize();
 	}
 	
@@ -18,7 +23,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
     function onSelect() {
 		analyzeAndStoreData(getData());
-        // Ui.requestUpdate();
+
         onNextPage();
         return true;    
     }
@@ -30,20 +35,26 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
     }
 
     function onNextPage() {
-		gViewScreen++;
-		if (gViewScreen > SCREEN_PROJECTION) {
-			gViewScreen = SCREEN_DATA_MAIN;
+        var viewScreen = mView.getViewScreenChoice();
+
+		viewScreen++;
+		if (viewScreen > SCREEN_PROJECTION) {
+			viewScreen = SCREEN_DATA_MAIN;
 		}
-        Ui.requestUpdate();
+        mHandler.invoke(viewScreen);
+
 		return true;
 	}
 
     function onPreviousPage() {
-		gViewScreen--;
-		if (gViewScreen < SCREEN_DATA_MAIN) {
-			gViewScreen = SCREEN_PROJECTION;
+        var viewScreen = mView.getViewScreenChoice();
+
+		viewScreen--;
+		if (viewScreen < SCREEN_DATA_MAIN) {
+			viewScreen = SCREEN_PROJECTION;
 		}
-        Ui.requestUpdate();
+        mHandler.invoke(viewScreen);
+
 		return true;
 	}
 

@@ -44,11 +44,13 @@ enum{
 	BATTERY
 }
 
-var gAbleBackground = false;
 var gViewScreen = SCREEN_DATA_MAIN;
 
 (:background)
 class BatteryMonitorApp extends App.AppBase {
+	var mView;
+	var mDelegate;
+
     function initialize() {
         AppBase.initialize();
     }	
@@ -127,20 +129,23 @@ class BatteryMonitorApp extends App.AppBase {
     (:glance)
     function getGlanceView() {
     	if (Toybox.System has :ServiceDelegate) {
-            gAbleBackground = true;
             Background.registerForTemporalEvent(new Time.Duration(INTERVAL_MIN * 60));//x mins - total in seconds
         }
-        return [ new BatteryMonitorGlanceView() ];
+
+		mView = new BatteryMonitorGlanceView();
+        return [ mView ];
     }
 
     // Return the initial view of your application here
     function getInitialView() {	
     	//register for temporal events if they are supported
     	if (Toybox.System has :ServiceDelegate) {
-    		gAbleBackground = true;
     		Background.registerForTemporalEvent(new Time.Duration(INTERVAL_MIN * 60));//x mins - total in seconds
     	}
-        return [ new BatteryMonitorView() , new BatteryMonitorDelegate() ];
+
+		mView = new BatteryMonitorView();
+		mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive));
+        return [ mView , mDelegate ];
     }
     
     function getServiceDelegate(){
@@ -155,4 +160,10 @@ class BatteryMonitorApp extends App.AppBase {
         	Ui.requestUpdate();
 		}
     }    
+
+	function onSettingsChanged() {
+		if (mView != null) {
+			mView.onSettingsChanged();
+		}
+	}
 }

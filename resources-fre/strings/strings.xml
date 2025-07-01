@@ -1,0 +1,48 @@
+<strings>
+    <string id="AppName">Battery Monitor</string>
+    <string id="shortComplicationLabel" scope="background">BM</string>
+    <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
+
+    <string id="NotAvailableShort" scope="glance">N/D</string>
+    <string id="PercentPerDay" scope="glance">%/j</string>
+    <string id="PercentPerHour" scope="glance">%/h</string>
+    <string id="PercentPerDayLong">%/jour</string>
+    <string id="PercentPerHourLong">%/heure</string>
+
+    <string id="NoRecordedData">Aucune donnée n'a\nété enregistrée\nPile = </string>
+    <string id="Remaining">Restant</string>
+    <string id="Discharging">Décharge</string>
+    <string id="Charging">Charge</string>
+    <string id="Rate">Taux</string>
+
+    <string id="MoreDataNeeded">Besoin de données...</string>
+
+    <string id="BatteryLevel">Niveau\nde Charge</string>
+    <string id="TimeRemaining">Temps\nRestant</string>
+
+    <string id="SinceLastView">Dernière vue </string>
+    <string id="SinceLastCharge">Dernière charge</string>
+
+    <string id="LastChargeHappened">Dernère recharge</string>
+    <string id="LastChargeHappenedPrefix">à </string>
+    <string id="LastChargeHappenedSuffix"></string>
+
+    <string id="Now" scope="glance">Maintenant</string>
+    <string id="Minute">Minute</string>
+    <string id="MinuteShort" scope="glance">m</string>
+    <string id="Hour">Heure</string>
+    <string id="HourShort" scope="glance">h</string>
+    <string id="Day">Jour</string>
+    <string id="DayShort" scope="glance">j</string>
+    <string id="PluralSuffix">s</string>
+
+    <string id="InitialView">Vue au démarrage</string>
+    <string id="SummaryView">Vue sommaire</string>
+    <string id="DataHour">Données/heure </string>
+    <string id="DataDay">Données/jour</string>
+    <string id="History">Histogramme</string>
+    <string id="Projection">Projection</string>
+
+    <string id="SummaryMode">Unitée de la vue sommaire</string>
+    <string id="Auto">Auto</string>
+</strings>

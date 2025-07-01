@@ -100,20 +100,20 @@ function getBatteryColor(battery) {
 function minToStr(min, fullText) {
 	var str;
 	if (min < 1){
-		str = "Now";
+		str = Ui.loadResource(Rez.Strings.Now);
 	}
 	else if (min < 60){
-		str = min.toNumber() + (fullText ? " minute" + (min >= 2 ? "s" : "") : "m");
+		str = min.toNumber() + (fullText ? " " + Ui.loadResource(Rez.Strings.Minute) + (min >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "") : Ui.loadResource(Rez.Strings.MinuteShort));
 	}
 	else if (min < 60 * 24) {
 		var hours = Math.floor(min / 60);
 		var mins = min - hours * 60;
-		str = hours.toNumber() + (fullText ? " hour" + (hours >= 2 ? "s " : " ") + mins.format("%2d") + " minute" + (mins >= 2 ? "s" : "") : "h" + mins.format("%02d"));
+		str = hours.toNumber() + (fullText ? " " + Ui.loadResource(Rez.Strings.Hour) + (hours >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) + " " : " ") + mins.format("%2d") + " " + Ui.loadResource(Rez.Strings.Minute) + (mins >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "") : Ui.loadResource(Rez.Strings.HourShort) + mins.format("%02d"));
 	}
 	else {
 		var days = Math.floor(min / 60 / 24);
 		var hours = Math.floor((min / 60) - days * 24);
-		str = days.toNumber() + (fullText ? " day" + (days >= 2 ? "s " : " ") : "d ") + hours.toNumber() + (fullText ? " hour" + (hours >= 2 ? "s" : "") : "h");
+		str = days.toNumber() + (fullText ? " " + Ui.loadResource(Rez.Strings.Day) + (days >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) + " " : " ") : Ui.loadResource(Rez.Strings.DayShort) + " ") + hours.toNumber() + (fullText ? " " + Ui.loadResource(Rez.Strings.Hour) + (hours >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "") : Ui.loadResource(Rez.Strings.HourShort));
 	}
 	return str;
 }
