@@ -8,6 +8,7 @@ using Toybox.Time.Gregorian;
 
 (:glance)
 class BatteryMonitorGlanceView extends Ui.GlanceView {
+	var mFontType;
     var mFontHeight;
 	var mSummaryMode;
 
@@ -23,7 +24,22 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     }
 
     function onLayout(dc) {
-		mFontHeight = Graphics.getFontHeight(Gfx.FONT_TINY);
+		var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE];
+
+		// The right font is about 10% of the screen size
+		for (var i = 0; i < fonts.size(); i++) {
+			var fontHeight = Gfx.getFontHeight(fonts[i]);
+			if (dc.getHeight() / fontHeight < 3) {
+				mFontType = fonts[i];
+				break;
+			}
+		}
+
+		if (mFontType == null) {
+			mFontType = mFontType;
+		}
+
+		mFontHeight = Gfx.getFontHeight(mFontType);
     }
 
     function onSettingsChanged() {
@@ -52,8 +68,8 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
         var batteryStr = battery.toNumber() + "%" + (Sys.getSystemStats().charging ? "+" : "");
 
-        var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", Graphics.FONT_TINY);
-        dc.drawText(0, 0, Graphics.FONT_TINY, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
+        var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", mFontType);
+        dc.drawText(0, 0, mFontType, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
 
         var remainingStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
         var dischargeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
@@ -67,7 +83,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 				dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
                 var downSlopeMin = downSlopeSec * 60;
                 remainingStr = minToStr(battery / downSlopeMin, false);
-                remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", Graphics.FONT_TINY);
+                remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", mFontType);
 
                 var downSlopeHours = downSlopeSec * 60 * 60;
                 if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
@@ -78,9 +94,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 }	
             }            
         }
-        dc.drawText(0, mFontHeight, Gfx.FONT_TINY, remainingStr, Gfx.TEXT_JUSTIFY_LEFT);
+        dc.drawText(0, mFontHeight, mFontType, remainingStr, Gfx.TEXT_JUSTIFY_LEFT);
 
         var xPos = (batteryStrLen > remainingStrLen ? batteryStrLen : remainingStrLen);
-        dc.drawText(xPos, mFontHeight / 2, Gfx.FONT_TINY, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
+        dc.drawText(xPos, mFontHeight / 2, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
     }
 }
