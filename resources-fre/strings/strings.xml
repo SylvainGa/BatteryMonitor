@@ -36,13 +36,9 @@
     <string id="DayShort" scope="glance">j</string>
     <string id="PluralSuffix">s</string>
 
-    <string id="InitialView">Vue au démarrage</string>
-    <string id="SummaryView">Vue sommaire</string>
-    <string id="DataHour">Données/heure </string>
-    <string id="DataDay">Données/jour</string>
-    <string id="History">Histogramme</string>
-    <string id="Projection">Projection</string>
-
+	<string id="PanelOrder">Ordre des panneaux</string>
     <string id="SummaryMode">Unitée de la vue sommaire</string>
     <string id="Auto">Auto</string>
+    <string id="PerDay">Par jour</string>
+    <string id="PerHour">Par heure</string>
 </strings>

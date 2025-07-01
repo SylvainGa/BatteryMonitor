@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion">Battery Monitor V0.2.0.b38</string>
+    <string id="AppNameVersion">Battery Monitor V0.2.0.b39</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -37,13 +37,9 @@
     <string id="DayShort" scope="glance">d</string>
     <string id="PluralSuffix">s</string>
 
-    <string id="InitialView">Startup View</string>
-    <string id="SummaryView">Summary View</string>
-    <string id="DataHour">Data/Hour </string>
-    <string id="DataDay">Data/Day</string>
-    <string id="History">History graph</string>
-    <string id="Projection">Projection graph</string>
-
+	<string id="PanelOrder">Panel order</string>
     <string id="SummaryMode">Summary projection unit</string>
     <string id="Auto">Auto</string>
+    <string id="PerDay">Per day</string>
+    <string id="PerHour">Per hour</string>
 </strings>

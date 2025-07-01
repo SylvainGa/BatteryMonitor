@@ -35,25 +35,25 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
     }
 
     function onNextPage() {
-        var viewScreen = mView.getViewScreenChoice();
+        var panelIndex = mView.getPanelIndex();
 
-		viewScreen++;
-		if (viewScreen > SCREEN_PROJECTION) {
-			viewScreen = SCREEN_DATA_MAIN;
+		panelIndex++;
+		if (panelIndex >= mView.getPanelSize()) {
+			panelIndex = 0;
 		}
-        mHandler.invoke(viewScreen);
+        mHandler.invoke(panelIndex);
 
 		return true;
 	}
 
     function onPreviousPage() {
-        var viewScreen = mView.getViewScreenChoice();
+        var panelIndex = mView.getPanelIndex();
 
-		viewScreen--;
-		if (viewScreen < SCREEN_DATA_MAIN) {
-			viewScreen = SCREEN_PROJECTION;
+		panelIndex--;
+		if (panelIndex < 0) {
+			panelIndex = mView.getPanelSize() - 1;
 		}
-        mHandler.invoke(viewScreen);
+        mHandler.invoke(panelIndex);
 
 		return true;
 	}

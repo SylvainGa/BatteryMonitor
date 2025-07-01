@@ -9,6 +9,9 @@ using Toybox.Graphics as Gfx;
 using Toybox.Application.Properties;
 
 class BatteryMonitorView extends Ui.View {
+	var mPanelOrder;
+	var mPanelSize;
+	var mPanelIndex;
 	var mCtrX, mCtrY;
 	var mTimer;
 	var mLastData;
@@ -113,22 +116,64 @@ class BatteryMonitorView extends Ui.View {
 
     function onSettingsChanged() {
 		try {
-			mViewScreen = Properties.getValue("InitialView");
-		}
-		catch (e) {
-			mViewScreen = SCREEN_DATA_MAIN;
-		}
-
-		try {
 			mSummaryMode = Properties.getValue("SummaryMode");
 		}
 		catch (e) {
 			mSummaryMode = 0;
 		}
+
+        var panelOrderStr;
+        try {
+            panelOrderStr = Properties.getValue("PanelOrder");
+        }
+        catch (e) {
+            Properties.setValue("PanelOrder", "1,2,3,4,5");
+        }
+
+		mPanelOrder = [1, 2, 3, 4, 5];
+		mPanelSize = 5;
+
+        if (panelOrderStr != null) {
+            var array = to_array(panelOrderStr, ",");
+            if (array.size() > 1 && array.size() <= 5) {
+                var i;
+                for (i = 0; i < array.size(); i++) {
+                    var val;
+                    try {
+                        val = array[i].toNumber();
+                    }
+                    catch (e) {
+                        mPanelOrder = [1, 2, 3, 4, 5];
+                        i = 5;
+                        break;
+                    }
+
+                    if (val != null && val > 0 && val <= 5) {
+                        mPanelOrder[i] = val;
+                    }
+                    else {
+                        mPanelOrder = [1, 2, 3, 4, 5];
+                        i = 5;
+                        break;
+                    }
+                }
+
+                mPanelSize = i;
+
+                while (i < 5) {
+                    mPanelOrder[i] = null;
+                    i++;
+                }
+            }
+        }
+
+		mPanelIndex = 0;
+		mViewScreen = mPanelOrder[0];
     }
 
-	function onReceive(viewScreen) {
-		mViewScreen = viewScreen;
+	function onReceive(newIndex) {
+		mPanelIndex = newIndex;
+		mViewScreen = mPanelOrder[mPanelIndex];
 		Ui.requestUpdate();
 	}
 
@@ -582,8 +627,12 @@ class BatteryMonitorView extends Ui.View {
 		}
 	}
 
-	public function getViewScreenChoice() {
-		return(mViewScreen);
+	public function getPanelIndex() {
+		return(mPanelIndex);
+	}
+
+	public function getPanelSize() {
+		return(mPanelSize);
 	}
 }
 
