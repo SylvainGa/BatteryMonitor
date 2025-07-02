@@ -36,7 +36,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		}
 
 		if (mFontType == null) {
-			mFontType = mFontType;
+			mFontType = Gfx.FONT_LARGE;
 		}
 
 		mFontHeight = Gfx.getFontHeight(mFontType);

@@ -3,8 +3,6 @@
 <iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="1">
     <iq:application entry="BatteryMonitorApp" id="c1b17324-9221-4cf3-8cee-4b0bd59ab9da" launcherIcon="@Drawables.LauncherIcon" minApiLevel="3.2.0" name="@Strings.AppName" type="widget">
         <iq:products>
-            <iq:product id="Enduro"/>
-            <iq:product id="Enduro3"/>
             <iq:product id="approachs50"/>
             <iq:product id="approachs7042mm"/>
             <iq:product id="approachs7047mm"/>
@@ -74,15 +72,8 @@
             <iq:product id="fr955"/>
             <iq:product id="fr965"/>
             <iq:product id="fr970"/>
-            <iq:product id="instinct2"/>
-            <iq:product id="instinct2s"/>
-            <iq:product id="instinct2x"/>
             <iq:product id="instinct3amoled45mm"/>
             <iq:product id="instinct3amoled50mm"/>
-            <iq:product id="instinct3solar45mm"/>
-            <iq:product id="instinctcrossover"/>
-            <iq:product id="instincte40mm"/>
-            <iq:product id="instincte45mm"/>
             <iq:product id="legacyherocaptainmarvel"/>
             <iq:product id="legacyherofirstavenger"/>
             <iq:product id="legacysagadarthvader"/>

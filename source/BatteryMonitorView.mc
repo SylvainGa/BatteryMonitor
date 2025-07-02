@@ -108,7 +108,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mFontType == null) {
-			mFontType = Gfx.FONT_TINY;
+			mFontType = Gfx.FONT_LARGE;
 		}
 
 		mFontHeight = Gfx.getFontHeight(mFontType);
