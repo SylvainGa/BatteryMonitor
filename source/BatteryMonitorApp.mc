@@ -155,8 +155,10 @@ class BatteryMonitorApp extends App.AppBase {
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
     	/*DEBUG*/ logMessage("onBG (" + (mDelegate == null ? "BG" : "VIEW") + "): " + data);
-		if (data != null && mDelegate == null) {
-			analyzeAndStoreData(data);
+		if (data != null /* && mDelegate == null*/) {
+			for (var i = 0; i < data.size(); i++) {
+				analyzeAndStoreData(data[i]);
+			}
         	Ui.requestUpdate();
 		}
     }    
