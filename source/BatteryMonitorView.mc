@@ -529,7 +529,7 @@ class BatteryMonitorView extends Ui.View {
 				if (chartData[i].size() == 3) {
 					var solar, dataHeightSolar;
 					solar = chartData[i][SOLAR];
-					if (solar) {
+					if (solar != null) {
 						dataHeightSolar = (solar * Yframe) / Ymax;
 						ySolar = Y2 - dataHeightSolar;
 					}
@@ -542,7 +542,7 @@ class BatteryMonitorView extends Ui.View {
 				if (i > 0) {
 					dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
 					dc.fillRectangle(x, yBat, lastPoint[0] - x + 1, Y2 - yBat);
-					if (ySolar) {
+					if (ySolar && lastPoint[2] != null) {
 						dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
 						dc.drawLine(x, ySolar, lastPoint[0], lastPoint[2]);
 					}

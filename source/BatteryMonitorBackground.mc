@@ -16,20 +16,13 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
     // and the main application is not open. Prompt the user to let them
     // know the timer expired.
     function onTemporalEvent() {
-        var prevData = Background.getBackgroundData();
-        var data;
         var i;
+        var data = Background.getBackgroundData();
         if (data == null) {
-            data = new [1];
-            i = 0;
+            data = [];
             /*DEBUG*/ logMessage("BG no previous data ");
         }
         else {
-            var size = prevData.size();
-            data = new [ size + 1];
-            for (i = 0; i < size; i++) {
-                data[i] = prevData[i];
-            }
             /*DEBUG*/ logMessage("BG previous data " + data);
         }
 
@@ -48,10 +41,24 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             objectStoreErase("STARTED_CHARGING_DATA");
         }
 
-        data[i] = [now, battery, solar];
+        data.add([now, battery, solar]);
 
         /*DEBUG*/ logMessage("BGExit " + data);
-        Background.exit(data);
+        try {
+            Background.exit(data);
+        }
+        catch (e instanceof Background.ExitDataSizeLimitException) { // We are trying to pass to much data! Shrink it down!
+            var size = data.size();
+            var sizeInBytes = data[0].size() * 4 + 15; // 32 bits elements is 4 bytes. data[0] could be made of 2 or 3 32 bits elements and each element has an overhead of 15 byes! 
+            var newSize = size * 8000 / sizeInBytes; // 8000 is the maximum size in bytes that can be passed
+            var retryData = new [newSize];
+            var j;
+            for (i = size - newSize, j = 0; i < size; i++, j++) {
+                retryData[j] = data[i];
+            }
+            /*DEBUG*/ logMessage("BGExit failed. Had " + size + " elements. Retrying with just " + newSize + " elements" + data);
+            Background.exit(retryData);
+        }
     }
 }
 
