@@ -33,7 +33,9 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
                 objectStoreErase("STARTED_CHARGING_DATA");
             }
 
-            Background.exit([now, battery, solar]);
+            var out = [now, battery, solar];
+            /*DEBUG*/ logMessage("BGExit " + out);
+            Background.exit(out);
         // }
         // else {
         //     Background.exit(null);

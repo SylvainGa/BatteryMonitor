@@ -82,7 +82,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		mRefreshCount++;
-		if (mRefreshCount == 60) { // Refresh is 5 seconds, 5 * 60 is 300 seconds, which is the same time the backghround process runs
+		if (mRefreshCount == 12) { // Every minute, read a new set of data
 			mNowData = getData();
 			//DEBUG*/ logMessage("Adding data " + mNowData);
 			analyzeAndStoreData(mNowData);
@@ -405,20 +405,22 @@ class BatteryMonitorView extends Ui.View {
 		//DEBUG*/ logMessage("Bat usage: " + batUsage);
 		//DEBUG*/ logMessage("Time diff: " + timeDiff);
 
+		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SinceLastView), Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 
+		var dischargeRate;
 		if (timeDiff > 0 && batUsage < 0) {
-			var dischargeRate = batUsage * 60 * 60 * (mViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
-			dischargeRate = dischargeRate.abs().format("%0.3f") + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
-			dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
-
-			//DEBUG*/ logMessage("Discharge since last view: " + dischargeRate);
+			dischargeRate = batUsage * 60 * 60 * (mViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
 		}
 		else {
-			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort), Gfx.TEXT_JUSTIFY_CENTER);
-			//DEBUG*/ logMessage("Discharge since last view: N/A");
+			dischargeRate = 0.0f;
 		}
+
+		dischargeRate = dischargeRate.abs().format("%0.3f") + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
+		dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
+
+		//DEBUG*/ logMessage("Discharge since last view: " + dischargeRate);
 
 		//! Bat usage since last charge
 		yPos += mFontHeight;
@@ -428,16 +430,17 @@ class BatteryMonitorView extends Ui.View {
 		if (lastChargeData != null) {
 			batUsage = (nowData[BATTERY] - lastChargeData[BATTERY]).toFloat() / 1000.0;
 			timeDiff = nowData[TIMESTAMP] - lastChargeData[TIMESTAMP];
+
 			if (timeDiff != 0) {
-				var dischargeRate = batUsage * 60 * 60 * (mViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
-				dischargeRate = dischargeRate.abs().format("%0.3f") + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
-				dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
-				//DEBUG*/ logMessage("Discharge since last charge: " + dischargeRate);
+				dischargeRate = batUsage * 60 * 60 * (mViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
 			}
 			else {
-				dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort), Gfx.TEXT_JUSTIFY_CENTER);
-				//DEBUG*/ logMessage("Discharge since last charge: N/A");
+				dischargeRate = 0.0f;
 			}
+
+			dischargeRate = dischargeRate.abs().format("%0.3f") + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
+			dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
+			//DEBUG*/ logMessage("Discharge since last charge: " + dischargeRate);
 		}
 		else {
 			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort), Gfx.TEXT_JUSTIFY_CENTER);

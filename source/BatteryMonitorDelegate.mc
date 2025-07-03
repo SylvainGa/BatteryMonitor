@@ -22,7 +22,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
     }
 
     function onSelect() {
-		analyzeAndStoreData(getData());
+		/*DEBUG*/ analyzeAndStoreData(getData());
 
         onNextPage();
         return true;    
@@ -107,7 +107,6 @@ class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
             //Erase
             objectStoreErase("HISTORY_KEY");
             objectStoreErase("LAST_HISTORY_KEY");
-            objectStoreErase("COUNT");
             objectStoreErase("LAST_VIEWED_DATA");
             objectStoreErase("LAST_CHARGED_DATA");
         }

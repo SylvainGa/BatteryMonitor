@@ -17,7 +17,6 @@ const UPDATE_VERSION = 1; // What version our array structures should be at
 //! Object store keys (now they keys are in Storage and are texts, not numbers)
 // const HISTORY_KEY = 2;
 // const LAST_HISTORY_KEY = 3;
-// const COUNT = 1;
 // const LAST_VIEWED_DATA = 4;
 // const LAST_CHARGED_DATA = 5;
 // const STARTED_CHARGING_DATA = 6;
@@ -155,8 +154,8 @@ class BatteryMonitorApp extends App.AppBase {
 
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
-    	//DEBUG*/ logMessage("data received " + data);
-		if (data != null) {
+    	/*DEBUG*/ logMessage("onBG (" + (mDelegate == null ? "BG" : "VIEW") + "): " + data);
+		if (data != null && mDelegate == null) {
 			analyzeAndStoreData(data);
         	Ui.requestUpdate();
 		}

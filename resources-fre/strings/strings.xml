@@ -11,7 +11,7 @@
 
     <string id="NoRecordedData">Aucune donnée n'a\nété enregistrée\nPile = </string>
     <string id="Remaining">Restant</string>
-    <string id="Discharging">Décharge</string>
+    <string id="Discharging">En décharge</string>
     <string id="Charging">Charge</string>
     <string id="Rate">Taux</string>
 
@@ -24,8 +24,8 @@
     <string id="SinceLastCharge">Dernière charge</string>
 
     <string id="LastChargeHappened">Dernère recharge</string>
-    <string id="LastChargeHappenedPrefix">à </string>
-    <string id="LastChargeHappenedSuffix"></string>
+    <string id="LastChargeHappenedPrefix"></string>
+    <string id="LastChargeHappenedSuffix"> passée</string>
 
     <string id="Now" scope="glance">Maintenant</string>
     <string id="Minute">Minute</string>

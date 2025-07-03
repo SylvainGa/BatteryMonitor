@@ -13,16 +13,22 @@ using Toybox.Application.Storage;
 function analyzeAndStoreData(data){
 	//DEBUG*/ logMessage("analyzeAndStoreData");
 	var lastHistory = objectStoreGet("LAST_HISTORY_KEY", null);
+	var out = (data[SOLAR] != null ? data : [data[TIMESTAMP], data[BATTERY]]);
+	var added = false;
+
 	if (lastHistory == null) { // no data yet
-		objectStoreAdd("HISTORY_KEY", (data[SOLAR] != null ? data : [data[TIMESTAMP], data[BATTERY]]));
+		objectStoreAdd("HISTORY_KEY", out);
+		added = true;
 	}
 	else { // New battery value? Store it
 		if (lastHistory[BATTERY] != data[BATTERY]) {
-			objectStoreAdd("HISTORY_KEY", (data[SOLAR] != null ? data : [data[TIMESTAMP], data[BATTERY]]));
+			objectStoreAdd("HISTORY_KEY", out);
+			added = true;
 		}
 	}
-	objectStorePut("LAST_HISTORY_KEY", (data[SOLAR] != null ? data : [data[TIMESTAMP], data[BATTERY]]));
-	objectStorePut("COUNT", objectStoreGet("COUNT", 0) + 1);
+
+	objectStorePut("LAST_HISTORY_KEY", out);
+	/*DEBUG*/ logMessage((added ? "Added " : "Ignored ") + out);
 }
 
 // Global method for getting a key from the object store
@@ -188,4 +194,7 @@ function logMessage(message) {
 
 (:release, :background)
 function logMessage(message) {
+	var clockTime = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
+	var dateStr = clockTime.hour + ":" + clockTime.min.format("%02d") + ":" + clockTime.sec.format("%02d");
+	Sys.println(dateStr + " : " + message);
 }
