@@ -41,7 +41,8 @@ const SCREEN_PROJECTION = 5;
 //! History Array data type
 enum{
 	TIMESTAMP,
-	BATTERY
+	BATTERY`,
+	SOLAR
 }
 
 var gViewScreen = SCREEN_DATA_MAIN;

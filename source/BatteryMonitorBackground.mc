@@ -16,44 +16,46 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
     // and the main application is not open. Prompt the user to let them
     // know the timer expired.
     function onTemporalEvent() {
-        var viewRunning = objectStoreGet("VIEW_RUNNING", false);
-        if (viewRunning == false) {
+        // var viewRunning = objectStoreGet("VIEW_RUNNING", false);
+        // if (viewRunning == false) {
             var stats = Sys.getSystemStats();
             var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
+            var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
             var now = Time.now().value(); //in seconds from UNIX epoch in UTC
 
             if (Sys.getSystemStats().charging) {
                 var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
                 if (chargingData == null) {
-                    objectStorePut("STARTED_CHARGING_DATA", [now, battery]);
+                    objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
                 }
             }
             else {
                 objectStoreErase("STARTED_CHARGING_DATA");
             }
 
-            Background.exit([now, battery]);
-        }
-        else {
-            Background.exit(null);
-        }
+            Background.exit([now, battery, solar]);
+        // }
+        // else {
+        //     Background.exit(null);
+        // }
     }
 }
 
 function getData(){
     var stats = Sys.getSystemStats();
     var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
+    var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
 
     if (Sys.getSystemStats().charging) {
         var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
         if (chargingData == null) {
-            objectStorePut("STARTED_CHARGING_DATA", [now, battery]);
+            objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
         }
     }
     else {
         objectStoreErase("STARTED_CHARGING_DATA");
     }
 
-    return [now, battery];
+    return [now, battery, solar];
 }

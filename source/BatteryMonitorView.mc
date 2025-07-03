@@ -190,7 +190,7 @@ class BatteryMonitorView extends Ui.View {
 		var history = objectStoreGet("HISTORY_KEY", null);
 		
 		//DEBUG*/ Sys.print("["); for (var i = 0; i < history.size(); i++) { Sys.print(history[i]); if (i < history.size() - 1) { Sys.print(","); } } Sys.println("]");
-		//DEBUG*/ for (var i = 0; i < history.size(); i++) { var timeStartMoment = new Time.Moment(history[i][TIMESTAMP]); var timeStartInfo = Gregorian.info(timeStartMoment, Time.FORMAT_MEDIUM); Sys.println("At " + timeStartInfo.hour + "h" + timeStartInfo.min + "m - Batterie " + history[i][BATTERY].toFloat() / 1000.0 + "%"); } Sys.println("");
+		//DEBUG*/ for (var i = 0; i < history.size(); i++) { var timeStartMoment = new Time.Moment(history[i][TIMESTAMP]); var timeStartInfo = Gregorian.info(timeStartMoment, Time.FORMAT_MEDIUM); Sys.println("At " + timeStartInfo.hour + "h" + timeStartInfo.min + "m - Batterie " + history[i][BATTERY].toFloat() / 1000.0 + "%" + (history[i].size() == 3 ? " - Solar " + history[i][SOLAR] + "%" : "")); } Sys.println("");
 
 		if (!(history instanceof Toybox.Lang.Array)) {
 			var battery = Sys.getSystemStats().battery;
@@ -488,13 +488,14 @@ class BatteryMonitorView extends Ui.View {
 		
 		//! draw now position on axis
 		dc.setPenWidth(2);
-		dc.drawLine(X1 + Xnow, Y1 + 1, X1 + Xnow, Y2);
+		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+		dc.drawLine(X1 + Xnow, Y1 - mCtrY * 2 / 50, X1 + Xnow, Y2);
 
 		//! draw y gridlines
 		dc.setPenWidth(1);
 		var yGridSteps = 0.1;
-		for (var i = 0; i <= 1.05; i += yGridSteps){
-			if (i == 0 or i == 0.5 or i.toNumber() == 1){
+		for (var i = 0; i <= 1.05; i += yGridSteps) {
+			if (i == 0 or i == 0.5 or i.toNumber() == 1) {
 				dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
 			}
 			else {
@@ -504,7 +505,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		dc.setPenWidth(1);
-		var lastPoint = [0,0];
+		var lastPoint = [0, 0, 0];
 		var Ymax = 100; //max value for battery
 
 		//! draw history data
@@ -521,15 +522,30 @@ class BatteryMonitorView extends Ui.View {
 				continue; // This data point is outside of the graph view, ignore it
 			}
 			else {
+				var ySolar = null;
+				if (chartData[i].size() == 3) {
+					var solar, dataHeightSolar;
+					solar = chartData[i][SOLAR];
+					if (solar) {
+						dataHeightSolar = (solar * Yframe) / Ymax;
+						ySolar = Y2 - dataHeightSolar;
+					}
+				}
+
 				var dataHeightBat = (battery * Yframe) / Ymax;
 				var yBat = Y2 - dataHeightBat;
 				var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / XscaleMinPerPxl;
 				var x = X1 + Xnow - dataTimeDistanceInPxl;
-				if (i > 0){ 
+				if (i > 0) {
 					dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
 					dc.fillRectangle(x, yBat, lastPoint[0] - x + 1, Y2 - yBat);
+					if (ySolar) {
+						dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
+						dc.drawLine(x, ySolar, lastPoint[0], lastPoint[2]);
+					}
+
 				}
-				lastPoint = [x, yBat];
+				lastPoint = [x, yBat, ySolar];
 			}
 			
 			// Start (further to now)
@@ -544,7 +560,7 @@ class BatteryMonitorView extends Ui.View {
 				var x = X1 + Xnow - dataTimeDistanceInPxl;
 				dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
 				dc.fillRectangle(x, lastPoint[1], lastPoint[0] - x + 1, Y2 - lastPoint[1]);
-				lastPoint = [x, lastPoint[1]];
+				lastPoint = [x, lastPoint[1], lastPoint[2]];
 			}
 		}
 
