@@ -66,10 +66,15 @@ function analyzeAndStoreData(data, dataSize){
 			/*DEBUG*/ logMessage("historySize " + historySize + " dataSize " + dataSize);
 			for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 				if (historySize < maxSize) {
-					history.add(data[dataIndex]); // As long as we didn't reach the end of our allocated space, keep adding
-					/*DEBUG*/ logMessage("Added " + data[dataIndex]);
-					historySize++;
-					added = true;
+					if (historySize == 0 || history[historySize - 1][BATTERY] != data[dataIndex][BATTERY]) {
+						history.add(data[dataIndex]); // As long as we didn't reach the end of our allocated space, keep adding
+						/*DEBUG*/ logMessage("Added " + data[dataIndex]);
+						historySize++;
+						added = true;
+					}
+					else {
+						/*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
+					}
 				}
 				else {
 					// We've reached the max size, average the bottom half of the array so we have room too grow without affecting the latest data. If there are too many entries, we may need to come back here and do it all over

@@ -16,9 +16,9 @@ In the Summary view, the number on the right of the gauge represents the time si
 
 In the graph views, the battery level, just like for the battery level in data views, is color coded. 100-50% is green, 49-30% is yellow, 29-10% is orange and below 10% is red. If the device supports solar charging, a dark red line will represent the solar intensity (in %) as seen by the device. Below the graphs, the left arrow represent the earliest sample time, the right arrow represent "Now' for the History view and the time the device is projected to have a depleted battery in the Projection view. The '100=' further down is how long the battery is projected to last if the device was charged to 100%. The other fields are quite self explanatory.
 
-There is enough memory to store 3000 data points, which is enough to store over 10 days of data, allowing for a better accuracy in projection.
+There is enough memory to store at most 1,200 data points (it's 4 times the screen size, maxing at 1,200), Since only changed battery level are recorded, depending on how fast your device is draining, and the app's ability to average older data to make room for newer ones, you'll have data for several days.
 
-Data points are calculated using a background process running every 5 minutes. Keep in mind that per Garmin's limitation, background processes are preventing from running when an activity is going so it's "normal" to see a 'flat line' after an abrupt drop in the graph as during the activity, no data was recorded. There is nothing I can do about that.
+Data points are calculated using a background process running every 5 minutes.
 
 Like all my apps, they were done by me, for me and I'm sharing them with others for free. However, 
 
@@ -34,6 +34,7 @@ V1.1.0 The following were added
 - Added Solar data on the graph views for watch that are solar capable. 
 - Battery field in the history array has been reduced from three digits precision to one digit. Three was overkill. This will reduce the size of the history array by a lot.
 - Changed the way the history array is kept. Instead of dropping the last entry when the history is full, the latest half is averaged in half to leave room for more data.
-- The history size is the smallest of either four times the screen width or 1200. 
+- The history size is the smallest of either four times the screen width or 1200.
+- When the app hasn't ran for a long period, the history data waiting to be processed might get too big to be transfered to the app once awaken. If this happens, the data waiting to be processed is cut in half and it retries to process it again. If it's still to big, it's cut in half again and repeat the process until the data to be processed can be transfered.
 - Bug fix when running the background code. Now all the accumulated history since the last time the app was viewed (glance or full view) are accounted for, not just the last one.
 - Bug fix in the auto selection of fonts based on screen size.
