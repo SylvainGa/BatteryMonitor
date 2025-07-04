@@ -11,7 +11,7 @@ using Toybox.Application.Storage;
 
 function getData() {
     var stats = Sys.getSystemStats();
-    var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
+    var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
     var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
 
@@ -36,7 +36,7 @@ function analyzeAndStoreData(data, dataSize){
 	var added = false;
 
 	if (lastHistory == null) { // no data yet
-	    Storage.setValue("HISTORY_KEY", data);
+	    Storage.setValue("HISTORY_KEY", data); // Skip ObjectStorePut to prevent pushing data back on the stack for no good reason
 		lastHistory = data[data.size() - 1];
 		added = true;
 		/*DEBUG*/ logMessage("Added " + data);
@@ -44,7 +44,7 @@ function analyzeAndStoreData(data, dataSize){
 	else { // New battery value? Store it
 	    var history = objectStoreGet("HISTORY_KEY", null);
 		if (history == null) {
-		    Storage.setValue("HISTORY_KEY", data);
+		    Storage.setValue("HISTORY_KEY", data); // Skip ObjectStorePut to prevent pushing data back on the stack for no good reason
 			lastHistory = data[data.size() - 1];
 			added = true;
 			/*DEBUG*/ logMessage("Added " + data);
@@ -115,7 +115,7 @@ function analyzeAndStoreData(data, dataSize){
 			}
 
 			if (added == true) {
-				Storage.setValue("HISTORY_KEY", history);
+				Storage.setValue("HISTORY_KEY", history); // Skip ObjectStorePut to prevent pushing history back on the stack for no good reason. 
 				lastHistory = history[historySize - 1];
 			}
 		}
@@ -125,62 +125,6 @@ function analyzeAndStoreData(data, dataSize){
 		objectStorePut("LAST_HISTORY_KEY", lastHistory);
 	}
 }
-
-// (:background)
-// function objectStoreAdd(key, newValue) {
-//     //DEBUG*/ logMessage("objectStoreAdd");
-//     if (newValue != null) {
-// 	    var existingArray = objectStoreGet(key, []);
-//     	if ((existingArray instanceof Toybox.Lang.Array)) {
-// 			//existing value is an array, add to it
-
-// 			var screenWidth = Sys.getDeviceSettings().screenWidth;
-// 			var size = existingArray.size();
-// 			var maxSize = (screenWidth * 4 > HISTORY_MAX ? HISTORY_MAX : screenWidth * 4);
-// 			if (size < maxSize) {
-//                 objectStorePut(key, existingArray.add(newValue));
-// 			}
-// 			else {
-// 				// We've reached the max size, average the bottom half of the array so we have room too grow without affecting the latest data
-//     			var isSolar = (Sys.getSystemStats().solarIntensity == null ? false : true);
-// 				var newSize = maxSize / 4 + maxSize / 2;
-// 				var newArray = new [newSize]; // Shrink by 25%
-// 				for (var i = 0, j = 0; j < size; i++) {
-// 					if (j < size / 2) {
-// 						newArray[i] = new [isSolar && existingArray[j].size() == 3 && existingArray[j + 1].size() == 3 ? 3 : 2];
-// 						newArray[i][TIMESTAMP] = existingArray[j][TIMESTAMP] + (existingArray[j + 1][TIMESTAMP] - existingArray[j][TIMESTAMP]) / 2; // Average the time between both events
-// 						newArray[i][BATTERY] = existingArray[j][BATTERY] + (existingArray[j + 1][BATTERY] - existingArray[j][BATTERY]) / 2; // 
-// 						if (newArray[i].size() == 3) {
-// 							newArray[i][SOLAR] = existingArray[j][SOLAR] + (existingArray[j + 1][SOLAR] - existingArray[j][SOLAR]) / 2; // Average the time between both events
-// 						}
-// 						j += 2;
-// 					}
-// 					else if (i < newSize) {
-// 						newArray[i] = new [isSolar && existingArray[j].size() == 3 ? 3 : 2];
-// 						newArray[i][TIMESTAMP] = existingArray[j][TIMESTAMP];
-// 						newArray[i][BATTERY] = existingArray[j][BATTERY];
-// 						if (newArray[i].size() == 3) {
-// 							newArray[i][SOLAR] = existingArray[j][SOLAR];
-// 						}
-// 						j += 1;
-// 					}
-// 					else { // For the odd occasion when we didn't reserve enough room because of rounding precision
-// 						if (isSolar && existingArray[j].size() == 3) {
-// 							newArray.add([existingArray[j][TIMESTAMP] , existingArray[j][BATTERY], existingArray[j][SOLAR]]);
-// 						}
-// 						else {
-// 							newArray.add([existingArray[j][TIMESTAMP] , existingArray[j][BATTERY]]);
-// 						}
-// 						j += 1;
-// 					}
-// 				}
-// 			}
-// 	    }
-// 		else {
-// 	        objectStorePut(key, [newValue]); //if not array, then create first item of array 
-// 	    }
-// 	}
-// }
 
 // Global method for getting a key from the object store
 // with a specified default. If the value is not in the
