@@ -156,7 +156,6 @@ class BatteryMonitorApp extends App.AppBase {
     	//DEBUG*/ logMessage("App/onBackgroundData");
     	/*DEBUG*/ logMessage("onBG (" + (mDelegate == null ? "BG" : "VIEW") + "): " + data);
 		if (data != null /* && mDelegate == null*/) {
-			//DEBUG*/ data = [[1751313777, 35381],[1751314002, 35381],[1751314270, 35883],[1751314302, 35805],[1751314902, 35484],[1751315007, 35455],[1751315047, 35381]];
 			analyzeAndStoreData(data, data.size());
         	Ui.requestUpdate();
 		}
