@@ -118,6 +118,8 @@ class BatteryMonitorApp extends App.AppBase {
 
 			/*DEBUG*/ logMessage("Update to version " + UPDATE_VERSION + " complete" + (count != 5 ? " but with some arrays not being updated." : "."));
 			objectStorePut("UPDATE_DATA", UPDATE_VERSION);
+			objectStorePut("IGNORE_NEXT_BGDATA", true);
+
 		}
 		/**** UNCOMMEMT TO UPGRADE ARRAYS STRUCTURES ****/
     }
@@ -155,6 +157,12 @@ class BatteryMonitorApp extends App.AppBase {
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
     	/*DEBUG*/ logMessage("onBG (" + (mDelegate == null ? "BG" : "VIEW") + "): " + data);
+
+		if (objectStoreGet("IGNORE_NEXT_BGDATA", false) == true) { // So we skip pending updates that could potentially be in the wrong format after an array redefinition
+			objectStorePut("IGNORE_NEXT_BGDATA", false);
+			return;
+		}
+
 		if (data != null /* && mDelegate == null*/) {
 			analyzeAndStoreData(data, data.size());
         	Ui.requestUpdate();
