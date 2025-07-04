@@ -9,49 +9,178 @@ using Toybox.Math;
 using Toybox.Lang;
 using Toybox.Application.Storage;
 
+function getData() {
+    var stats = Sys.getSystemStats();
+    var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
+    var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
+    var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+
+    if (Sys.getSystemStats().charging) {
+        var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
+        if (chargingData == null) {
+            objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
+        }
+    }
+    else {
+        objectStoreErase("STARTED_CHARGING_DATA");
+    }
+
+    return [now, battery, solar];
+}
+
 (:background)
-function analyzeAndStoreData(data){
+function analyzeAndStoreData(data, dataSize){
 	//DEBUG*/ logMessage("analyzeAndStoreData");
+
 	var lastHistory = objectStoreGet("LAST_HISTORY_KEY", null);
-	var out = (data[SOLAR] != null ? data : [data[TIMESTAMP], data[BATTERY]]);
 	var added = false;
 
 	if (lastHistory == null) { // no data yet
-		objectStoreAdd("HISTORY_KEY", out);
+	    Storage.setValue("HISTORY_KEY", data);
+		lastHistory = data[data.size() - 1];
 		added = true;
+		/*DEBUG*/ logMessage("Added " + data);
 	}
 	else { // New battery value? Store it
-		if (lastHistory[BATTERY] != data[BATTERY]) {
-			objectStoreAdd("HISTORY_KEY", out);
+	    var history = objectStoreGet("HISTORY_KEY", null);
+		if (history == null) {
+		    Storage.setValue("HISTORY_KEY", data);
+			lastHistory = data[data.size() - 1];
 			added = true;
+			/*DEBUG*/ logMessage("Added " + data);
+		}
+		else {
+			var screenWidth = Sys.getDeviceSettings().screenWidth;
+			var maxSize = (screenWidth * 4 > HISTORY_MAX ? HISTORY_MAX : screenWidth * 4);
+			var dataIndex;
+			for (dataIndex = 0; dataIndex < dataSize; dataIndex++) {
+				if (lastHistory[BATTERY] != data[dataIndex][BATTERY]) { // Look for the first new battery level since last time
+					break; // Found it!
+				}
+				else {
+					/*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
+				}
+			}
+
+			var historySize = history.size();
+			/*DEBUG*/ logMessage("historySize " + historySize + " dataSize " + dataSize);
+			for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
+				if (historySize < maxSize) {
+					history.add(data[dataIndex]); // As long as we didn't reach the end of our allocated space, keep adding
+					/*DEBUG*/ logMessage("Added " + data[dataIndex]);
+					historySize++;
+					added = true;
+				}
+				else {
+					// We've reached the max size, average the bottom half of the array so we have room too grow without affecting the latest data. If there are too many entries, we may need to come back here and do it all over
+					var isSolar = (Sys.getSystemStats().solarIntensity == null ? false : true);
+					var newSize = maxSize / 4 + maxSize / 2;
+					var newHistory = new [newSize]; // Shrink by 25%
+					/*DEBUG*/ logMessage("Making room for new entries. From " + historySize + " down to " + newSize);
+					
+					for (var i = 0, j = 0; j < historySize; i++) {
+						if (j < historySize / 2) {
+							newHistory[i] = new [isSolar && history[j].size() == 3 && history[j + 1].size() == 3 ? 3 : 2];
+							newHistory[i][TIMESTAMP] = history[j][TIMESTAMP] + (history[j + 1][TIMESTAMP] - history[j][TIMESTAMP]) / 2; // Average the time between both events
+							newHistory[i][BATTERY] = history[j][BATTERY] + (history[j + 1][BATTERY] - history[j][BATTERY]) / 2; // 
+							if (newHistory[i].size() == 3) {
+								newHistory[i][SOLAR] = history[j][SOLAR] + (history[j + 1][SOLAR] - history[j][SOLAR]) / 2; // Average the time between both events
+							}
+							j += 2;
+						}
+						else if (i < newSize) {
+							newHistory[i] = new [isSolar && history[j].size() == 3 ? 3 : 2];
+							newHistory[i][TIMESTAMP] = history[j][TIMESTAMP];
+							newHistory[i][BATTERY] = history[j][BATTERY];
+							if (newHistory[i].size() == 3) {
+								newHistory[i][SOLAR] = history[j][SOLAR];
+							}
+							j += 1;
+						}
+						else { // For the odd occasion when we didn't reserve enough room because of rounding precision
+							if (isSolar && history[j].size() == 3) {
+								newHistory.add([history[j][TIMESTAMP] , history[j][BATTERY], history[j][SOLAR]]);
+							}
+							else {
+								newHistory.add([history[j][TIMESTAMP] , history[j][BATTERY]]);
+							}
+							j += 1;
+						}
+					}
+
+					// Now set that as our history and keep adding to it.
+					history = newHistory;
+					historySize = history.size();
+				}
+			}
+
+			if (added == true) {
+				Storage.setValue("HISTORY_KEY", history);
+				lastHistory = history[historySize - 1];
+			}
 		}
 	}
 
-	objectStorePut("LAST_HISTORY_KEY", out);
-	/*DEBUG*/ logMessage((added ? "Added " : "Ignored ") + out);
-}
-
-// Global method for getting a key from the object store
-// with a specified default. If the value is not in the
-// store, the default will be saved and returned.
-(:background)
-function objectStoreAdd(key, newValue) {
-    //DEBUG*/ logMessage("objectStoreAdd");
-    var existingArray = objectStoreGet(key, []);
-    if (newValue != null) {
-    	if (!(existingArray instanceof Toybox.Lang.Array)) {//if not array (incl is null), then create first item of array
-	        objectStorePut(key, [newValue]);
-	    }
-		else { //existing value is an array
-			if (existingArray.size() >= HISTORY_MAX) {
-                objectStorePut(key, existingArray.slice(1, HISTORY_MAX).add(newValue));
-			}
-			else {
-                objectStorePut(key, existingArray.add(newValue));
-			}
-	    }
+	if (added) {
+		objectStorePut("LAST_HISTORY_KEY", lastHistory);
 	}
 }
+
+// (:background)
+// function objectStoreAdd(key, newValue) {
+//     //DEBUG*/ logMessage("objectStoreAdd");
+//     if (newValue != null) {
+// 	    var existingArray = objectStoreGet(key, []);
+//     	if ((existingArray instanceof Toybox.Lang.Array)) {
+// 			//existing value is an array, add to it
+
+// 			var screenWidth = Sys.getDeviceSettings().screenWidth;
+// 			var size = existingArray.size();
+// 			var maxSize = (screenWidth * 4 > HISTORY_MAX ? HISTORY_MAX : screenWidth * 4);
+// 			if (size < maxSize) {
+//                 objectStorePut(key, existingArray.add(newValue));
+// 			}
+// 			else {
+// 				// We've reached the max size, average the bottom half of the array so we have room too grow without affecting the latest data
+//     			var isSolar = (Sys.getSystemStats().solarIntensity == null ? false : true);
+// 				var newSize = maxSize / 4 + maxSize / 2;
+// 				var newArray = new [newSize]; // Shrink by 25%
+// 				for (var i = 0, j = 0; j < size; i++) {
+// 					if (j < size / 2) {
+// 						newArray[i] = new [isSolar && existingArray[j].size() == 3 && existingArray[j + 1].size() == 3 ? 3 : 2];
+// 						newArray[i][TIMESTAMP] = existingArray[j][TIMESTAMP] + (existingArray[j + 1][TIMESTAMP] - existingArray[j][TIMESTAMP]) / 2; // Average the time between both events
+// 						newArray[i][BATTERY] = existingArray[j][BATTERY] + (existingArray[j + 1][BATTERY] - existingArray[j][BATTERY]) / 2; // 
+// 						if (newArray[i].size() == 3) {
+// 							newArray[i][SOLAR] = existingArray[j][SOLAR] + (existingArray[j + 1][SOLAR] - existingArray[j][SOLAR]) / 2; // Average the time between both events
+// 						}
+// 						j += 2;
+// 					}
+// 					else if (i < newSize) {
+// 						newArray[i] = new [isSolar && existingArray[j].size() == 3 ? 3 : 2];
+// 						newArray[i][TIMESTAMP] = existingArray[j][TIMESTAMP];
+// 						newArray[i][BATTERY] = existingArray[j][BATTERY];
+// 						if (newArray[i].size() == 3) {
+// 							newArray[i][SOLAR] = existingArray[j][SOLAR];
+// 						}
+// 						j += 1;
+// 					}
+// 					else { // For the odd occasion when we didn't reserve enough room because of rounding precision
+// 						if (isSolar && existingArray[j].size() == 3) {
+// 							newArray.add([existingArray[j][TIMESTAMP] , existingArray[j][BATTERY], existingArray[j][SOLAR]]);
+// 						}
+// 						else {
+// 							newArray.add([existingArray[j][TIMESTAMP] , existingArray[j][BATTERY]]);
+// 						}
+// 						j += 1;
+// 					}
+// 				}
+// 			}
+// 	    }
+// 		else {
+// 	        objectStorePut(key, [newValue]); //if not array, then create first item of array 
+// 	    }
+// 	}
+// }
 
 // Global method for getting a key from the object store
 // with a specified default. If the value is not in the

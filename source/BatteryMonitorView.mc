@@ -41,7 +41,7 @@ class BatteryMonitorView extends Ui.View {
 		mRefreshCount = 0;
 		mLastData = objectStoreGet("LAST_VIEWED_DATA", null);
 		mNowData = getData();
-		analyzeAndStoreData(mNowData);
+		analyzeAndStoreData([mNowData], 1);
 
 		onSettingsChanged();
     }
@@ -59,7 +59,7 @@ class BatteryMonitorView extends Ui.View {
 		mTimer = null;
 		mLastData = getData();
 		objectStorePut("LAST_VIEWED_DATA", mLastData);
-		analyzeAndStoreData(mLastData);
+		analyzeAndStoreData([mLastData], 1);
 	}
 
 	function onEnterSleep() {
@@ -85,7 +85,7 @@ class BatteryMonitorView extends Ui.View {
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
 			mNowData = getData();
 			//DEBUG*/ logMessage("Adding data " + mNowData);
-			analyzeAndStoreData(mNowData);
+			analyzeAndStoreData([mNowData], 1);
 			mRefreshCount = 0;
 		}
 		Ui.requestUpdate();
@@ -190,7 +190,7 @@ class BatteryMonitorView extends Ui.View {
 		var history = objectStoreGet("HISTORY_KEY", null);
 		
 		//DEBUG*/ Sys.print("["); for (var i = 0; i < history.size(); i++) { Sys.print(history[i]); if (i < history.size() - 1) { Sys.print(","); } } Sys.println("]");
-		//DEBUG*/ for (var i = 0; i < history.size(); i++) { var timeStartMoment = new Time.Moment(history[i][TIMESTAMP]); var timeStartInfo = Gregorian.info(timeStartMoment, Time.FORMAT_MEDIUM); Sys.println("At " + timeStartInfo.hour + "h" + timeStartInfo.min + "m - Batterie " + history[i][BATTERY].toFloat() / 1000.0 + "%" + (history[i].size() == 3 ? " - Solar " + history[i][SOLAR] + "%" : "")); } Sys.println("");
+		//DEBUG*/ for (var i = 0; i < history.size(); i++) { var timeStartMoment = new Time.Moment(history[i][TIMESTAMP]); var timeStartInfo = Gregorian.info(timeStartMoment, Time.FORMAT_MEDIUM); Sys.println("At " + timeStartInfo.hour + "h" + timeStartInfo.min + "m - Batterie " + history[i][BATTERY].toFloat() / 10.0 + "%" + (history[i].size() == 3 ? " - Solar " + history[i][SOLAR] + "%" : "")); } Sys.println("");
 
 		if (!(history instanceof Toybox.Lang.Array)) {
 			var battery = Sys.getSystemStats().battery;
@@ -230,7 +230,7 @@ class BatteryMonitorView extends Ui.View {
 		if (System.getSystemStats().charging) {
 			if (mStartedCharging == false) {
 				mStartedCharging = true;
-				analyzeAndStoreData(getData());
+				analyzeAndStoreData([getData()], 1);
 			}
 			showChargingPopup(dc);
 		}
@@ -291,7 +291,7 @@ class BatteryMonitorView extends Ui.View {
 		dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Charging) + " " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
 		var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
 		if (chargingData) {
-			var batUsage = battery - (chargingData[BATTERY]).toFloat() / 1000.0;
+			var batUsage = battery - (chargingData[BATTERY]).toFloat() / 10.0;
 			var timeDiff = Time.now().value() - chargingData[TIMESTAMP];
 
 			//DEBUG*/ logMessage("Bat usage: " + batUsage);
@@ -398,7 +398,7 @@ class BatteryMonitorView extends Ui.View {
 		var batUsage;
 		var timeDiff = 0;
 		if (mNowData && mLastData) {
-			batUsage = (mNowData[BATTERY] - mLastData[BATTERY]).toFloat() / 1000.0;
+			batUsage = (mNowData[BATTERY] - mLastData[BATTERY]).toFloat() / 10.0;
 			timeDiff = mNowData[TIMESTAMP] - mLastData[TIMESTAMP];
 		}
 
@@ -428,7 +428,7 @@ class BatteryMonitorView extends Ui.View {
 		yPos += mFontHeight;
 
 		if (lastChargeData != null) {
-			batUsage = (nowData[BATTERY] - lastChargeData[BATTERY]).toFloat() / 1000.0;
+			batUsage = (nowData[BATTERY] - lastChargeData[BATTERY]).toFloat() / 10.0;
 			timeDiff = nowData[TIMESTAMP] - lastChargeData[TIMESTAMP];
 
 			if (timeDiff != 0) {
@@ -469,7 +469,7 @@ class BatteryMonitorView extends Ui.View {
     	var X1 = xy[0], X2 = xy[1], Y1 = xy[2], Y2 = xy[3];
 		var timeLeftSecUNIX = null;
 		if (downSlopeSec != null) {
-			var battery = (chartData[0][BATTERY].toFloat() / 1000.0).toNumber();
+			var battery = (chartData[0][BATTERY].toFloat() / 10.0).toNumber();
 			var timeLeftSec = (battery / downSlopeSec).toNumber();
 			timeLeftSecUNIX = timeLeftSec + chartData[0][TIMESTAMP];
 		}
@@ -518,7 +518,7 @@ class BatteryMonitorView extends Ui.View {
 			var timeEnd = chartData[i][TIMESTAMP];
 			var dataTimeDistanceInMinEnd = ((timeMostRecentPoint - timeEnd) / 60).toNumber();
 
-			var battery = chartData[i][BATTERY].toFloat() / 1000.0;
+			var battery = chartData[i][BATTERY].toFloat() / 10.0;
 			var colorBat = getBatteryColor(battery);
 
 			if (dataTimeDistanceInMinEnd > xHistoryInMin) {
@@ -553,7 +553,7 @@ class BatteryMonitorView extends Ui.View {
 			
 			// Start (further to now)
 			var timeStart = chartData[i][TIMESTAMP];
-			var dataTimeDistanceInMinStart = ((timeMostRecentPoint - timeStart)/60).toNumber();
+			var dataTimeDistanceInMinStart = ((timeMostRecentPoint - timeStart) / 60).toNumber();
 
 			if (dataTimeDistanceInMinStart > xHistoryInMin){
 				continue; // This data point is outside of the graph view, ignore it
@@ -576,7 +576,7 @@ class BatteryMonitorView extends Ui.View {
 				var timeDistanceMin = pixelsAvail * XscaleMinPerPxl;
 				var xStart = X1 + Xnow;
 				var xEnd = xStart + pixelsAvail;
-				var valueStart = chartData[0][BATTERY].toFloat() / 1000.0;
+				var valueStart = chartData[0][BATTERY].toFloat() / 10.0;
 				var valueEnd = valueStart + -downSlopeSec * 60.0 * timeDistanceMin;
 				if (valueEnd < 0){
 					timeDistanceMin = valueStart / (downSlopeSec * 60.0);
@@ -619,7 +619,7 @@ class BatteryMonitorView extends Ui.View {
     
     function timeLastFullCharge(data, minTime) {
 		for (var i = 0; i < data.size(); i++){
-			if (data[i][BATTERY] == 100000) { // 100% is 100000 here as we * by 1000 to get three digit precision
+			if (data[i][BATTERY] == 1000) { // 100% is 1000 here as we * by 10 to get one decimal place
 				if (minTime == null || data[0][TIMESTAMP] - minTime < data[i][TIMESTAMP] ) { // If we ask for a minimum time to display, honor it, even if we saw a full charge already
 					return data[i][TIMESTAMP];
 				}
@@ -689,7 +689,7 @@ function downSlope(data) { //data is history data as array / return a slope in p
 	for (var i = 0, j = 0; i < size; i++) {
 		if (batDiff < 0) { // Battery going down or staying level (or we are the last point in the dataset), build data for Correlation Coefficient and Standard Deviation calculation
 			var diffX = data[j][TIMESTAMP] - data[i][TIMESTAMP];
-			var battery = data[i][BATTERY].toFloat() / 1000.0;
+			var battery = data[i][BATTERY].toFloat() / 10.0;
 			//DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff + " diffX=" + secToStr(diffX) + " battery=" + battery + " count=" + count);
 			sumXY += diffX * battery;
 			sumX += diffX;
@@ -731,7 +731,7 @@ function downSlope(data) { //data is history data as array / return a slope in p
 
 			slopes.add(slope);
 
-			// var diffY = data[i][BATTERY].toFloat() / 1000.0 - data[j][BATTERY].toFloat() / 1000.0;
+			// var diffY = data[i][BATTERY].toFloat() / 10.0 - data[j][BATTERY].toFloat() / 10.0;
 			// var diffX = data[j][TIMESTAMP] - data[i][TIMESTAMP];
 			// /*DEBUG*/ logMessage("count=" + count + " diffX=" + diffX + " sec (" + secToStr(diffX) + ") diffY=" + diffY.format("%0.3f") + "%");
 			// if (diffX != 0) {

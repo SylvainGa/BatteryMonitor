@@ -10,9 +10,9 @@ using Toybox.Lang;
 using Toybox.Application.Storage;
 
 //! App constants
-const HISTORY_MAX = 3000; // At 5 minutes per interval is over 10 days of data
+const HISTORY_MAX = 1200; // Quad the max screen size should be enough data to keep but could be too much for large screen so max at 1200 (around 32KB)
 const INTERVAL_MIN = 5; // temporal event in minutes
-const UPDATE_VERSION = 1; // What version our array structures should be at
+const UPDATE_VERSION = 5; // What version our array structures should be at
 
 //! Object store keys (now they keys are in Storage and are texts, not numbers)
 // const HISTORY_KEY = 2;
@@ -58,67 +58,67 @@ class BatteryMonitorApp extends App.AppBase {
     // onStart() is called on application start up
     function onStart(state) {
 		/**** UNCOMMEMT TO UPGRADE ARRAYS STRUCTURES ****/
-		// var update = objectStoreGet("UPDATE_DATA", 0);
-		// /*DEBUG*/ logMessage("UPDATE_DATA is " + update);
-		// if (update == null || update != UPDATE_VERSION) {
-		// 	/*DEBUG*/ logMessage("Updating arrays");
-		// 	var count = 0;
-		// 	var history = objectStoreGet("HISTORY_KEY", null);
-		// 	if (history instanceof Toybox.Lang.Array) {
-		// 		if (history[0][BATTERY] instanceof Toybox.Lang.Number) {
-		// 			/*DEBUG*/ logMessage("HISTORY_KEY is the right format to update");
-		// 			var newHistory = new [history.size()];
-		// 			for (var i = 0; i < history.size(); i++) {
-		// 				newHistory[i] = [history[i][TIMESTAMP], history[i][BATTERY]];
-		// 			}
-		// 			objectStorePut("HISTORY_KEY", newHistory);
-		// 			count++;
-		// 		}
-		// 	}
+		// This update drops the precision of the Battery field from 3 decimal to 1 decimal. 3 was overboard.
+		var update = objectStoreGet("UPDATE_DATA", null);
+		/*DEBUG*/ logMessage("UPDATE_DATA is " + update);
+		if (update == null || update != UPDATE_VERSION) {
+			/*DEBUG*/ logMessage("Updating arrays");
+			var count = 0;
+			var history = objectStoreGet("HISTORY_KEY", null);
+			if (history instanceof Toybox.Lang.Array) {
+				if (history[0][BATTERY] instanceof Toybox.Lang.Number) {
+					/*DEBUG*/ logMessage("HISTORY_KEY is the right format to update");
+					for (var i = 0; i < history.size(); i++) {
+						history[i][BATTERY] = (history[i][BATTERY] / 100).toNumber();
+					}
+					objectStorePut("HISTORY_KEY", history);
+					count++;
+				}
+			}
 
-		// 	history = objectStoreGet("LAST_HISTORY_KEY", null);
-		// 	if (history != null) {
-		// 		if (history[BATTERY] instanceof Toybox.Lang.Number) {
-		// 			/*DEBUG*/ logMessage("LAST_HISTORY_KEY is the right format to update");
-		// 			var newHistory = [history[TIMESTAMP], history[BATTERY]];
-		// 			objectStorePut("LAST_HISTORY_KEY", newHistory);
-		// 			count++;
-		// 		}
-		// 	}
+			history = objectStoreGet("LAST_HISTORY_KEY", null);
+			if (history != null) {
+				if (history[BATTERY] instanceof Toybox.Lang.Number) {
+					/*DEBUG*/ logMessage("LAST_HISTORY_KEY is the right format to update");
+					history[BATTERY] = (history[BATTERY] / 100).toNumber();
+					objectStorePut("LAST_HISTORY_KEY", history);
+					count++;
+				}
+			}
 
-		// 	history = objectStoreGet("LAST_VIEWED_DATA", null);
-		// 	if (history != null) {
-		// 		if (history[BATTERY] instanceof Toybox.Lang.Number) {
-		// 			/*DEBUG*/ logMessage("LAST_VIEWED_DATA is the right format to update");
-		// 			var newHistory = [history[TIMESTAMP], history[BATTERY]];
-		// 			objectStorePut("LAST_HISTORY_KEY", newHistory);
-		// 			count++;
-		// 		}
-		// 	}
+			history = objectStoreGet("LAST_VIEWED_DATA", null);
+			if (history != null) {
+				if (history[BATTERY] instanceof Toybox.Lang.Number) {
+					/*DEBUG*/ logMessage("LAST_VIEWED_DATA is the right format to update");
+					history[BATTERY] = (history[BATTERY] / 100).toNumber();
+					objectStorePut("LAST_VIEWED_DATA", history);
+					count++;
+				}
+			}
 
-		// 	history = objectStoreGet("LAST_CHARGED_DATA", null);
-		// 	if (history != null) {
-		// 		if (history[BATTERY] instanceof Toybox.Lang.Number) {
-		// 			/*DEBUG*/ logMessage("LAST_CHARGED_DATA is the right format to update");
-		// 			var newHistory = [history[TIMESTAMP], history[BATTERY]];
-		// 			objectStorePut("LAST_HISTORY_KEY", newHistory);
-		// 			count++;
-		// 		}
-		// 	}
+			history = objectStoreGet("LAST_CHARGED_DATA", null);
+			if (history != null) {
+				if (history[BATTERY] instanceof Toybox.Lang.Number) {
+					/*DEBUG*/ logMessage("LAST_CHARGED_DATA is the right format to update");
+					history[BATTERY] = (history[BATTERY] / 100).toNumber();
+					objectStorePut("LAST_CHARGED_DATA", history);
+					count++;
+				}
+			}
 
-		// 	history = objectStoreGet("STARTED_CHARGING_DATA", null);
-		// 	if (history != null) {
-		// 		if (history[BATTERY] instanceof Toybox.Lang.Number) {
-		// 			/*DEBUG*/ logMessage("STARTED_CHARGING_DATA is the right format to update");
-		// 			var newHistory = [history[TIMESTAMP], history[BATTERY]];
-		// 			objectStorePut("LAST_HISTORY_KEY", newHistory);
-		// 			count++;
-		// 		}
-		// 	}
+			history = objectStoreGet("STARTED_CHARGING_DATA", null);
+			if (history != null) {
+				if (history[BATTERY] instanceof Toybox.Lang.Number) {
+					/*DEBUG*/ logMessage("STARTED_CHARGING_DATA is the right format to update");
+					history[BATTERY] = (history[BATTERY] / 100).toNumber();
+					objectStorePut("STARTED_CHARGING_DATA", history);
+					count++;
+				}
+			}
 
-		// 	/*DEBUG*/ logMessage("Update to version " + UPDATE_VERSION + " complete" + (count != 5 ? " but with some arrays not being updated." : "."));
-		// 	objectStorePut("UPDATE_DATA", UPDATE_VERSION);
-		// }
+			/*DEBUG*/ logMessage("Update to version " + UPDATE_VERSION + " complete" + (count != 5 ? " but with some arrays not being updated." : "."));
+			objectStorePut("UPDATE_DATA", UPDATE_VERSION);
+		}
 		/**** UNCOMMEMT TO UPGRADE ARRAYS STRUCTURES ****/
     }
 
@@ -156,9 +156,8 @@ class BatteryMonitorApp extends App.AppBase {
     	//DEBUG*/ logMessage("App/onBackgroundData");
     	/*DEBUG*/ logMessage("onBG (" + (mDelegate == null ? "BG" : "VIEW") + "): " + data);
 		if (data != null /* && mDelegate == null*/) {
-			for (var i = 0; i < data.size(); i++) {
-				analyzeAndStoreData(data[i]);
-			}
+			//DEBUG*/ data = [[1751313777, 35381],[1751314002, 35381],[1751314270, 35883],[1751314302, 35805],[1751314902, 35484],[1751315007, 35455],[1751315047, 35381]];
+			analyzeAndStoreData(data, data.size());
         	Ui.requestUpdate();
 		}
     }    

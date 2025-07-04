@@ -27,3 +27,13 @@ Like all my apps, they were done by me, for me and I'm sharing them with others 
 https://bit.ly/sylvainga
 
 Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Garmin-BatteryAnalyzer) and inspired by the work of dsapptech (https://apps.garmin.com/developer/b5b5e5f1-8148-42b7-9f66-f23de2625304/apps), which is missing the launch from watch face, and after asking if he could implement it and got no response, decide to build my own, hence this app :-)
+
+## Changelog
+
+V1.1.0 The following were added
+- Added Solar data on the graph views for watch that are solar capable. 
+- Battery field in the history array has been reduced from three digits precision to one digit. Three was overkill. This will reduce the size of the history array by a lot.
+- Changed the way the history array is kept. Instead of dropping the last entry when the history is full, the latest half is averaged in half to leave room for more data.
+- The history size is the smallest of either four times the screen width or 1200. 
+- Bug fix when running the background code. Now all the accumulated history since the last time the app was viewed (glance or full view) are accounted for, not just the last one.
+- Bug fix in the auto selection of fonts based on screen size.

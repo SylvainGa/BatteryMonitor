@@ -27,7 +27,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         }
 
         var stats = Sys.getSystemStats();
-        var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
+        var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
         var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
         var now = Time.now().value(); //in seconds from UNIX epoch in UTC
 
@@ -60,23 +60,4 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             Background.exit(retryData);
         }
     }
-}
-
-function getData(){
-    var stats = Sys.getSystemStats();
-    var battery = (stats.battery * 1000).toNumber(); // * 1000 to keep three digits after the dot without using the space of a float variable
-    var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
-    var now = Time.now().value(); //in seconds from UNIX epoch in UTC
-
-    if (Sys.getSystemStats().charging) {
-        var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
-        if (chargingData == null) {
-            objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
-        }
-    }
-    else {
-        objectStoreErase("STARTED_CHARGING_DATA");
-    }
-
-    return [now, battery, solar];
 }
