@@ -34,8 +34,9 @@ const COLOR_PROJECTION = Gfx.COLOR_DK_BLUE;
 const SCREEN_DATA_MAIN = 1;
 const SCREEN_DATA_HR = 2;
 const SCREEN_DATA_DAY = 3;
-const SCREEN_HISTORY = 4;
-const SCREEN_PROJECTION = 5;
+const SCREEN_LAST_CHARGE = 4;
+const SCREEN_HISTORY = 5;
+const SCREEN_PROJECTION = 6;
 
 //! History Array data type
 enum{
@@ -43,8 +44,6 @@ enum{
 	BATTERY`,
 	SOLAR
 }
-
-var gViewScreen = SCREEN_DATA_MAIN;
 
 (:background)
 class BatteryMonitorApp extends App.AppBase {

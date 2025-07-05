@@ -23,9 +23,8 @@
     <string id="SinceLastView">Dernière vue </string>
     <string id="SinceLastCharge">Dernière charge</string>
 
-    <string id="LastChargeHappened">Dernère recharge</string>
-    <string id="LastChargeHappenedPrefix"></string>
-    <string id="LastChargeHappenedSuffix"> passée</string>
+    <string id="LastCharge">Dernière recharge</string>
+    <string id="At">à</string>
 
     <string id="Now" scope="glance">Maintenant</string>
     <string id="Minute">Minute</string>
@@ -41,4 +40,6 @@
     <string id="Auto">Auto</string>
     <string id="PerDay">Par jour</string>
     <string id="PerHour">Par heure</string>
+
+    <string id="MediumDateFormat">$1$ $2$ $3$</string>
 </strings>

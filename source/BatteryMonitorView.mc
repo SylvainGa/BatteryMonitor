@@ -101,7 +101,7 @@ class BatteryMonitorView extends Ui.View {
 		// The right font is about 10% of the screen size
 		for (var i = 0; i < fonts.size(); i++) {
 			var fontHeight = Gfx.getFontHeight(fonts[i]);
-			if (dc.getHeight() / fontHeight < 11) {
+			if (dc.getHeight() / fontHeight < 9) {
 				mFontType = fonts[i];
 				break;
 			}
@@ -127,15 +127,15 @@ class BatteryMonitorView extends Ui.View {
             panelOrderStr = Properties.getValue("PanelOrder");
         }
         catch (e) {
-            Properties.setValue("PanelOrder", "1,2,3,4,5");
+            Properties.setValue("PanelOrder", "1,2,3,4,5,6");
         }
 
-		mPanelOrder = [1, 2, 3, 4, 5];
-		mPanelSize = 5;
+		mPanelOrder = [1, 2, 3, 4, 5, 6];
+		mPanelSize = 6;
 
         if (panelOrderStr != null) {
             var array = to_array(panelOrderStr, ",");
-            if (array.size() > 1 && array.size() <= 5) {
+            if (array.size() > 1 && array.size() <= 6) {
                 var i;
                 for (i = 0; i < array.size(); i++) {
                     var val;
@@ -143,24 +143,24 @@ class BatteryMonitorView extends Ui.View {
                         val = array[i].toNumber();
                     }
                     catch (e) {
-                        mPanelOrder = [1, 2, 3, 4, 5];
-                        i = 5;
+                        mPanelOrder = [1, 2, 3, 4, 5, 6];
+                        i = 6;
                         break;
                     }
 
-                    if (val != null && val > 0 && val <= 5) {
+                    if (val != null && val > 0 && val <= 6) {
                         mPanelOrder[i] = val;
                     }
                     else {
-                        mPanelOrder = [1, 2, 3, 4, 5];
-                        i = 5;
+                        mPanelOrder = [1, 2, 3, 4, 5, 6];
+                        i = 6;
                         break;
                     }
                 }
 
                 mPanelSize = i;
 
-                while (i < 5) {
+                while (i < 6) {
                     mPanelOrder[i] = null;
                     i++;
                 }
@@ -216,6 +216,10 @@ class BatteryMonitorView extends Ui.View {
 					showDataPage(dc, SCREEN_DATA_DAY, downSlopeSec, lastChargeData, nowData);
 					break;
 
+				case SCREEN_LAST_CHARGE:
+					showLastChargePage(dc, downSlopeSec, lastChargeData);
+					break;
+					
 				case SCREEN_HISTORY:
 					drawChart(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], SCREEN_HISTORY, downSlopeSec, history);
 					break;
@@ -447,18 +451,55 @@ class BatteryMonitorView extends Ui.View {
 			//DEBUG*/ logMessage("Discharge since last charge: N/A");
 		}
 
+		return yPos;
+	}
+
+	function showLastChargePage(dc, downSlopeSec, lastChargeData) {
+	    var battery = Sys.getSystemStats().battery;
+
+		var yPos = doHeader(dc, 2, battery, downSlopeSec); // We"ll show the same header as SCREEN_DATA_HR
+
 		//! How long for last charge?
 		yPos += mFontHeight;
-		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.LastChargeHappened), Gfx.TEXT_JUSTIFY_CENTER);
-		var lastChargeHappened;
+		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.LastCharge), Gfx.TEXT_JUSTIFY_CENTER);
 		if (lastChargeData) {
-			lastChargeHappened = Ui.loadResource(Rez.Strings.LastChargeHappenedPrefix) + minToStr((Time.now().value() - lastChargeData[TIMESTAMP]) / 60, false) + Ui.loadResource(Rez.Strings.LastChargeHappenedSuffix);
+			var timeMoment = new Time.Moment(lastChargeData[TIMESTAMP]);
+			var date = Time.Gregorian.info(timeMoment, Time.FORMAT_MEDIUM);
+
+			// Format time accoring to 24/12 hour format
+			var timeStr;
+			if (Sys.getDeviceSettings().is24Hour) {
+				timeStr = Lang.format("$1$h$2$", [date.hour.format("%2d"), date.min.format("%02d")]);
+			}
+			else {
+				var ampm = "am";
+				var hours12 = date.hour;
+
+				if (date.hour == 0) {
+					hours12 = 12;
+				}
+				else if (date.hour > 12) {
+					ampm = "pm";
+					hours12 -= 12;
+				}
+				
+				timeStr = Lang.format("$1$:$2$$3$", [hours12.format("%2d"), date.min.format("%02d"), ampm]);
+			}
+
+			// Format the date according to the language file
+			var dateFormat = Ui.loadResource(Rez.Strings.MediumDateFormat);
+			var dateStr = Lang.format(dateFormat, [date.day_of_week, date.day, date.month]);
+
+			yPos += mFontHeight;
+			dc.drawText(mCtrX, yPos, mFontType,  dateStr + " " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
+
+			yPos += mFontHeight;
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + (lastChargeData[BATTERY] / 10.0).format("%0.1f") + "%" , Gfx.TEXT_JUSTIFY_CENTER);
 		}
 		else {
-			lastChargeHappened = Ui.loadResource(Rez.Strings.NotAvailableShort);
+			yPos += mFontHeight;
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort) , Gfx.TEXT_JUSTIFY_CENTER);
 		}
-		yPos += mFontHeight;
-		dc.drawText(mCtrX, yPos, mFontType, lastChargeHappened, Gfx.TEXT_JUSTIFY_CENTER);
 
 		return yPos;
 	}
@@ -595,16 +636,16 @@ class BatteryMonitorView extends Ui.View {
 		//! x-legend
 		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 		var timeStr = minToStr(xHistoryInMin, false);
-		dc.drawText(27, Y2 + 1, (mFontType > 0 ? mFontType - 1 : 0),  "<-" + timeStr, Gfx.TEXT_JUSTIFY_LEFT);
+		dc.drawText(27, Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0),  "<-" + timeStr, Gfx.TEXT_JUSTIFY_LEFT);
 		
 		timeStr = minToStr(xFutureInMin, false);
-		dc.drawText(mCtrX * 2 - 27, Y2 + 1, (mFontType > 0 ? mFontType - 1 : 0), timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
+		dc.drawText(mCtrX * 2 - 27, Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0), timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
 		
 		if (downSlopeSec != null){
 			var timeLeftMin = (100.0 / (downSlopeSec * 60.0)).toNumber();
 			timeStr = minToStr(timeLeftMin, false);
 			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-			dc.drawText(mCtrX, mCtrY * 2 - mFontHeight - mFontHeight / 2, (mFontType > 0 ? mFontType - 1 : 0), "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
+			dc.drawText(mCtrX, mCtrY * 2 - mFontHeight - mFontHeight / 3, (mFontType > 0 ? mFontType - 1 : 0), "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
 		}
     }
 

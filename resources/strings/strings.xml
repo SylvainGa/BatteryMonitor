@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion">Battery Monitor V1.1.0.b19</string>
+    <string id="AppNameVersion">Battery Monitor V1.1.0.b22</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -24,9 +24,8 @@
     <string id="SinceLastView">Since last view</string>
     <string id="SinceLastCharge">Since last charge</string>
 
-    <string id="LastChargeHappened">Last charge happened</string>
-    <string id="LastChargeHappenedPrefix"></string>
-    <string id="LastChargeHappenedSuffix"> ago</string>
+    <string id="LastCharge">Last Charge</string>
+    <string id="At">at</string>
 
     <string id="Now" scope="glance">Now</string>
     <string id="Minute">Minute</string>
@@ -42,4 +41,6 @@
     <string id="Auto">Auto</string>
     <string id="PerDay">Per day</string>
     <string id="PerHour">Per hour</string>
+
+    <string id="MediumDateFormat">$1$ $3$ $2$</string>
 </strings>
