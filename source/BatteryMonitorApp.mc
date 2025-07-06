@@ -39,11 +39,13 @@ const SCREEN_HISTORY = 5;
 const SCREEN_PROJECTION = 6;
 
 //! History Array data type
-enum{
+enum {
 	TIMESTAMP,
 	BATTERY`,
 	SOLAR
 }
+const HISTORY_ELEMENT_SIZE_SOLAR = 3; // Solar watches have three fields of 4 bytes (signed 32 bits) each, TIMESTAMP, BATTERY and SOLAR
+const HISTORY_ELEMENT_SIZE = 2; // Non solar watches have two fields of 4 bytes (signed 32 bits) each, TIMESTAMP and BATTERY
 
 (:background)
 class BatteryMonitorApp extends App.AppBase {

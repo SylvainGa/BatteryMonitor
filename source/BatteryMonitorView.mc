@@ -542,16 +542,18 @@ class BatteryMonitorView extends Ui.View {
 
     	var X1 = xy[0], X2 = xy[1], Y1 = xy[2], Y2 = xy[3];
 		var timeLeftSecUNIX = null;
+		var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 		if (downSlopeSec != null) {
-			var battery = (chartData[0][BATTERY].toFloat() / 10.0).toNumber();
+			var battery = (chartData[BATTERY].toFloat() / 10.0).toNumber();
 			var timeLeftSec = (battery / downSlopeSec).toNumber();
-			timeLeftSecUNIX = timeLeftSec + chartData[0][TIMESTAMP];
+			timeLeftSecUNIX = timeLeftSec + chartData[TIMESTAMP];
 		}
 
 		//! Graphical views
 		var Yframe = Y2 - Y1;// pixels available for level
 		var Xframe = X2 - X1;// pixels available for time
-		var timeMostRecentPoint = chartData[0][TIMESTAMP];
+		var timeMostRecentPoint = chartData[TIMESTAMP];
 		var timeMostFuturePoint = (timeLeftSecUNIX != null && whichView == SCREEN_PROJECTION) ? timeLeftSecUNIX : timeMostRecentPoint;
 		var timeLeastRecentPoint = timeLastFullCharge(chartData, 60 * 60 * 24); // Try to show at least a day's worth of data
 		var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint).toFloat() / 60.0; // History time in minutes
@@ -586,13 +588,14 @@ class BatteryMonitorView extends Ui.View {
 		var Ymax = 100; //max value for battery
 
 		//! draw history data
-		for (var i = 0; i < chartData.size(); i++) {
+		var chartSize = chartData.size() / elementSize;
+		for (var i = 0; i < chartSize; i++) {
 			//DEBUG*/ logMessage(i + " " + chartData[i]);
 			// End (closer to now)
-			var timeEnd = chartData[i][TIMESTAMP];
+			var timeEnd = chartData[i * elementSize + TIMESTAMP];
 			var dataTimeDistanceInMinEnd = ((timeMostRecentPoint - timeEnd) / 60).toNumber();
 
-			var battery = chartData[i][BATTERY].toFloat() / 10.0;
+			var battery = chartData[i * elementSize + BATTERY].toFloat() / 10.0;
 			var colorBat = getBatteryColor(battery);
 
 			if (dataTimeDistanceInMinEnd > xHistoryInMin) {
@@ -600,33 +603,33 @@ class BatteryMonitorView extends Ui.View {
 			}
 			else {
 				var ySolar = null;
-				if (chartData[i].size() == 3) {
+				if (isSolar) {
 					var solar, dataHeightSolar;
-					solar = chartData[i][SOLAR];
+					solar = chartData[i * elementSize + SOLAR];
 					if (solar != null) {
 						dataHeightSolar = (solar * Yframe) / Ymax;
 						ySolar = Y2 - dataHeightSolar;
 					}
-				}
 
-				var dataHeightBat = (battery * Yframe) / Ymax;
-				var yBat = Y2 - dataHeightBat;
-				var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / XscaleMinPerPxl;
-				var x = X1 + Xnow - dataTimeDistanceInPxl;
-				if (i > 0) {
-					dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
-					dc.fillRectangle(x, yBat, lastPoint[0] - x + 1, Y2 - yBat);
-					if (ySolar && lastPoint[2] != null) {
-						dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
-						dc.drawLine(x, ySolar, lastPoint[0], lastPoint[2]);
+					var dataHeightBat = (battery * Yframe) / Ymax;
+					var yBat = Y2 - dataHeightBat;
+					var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / XscaleMinPerPxl;
+					var x = X1 + Xnow - dataTimeDistanceInPxl;
+					if (i > 0) {
+						dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
+						dc.fillRectangle(x, yBat, lastPoint[0] - x + 1, Y2 - yBat);
+						if (ySolar && lastPoint[2] != null) {
+							dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
+							dc.drawLine(x, ySolar, lastPoint[0], lastPoint[2]);
+						}
+
 					}
-
+					lastPoint = [x, yBat, ySolar];
 				}
-				lastPoint = [x, yBat, ySolar];
 			}
 			
 			// Start (further to now)
-			var timeStart = chartData[i][TIMESTAMP];
+			var timeStart = chartData[i * elementSize + TIMESTAMP];
 			var dataTimeDistanceInMinStart = ((timeMostRecentPoint - timeStart) / 60).toNumber();
 
 			if (dataTimeDistanceInMinStart > xHistoryInMin){
@@ -650,7 +653,7 @@ class BatteryMonitorView extends Ui.View {
 				var timeDistanceMin = pixelsAvail * XscaleMinPerPxl;
 				var xStart = X1 + Xnow;
 				var xEnd = xStart + pixelsAvail;
-				var valueStart = chartData[0][BATTERY].toFloat() / 10.0;
+				var valueStart = chartData[BATTERY].toFloat() / 10.0;
 				var valueEnd = valueStart + -downSlopeSec * 60.0 * timeDistanceMin;
 				if (valueEnd < 0){
 					timeDistanceMin = valueStart / (downSlopeSec * 60.0);
@@ -683,23 +686,31 @@ class BatteryMonitorView extends Ui.View {
     }
 
     function LastChargeData(data) {
-		for (var i = 0; i < data.size() - 1; i++){
-			if (data[i][BATTERY] > data[i + 1][BATTERY]){
-				return data[i];
+		var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+		var dataSize = data.size() / elementSize;
+
+		for (var i = 0; i < dataSize - 1; i++){
+			if (data[i * elementSize + BATTERY] > data[(i + 1) * elementSize + BATTERY]){
+				return [data[i], data[i + 1], isSolar ? data[i + 2] : null];
 			}
 		}
     	return null;
     }
     
     function timeLastFullCharge(data, minTime) {
-		for (var i = 0; i < data.size(); i++){
-			if (data[i][BATTERY] == 1000) { // 100% is 1000 here as we * by 10 to get one decimal place
-				if (minTime == null || data[0][TIMESTAMP] - minTime < data[i][TIMESTAMP] ) { // If we ask for a minimum time to display, honor it, even if we saw a full charge already
-					return data[i][TIMESTAMP];
+		var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+		var dataSize = data.size() / elementSize;
+
+		for (var i = 0; i < dataSize - 1; i++){
+			if (data[i * elementSize + BATTERY] == 1000) { // 100% is 1000 here as we * by 10 to get one decimal place
+				if (minTime == null || data[TIMESTAMP] - minTime < data[i * elementSize + TIMESTAMP] ) { // If we ask for a minimum time to display, honor it, even if we saw a full charge already
+					return data[i * elementSize + TIMESTAMP];
 				}
 			}
 		}
-    	return data[data.size() - 1][TIMESTAMP];
+    	return data[(dataSize - 1) * elementSize + TIMESTAMP];
     }
     
 	function MAX (val1, val2) {
@@ -726,135 +737,5 @@ class BatteryMonitorView extends Ui.View {
 
 	public function getPanelSize() {
 		return(mPanelSize);
-	}
-}
-
-(:background)
-function downSlope(data) { //data is history data as array / return a slope in percentage point per second
-	var size = data.size();
-	//DEBUG*/ Sys.print("["); for (var i = 0; i < size; i++) { Sys.print(data[i]); if (i < size - 1) { Sys.print(","); } } Sys.println("]");
-
-	//DEBUG*/ logMessage(data);
-	if (size <= 2){
-		return null;
-	}
-
-	// Don't run too often, it's CPU intensive!
-	var lastRun = objectStoreGet("LAST_SLOPE_CALC", 0);
-	var now = Time.now().value();
-	if (now < lastRun + 5) {
-		var lastSlope = objectStoreGet("LAST_SLOPE_VALUE", null);
-		if (lastSlope != null) {
-			//DEBUG*/ logMessage("Retreiving last stored slope (" + lastSlope + ")");
-			return lastSlope;
-		}
-	}
-	objectStorePut("LAST_SLOPE_CALC", now);
-
-	var slopes = new [0];
-
-	var count = 0;
-	var sumXY = 0, sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0;
-	var arrayX = new [0];
-	var arrayY = new [0];
-	var keepGoing = true;
-	var batDiff = data[0][BATTERY] - data[1][BATTERY];
-
-	for (var i = 0, j = 0; i < size; i++) {
-		if (batDiff < 0) { // Battery going down or staying level (or we are the last point in the dataset), build data for Correlation Coefficient and Standard Deviation calculation
-			var diffX = data[j][TIMESTAMP] - data[i][TIMESTAMP];
-			var battery = data[i][BATTERY].toFloat() / 10.0;
-			//DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff + " diffX=" + secToStr(diffX) + " battery=" + battery + " count=" + count);
-			sumXY += diffX * battery;
-			sumX += diffX;
-			sumY += battery;
-			sumX2 += (diffX.toLong() * diffX.toLong()).toLong();
-			//DEBUG*/ logMessage("diffX=" + diffX + " diffX * diffX=" + diffX * diffX + " sumX2=" + sumX2);
-			sumY2 += battery * battery;
-			arrayX.add(diffX);
-			arrayY.add(battery);
-			count++;
-
-			if (i == size - 1) {
-				//DEBUG*/ logMessage("Stopping this serie because 'i == size - 1'");
-				keepGoing = false; // We reached the end of the array, calc the last slope if we have more than one data
-			}
-			else if (i < size - 2) {
-				batDiff = data[i + 1][BATTERY] - data[i + 2][BATTERY]; // Get direction of the next battery level for next pass
-			}
-			else {
-				//DEBUG*/ logMessage("Doing last data entry in the array");
-				// Next pass is for the last data in the array, process it 'as is' since we were going down until then (leave batDiff like it was)
-			}
-		}
-		else {
-			keepGoing = false;
-			//DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff);
-		}
-
-		if (keepGoing) {
-			continue;
-		}
-
-		if (count > 1) { // We reached the end (i == size - 1) or we're starting to go up in battery level, if we have at least two data (count > 1), calculate the slope
-			var standardDeviationX = Math.stdev(arrayX, sumX / count);
-			var standardDeviationY = Math.stdev(arrayY, sumY / count);
-			var r = (count * sumXY - sumX * sumY) / Math.sqrt((count * sumX2 - sumX * sumX) * (count * sumY2 - sumY * sumY));
-			var slope = r * (standardDeviationY / standardDeviationX);
-			//DEBUG*/ logMessage("count=" + count + " sumX=" + sumX + " sumY=" + sumY.format("%0.3f") + " sumXY=" + sumXY.format("%0.3f") + " sumX2=" + sumX2 + " sumY2=" + sumY2.format("%0.3f") + " stdevX=" + standardDeviationX.format("%0.3f") + " stdevY=" + standardDeviationY.format("%0.3f") + " r=" + r.format("%0.3f") + " slope=" + slope);
-
-			slopes.add(slope);
-
-			// var diffY = data[i][BATTERY].toFloat() / 10.0 - data[j][BATTERY].toFloat() / 10.0;
-			// var diffX = data[j][TIMESTAMP] - data[i][TIMESTAMP];
-			// /*DEBUG*/ logMessage("count=" + count + " diffX=" + diffX + " sec (" + secToStr(diffX) + ") diffY=" + diffY.format("%0.3f") + "%");
-			// if (diffX != 0) {
-			// 	var slope = diffY / diffX;
-			// 	/*DEBUG*/ logMessage("slope=" + slope);
-			// 	slopes.add(slope);
-			// }
-		}
-
-		// Reset of variables for next pass if we had something in them from last pass
-		if (count > 0) {
-			count = 0;
-			sumXY = 0; sumX = 0; sumY = 0; sumX2 = 0; sumY2 = 0;
-			arrayX = new [0];
-			arrayY = new [0];
-		}
-
-		// Prepare for the next set of data
-		j = i + 1;
-		keepGoing = true;
-
-		if (j < size - 2) {
-			batDiff = data[j][BATTERY] - data[j + 1][BATTERY]; // Get direction of thr next battery level for next pass
-			//DEBUG*/ logMessage("i=" + j + " batDiff=" + batDiff);
-		}
-	}
-
-	if (slopes.size() == 0){
-		//DEBUG*/ logMessage("No slope to calculate");
-		return null;
-	}
-	else {
-		//DEBUG*/ logMessage("Slopes=" + slopes);
-		var sumSlopes = 0;
-
-		// // Calc the total time these slopes have happened so we car prorate them
-		// var time = 0;
-		// for (var i = 0; i < slopes.size(); i++) {
-		// 	time += slopes[i][1];
-		// }
-		for (var i = 0; i < slopes.size(); i++) {
-			sumSlopes += slopes[i];
-		}
-		//DEBUG*/ logMessage("sumSlopes=" + sumSlopes);
-		var avgSlope = sumSlopes / slopes.size();
-		//DEBUG*/ logMessage("avgSlope=" + avgSlope);
-
-		objectStorePut("LAST_SLOPE_VALUE", avgSlope); // Store it so we can retreive it quickly if we're asking too frequently
-
-		return avgSlope;
 	}
 }
