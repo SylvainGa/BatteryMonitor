@@ -44,6 +44,39 @@ class BatteryMonitorView extends Ui.View {
 		analyzeAndStoreData([mNowData], 1);
 
 		onSettingsChanged();
+
+		// logMessage(minToStr(0, true));
+		// logMessage(minToStr(1, true));
+		// logMessage(minToStr(2, true));
+		// logMessage(minToStr(59, true));
+		// logMessage(minToStr(60, true));
+		// logMessage(minToStr(61, true));
+		// logMessage(minToStr(120, true));
+		// logMessage(minToStr(121, true));
+		// logMessage(minToStr(122, true));
+		// logMessage(minToStr(1440, true));
+		// logMessage(minToStr(1441, true));
+		// logMessage(minToStr(1500, true));
+		// logMessage(minToStr(1501, true));
+		// logMessage(minToStr(1560, true));
+		// logMessage(minToStr(1561, true));
+		// logMessage(minToStr(2000, true));
+		// logMessage(minToStr(0, false));
+		// logMessage(minToStr(1, false));
+		// logMessage(minToStr(2, false));
+		// logMessage(minToStr(59, false));
+		// logMessage(minToStr(60, false));
+		// logMessage(minToStr(61, false));
+		// logMessage(minToStr(120, false));
+		// logMessage(minToStr(121, false));
+		// logMessage(minToStr(122, false));
+		// logMessage(minToStr(1440, false));
+		// logMessage(minToStr(1441, false));
+		// logMessage(minToStr(1500, false));
+		// logMessage(minToStr(1501, false));
+		// logMessage(minToStr(1560, false));
+		// logMessage(minToStr(1561, false));
+		// logMessage(minToStr(2000, false));
     }
 
     // Called when this View is removed from the screen. Save the

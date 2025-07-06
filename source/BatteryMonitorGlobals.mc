@@ -191,12 +191,12 @@ function minToStr(min, fullText) {
 	else if (min < 60 * 24) {
 		var hours = Math.floor(min / 60);
 		var mins = min - hours * 60;
-		str = hours.toNumber() + (fullText ? (" " + Ui.loadResource(Rez.Strings.Hour) + (hours >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) + " " : " ") + " " + mins.format("%2d") + " " + Ui.loadResource(Rez.Strings.Minute) + (mins >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "")) : Ui.loadResource(Rez.Strings.HourShort) + " " + mins.format("%02d"));
+		str = hours.toNumber() + (fullText ? (" " + Ui.loadResource(Rez.Strings.Hour) + (hours >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "") + (mins > 0 ? (" " + mins.format("%d") + " " + Ui.loadResource(Rez.Strings.Minute) + (mins >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "")) : "")) : (Ui.loadResource(Rez.Strings.HourShort) + (mins > 0 ? (" " + mins.format("%d") + Ui.loadResource(Rez.Strings.MinuteShort)) : "")));
 	}
 	else {
 		var days = Math.floor(min / 60 / 24);
 		var hours = Math.floor((min / 60) - days * 24);
-		str = days.toNumber() + (fullText ? " " + Ui.loadResource(Rez.Strings.Day) + (days >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) + " " : " ") : Ui.loadResource(Rez.Strings.DayShort) + " ") + hours.toNumber() + (fullText ? " " + Ui.loadResource(Rez.Strings.Hour) + (hours >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "") : + " " + Ui.loadResource(Rez.Strings.HourShort));
+		str = days.toNumber() + (fullText ? (" " + Ui.loadResource(Rez.Strings.Day) + (days >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "") + (hours > 0 ? (" " + hours.format("%d") + " " + Ui.loadResource(Rez.Strings.Hour) + (hours >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "")) : "")) : (Ui.loadResource(Rez.Strings.DayShort) + (hours > 0 ? (" " + hours.format("%d") + Ui.loadResource(Rez.Strings.HourShort)) : "")));
 	}
 	return str;
 }
