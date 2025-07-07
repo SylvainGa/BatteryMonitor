@@ -80,10 +80,10 @@ function analyzeAndStoreData(data, dataSize) {
 				var newSize = maxSize / 2 + maxSize / 4;
 				var newHistory = new [newSize * elementSize]; // Shrink by 25%
 				/*DEBUG*/ logMessage("Making room for new entries. From " + historySize + " down to " + newSize);
-				
-				for (var i = 0, j = 0; j < historySize; i += elementSize) {
+
+				for (var i = 0, j = 0; j < historySize; i++) {
 					if (j < historySize / 2) {
-						newHistory[i * elementSize + TIMESTAMP] = history[j * elementSize + TIMESTAMP] + (history[(j + 1) + elementSize + TIMESTAMP] - history[j * elementSize + TIMESTAMP]) / 2;
+						newHistory[i * elementSize + TIMESTAMP] = history[j * elementSize + TIMESTAMP] + (history[(j + 1) * elementSize + TIMESTAMP] - history[j * elementSize + TIMESTAMP]) / 2;
 						newHistory[i * elementSize + BATTERY] = history[j * elementSize + BATTERY] + (history[(j + 1) * elementSize + BATTERY] - history[j * elementSize + BATTERY]) / 2;
 						if (isSolar) {
 							newHistory[i * elementSize + SOLAR] = history[j * elementSize + SOLAR] + (history[(j + 1) * elementSize + SOLAR] - history[j * elementSize + SOLAR]) / 2;
@@ -99,14 +99,13 @@ function analyzeAndStoreData(data, dataSize) {
 						}
 						j++;
 					}
-					else { // For the odd occasion when we didn't reserve enough room because of rounding precision
+					else { // If our history was bigger than the allowed space somehow, or because of rounding errors, keep adding the end of the new history until we've exhausted all data in history
 						if (isSolar) {
-							history.add([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY], data[dataIndex][SOLAR]]); // As long as we didn't reach the end of our allocated space, keep adding
+							newHistory.addAll([history[j * elementSize + TIMESTAMP], history[j * elementSize + BATTERY], history[j * elementSize + SOLAR]]); // As long as we didn't reach the end of our allocated space, keep adding
 						}
 						else {
-							history.add([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY]]); // As long as we didn't reach the end of our allocated space, keep adding
+							newHistory.addAll([history[j * elementSize + TIMESTAMP], history[j * elementSize + BATTERY]]); // As long as we didn't reach the end of our allocated space, keep adding
 						}
-
 						j++;
 					}
 				}

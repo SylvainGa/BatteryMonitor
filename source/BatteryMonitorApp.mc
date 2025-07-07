@@ -171,11 +171,28 @@ class BatteryMonitorApp extends App.AppBase {
 
 	function getHistoryFromStorage() {
 		mHistory = $.objectStoreGet("HISTORY", null);
-		if (mHistory == null) { // To prefill the history with the data we currently have in our previous history array
-			var mHistory = $.objectStoreGet("HISTORY_KEY", null);
-			if (mHistory != null) {
-		    	/*DEBUG*/ logMessage("Reading from HISTORY_KEY");
-				$.objectStorePut("HISTORY", mHistory);
+		if (mHistory == null) {
+			// If we don't have data, see if the old history array is there and if so, convert it to the new format
+			var oldHistory = $.objectStoreGet("HISTORY_KEY", null);
+			if (oldHistory != null) {
+		    	/*DEBUG*/ logMessage("Converting from HISTORY_KEY");
+				var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+				var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+				mHistory = new [oldHistory.size() * elementSize];
+				for (var i = 0; i < oldHistory.size(); i++) {
+					mHistory[i * elementSize + TIMESTAMP] = oldHistory[i][TIMESTAMP];
+					mHistory[i * elementSize + BATTERY] = (oldHistory[i][BATTERY] / 100).toNumber();
+					if (isSolar == true) {
+						mHistory[i * elementSize + SOLAR] = 0; // This wasn't in 1.0
+					}
+				}
+				$.objectStorePut("HISTORY", mHistory); // Make that data our new array
+				$.objectStoreErase("HISTORY_KEY"); // Amnd erase the old data
+
+				convertData("LAST_HISTORY_KEY", isSolar);
+				convertData("LAST_VIEWED_DATA", isSolar);
+				convertData("LAST_CHARGED_DATA", isSolar);
+				convertData("STARTED_CHARGING_DATA", isSolar);
 			}
 		}
 
@@ -184,6 +201,13 @@ class BatteryMonitorApp extends App.AppBase {
 		mHistoryModified = false;
 
 		/*DEBUG*/ logMessage("getHistoryFromStorage Read " + mHistorySize);
+	}
+
+	function convertData(key, isSolar) {
+		var array = $.objectStoreGet(key, null);
+		if (array != null) {
+			$.objectStorePut(key, [array[TIMESTAMP], (array[BATTERY] / 100).toNumber(), isSolar ? 0 : null]);
+		}
 	}
 
 	function setHistory(history) {
