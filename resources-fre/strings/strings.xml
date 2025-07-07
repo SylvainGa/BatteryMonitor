@@ -12,7 +12,7 @@
     <string id="NoRecordedData">Aucune donnée n'a\nété enregistrée\nPile = </string>
     <string id="Remaining">Restant</string>
     <string id="Discharging">En décharge</string>
-    <string id="Charging">Charge</string>
+    <string id="Charging">En charge</string>
     <string id="Rate">Taux</string>
 
     <string id="MoreDataNeeded">Besoin de données...</string>
@@ -21,7 +21,7 @@
     <string id="TimeRemaining">Temps\nRestant</string>
 
     <string id="SinceLastView">Dernière vue </string>
-    <string id="SinceLastCharge">Dernière charge</string>
+    <string id="SinceLastCharge">Dernière recharge</string>
 
     <string id="LastCharge">Dernière recharge</string>
     <string id="At">à</string>

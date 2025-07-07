@@ -24,7 +24,12 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
     function onSelect() {
 		/*DEBUG*/ $.analyzeAndStoreData([$.getData()], 1);
 
-        onNextPage();
+		if (System.getSystemStats().charging) {
+	        mHandler.invoke(-1);
+		}
+		else {
+	        onNextPage();
+		}
         return true;    
     }
 	
