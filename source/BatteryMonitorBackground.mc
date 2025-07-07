@@ -22,7 +22,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             /*DEBUG*/ logMessage("onTE: BG no previous data ");
         }
         else {
-            /*DEBUG*/ logMessage("onTE: BG previous data " + data);
+            /*DEBUG*/ logMessage("onTE: BG previous data (" + data.size() + ") last: " + data[data.size() - 1]);
         }
 
         var stats = Sys.getSystemStats();
@@ -44,10 +44,11 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         var dataSize = data.size();
         if (dataSize == 0 || data[dataSize - 1][BATTERY] != battery) {
             data.add([now, battery, solar]);
+            /*DEBUG*/ logMessage("onTE: adding " + [now, battery, solar]);
 
             var success;
             do {
-                /*DEBUG*/ logMessage("onTE: Exit " + data);
+                //DEBUG*/ logMessage("onTE: Exit " + data);
                 success = true; // Assume we'll succeed
                 try {
                     Background.exit(data);

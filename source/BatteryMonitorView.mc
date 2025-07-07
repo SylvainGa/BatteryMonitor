@@ -270,6 +270,7 @@ class BatteryMonitorView extends Ui.View {
 			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 			if (whichView == SCREEN_DATA_HR) {
 				dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.Remaining), Gfx.TEXT_JUSTIFY_CENTER);
+				yPos += mFontHeight;
 				if (mStartedCharging == true) {
 					downSlopeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
 				}
@@ -277,12 +278,12 @@ class BatteryMonitorView extends Ui.View {
 					var downSlopeMin = downSlopeSec * 60;
 					downSlopeStr = $.minToStr(battery / downSlopeMin, true);
 				}
-				yPos += mFontHeight;
 				dc.drawText(mCtrX, yPos, mFontType, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
 				yPos += mFontHeight;
 			}
 			else if (whichView == SCREEN_DATA_DAY) {
 				dc.drawText(mCtrX, yPos, mFontType, mStartedCharging == true ? Ui.loadResource(Rez.Strings.Charging) : Ui.loadResource(Rez.Strings.Discharging), Gfx.TEXT_JUSTIFY_CENTER);
+				yPos += mFontHeight;
 				if (mStartedCharging == true) {
 					downSlopeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
 				}
@@ -295,7 +296,6 @@ class BatteryMonitorView extends Ui.View {
 						downSlopeStr = (downSlopeHours).toNumber() + Ui.loadResource(Rez.Strings.PercentPerHourLong);
 					}
 				}
-				yPos += mFontHeight;
 				dc.drawText(mCtrX, yPos, mFontType, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
 				yPos += mFontHeight;
 			}
@@ -303,8 +303,8 @@ class BatteryMonitorView extends Ui.View {
 		else {
 			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
 			dc.drawText(mCtrX, yPos, (mFontType > 0 ? mFontType - 1 : mFontType), Ui.loadResource(Rez.Strings.MoreDataNeeded), Gfx.TEXT_JUSTIFY_CENTER);		    	
+			yPos += mFontHeight;
 		}
-		yPos += mFontHeight;
 
 		return (yPos);
 	}
@@ -419,6 +419,8 @@ class BatteryMonitorView extends Ui.View {
 	    var battery = Sys.getSystemStats().battery;
 		var yPos = doHeader(dc, whichView, battery, downSlopeSec );
 
+		yPos += mFontHeight / 4; // Give some room before displaying the charging stats
+
 		//! Data section
 		//DEBUG*/ logMessage(mNowData);
 		//DEBUG*/ logMessage(mLastData);
@@ -448,11 +450,11 @@ class BatteryMonitorView extends Ui.View {
 
 		dischargeRate = dischargeRate.abs().format("%0.3f") + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
 		dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
+		yPos += mFontHeight;
 
 		//DEBUG*/ logMessage("Discharge since last view: " + dischargeRate);
 
 		//! Bat usage since last charge
-		yPos += mFontHeight;
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SinceLastCharge), Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 
@@ -469,10 +471,12 @@ class BatteryMonitorView extends Ui.View {
 
 			dischargeRate = dischargeRate.abs().format("%0.3f") + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
 			dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
 			//DEBUG*/ logMessage("Discharge since last charge: " + dischargeRate);
 		}
 		else {
 			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort), Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
 			//DEBUG*/ logMessage("Discharge since last charge: N/A");
 		}
 
@@ -485,8 +489,9 @@ class BatteryMonitorView extends Ui.View {
 		var yPos = doHeader(dc, 2, battery, downSlopeSec); // We"ll show the same header as SCREEN_DATA_HR
 
 		//! How long for last charge?
-		yPos += mFontHeight;
+		yPos += mFontHeight / 2; // Give some room before displaying the charging stats
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.LastCharge), Gfx.TEXT_JUSTIFY_CENTER);
+		yPos += mFontHeight;
 		if (lastChargeData && mStartedCharging == false) {
 			var timeMoment = new Time.Moment(lastChargeData[TIMESTAMP]);
 			var date = Time.Gregorian.info(timeMoment, Time.FORMAT_MEDIUM);
@@ -515,19 +520,19 @@ class BatteryMonitorView extends Ui.View {
 			var dateFormat = Ui.loadResource(Rez.Strings.MediumDateFormat);
 			var dateStr = Lang.format(dateFormat, [date.day_of_week, date.day, date.month]);
 
-			yPos += mFontHeight;
 			dc.drawText(mCtrX, yPos, mFontType,  dateStr + " " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
-
 			yPos += mFontHeight;
+
 			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + (lastChargeData[BATTERY] / 10.0).format("%0.1f") + "%" , Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
 		}
 		else if (mStartedCharging == true) {
-			yPos += mFontHeight;
 			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.Now) , Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
 		}
 		else {
-			yPos += mFontHeight;
 			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort) , Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
 		}
 
 		return yPos;
