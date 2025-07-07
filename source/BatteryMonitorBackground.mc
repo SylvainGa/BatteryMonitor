@@ -19,10 +19,10 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         var data = Background.getBackgroundData();
         if (data == null) {
             data = [];
-            /*DEBUG*/ logMessage("BG no previous data ");
+            /*DEBUG*/ logMessage("onTemporalEvent: BG no previous data ");
         }
         else {
-            /*DEBUG*/ logMessage("BG previous data " + data);
+            /*DEBUG*/ logMessage("onTemporalEvent: BG previous data " + data);
         }
 
         var stats = Sys.getSystemStats();
@@ -47,7 +47,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
 
             var success;
             do {
-                /*DEBUG*/ logMessage("BGExit " + data);
+                /*DEBUG*/ logMessage("onTemporalEvent: Exit " + data);
                 success = true; // Assume we'll succeed
                 try {
                     Background.exit(data);
@@ -60,13 +60,13 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
                     for (var i = 0; i < newSize; i++) {
                         retryData[i] = data[i * 2]; // Mo averaging, here, just take every second data. We've been away from the app for very long, no need to be this precise.
                     }
-                    /*DEBUG*/ logMessage("BGExit failed. Had " + (newSize * 2) + " elements. Retrying with just " + newSize + " elements" + data);
+                    /*DEBUG*/ logMessage("onTemporalEvent: Exit failed. Had " + (newSize * 2) + " elements. Retrying with just " + newSize + " elements" + data);
                     data = retryData;
                 }
             } while (success == false);
         }
         else {
-            /*DEBUG*/ logMessage("BGExit ignoring " + battery);
+            /*DEBUG*/ logMessage("onTemporalEvent: Exit ignoring " + battery);
             Background.exit(null);
         }
     }

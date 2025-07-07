@@ -54,6 +54,7 @@ class BatteryMonitorApp extends App.AppBase {
 	var mDelegate;
 	public var mHistory;
 	public var mHistorySize;
+	public var mHistoryModified;
 
 	// Testing array passing by references
 	// public var mArray;
@@ -66,57 +67,26 @@ class BatteryMonitorApp extends App.AppBase {
     // onStart() is called on application start up
     function onStart(state) {
 		/*DEBUG*/ logMessage("Start");
-		var bgIntervals = 5 * 60; // 5 minutes minimum
-
         // Testing array passing by references
 		// mArray = [10, 20, 30];
 		// mArraySize = mArray.size();
 		// Sys.println("App array is " + mArray + " size is " + mArraySize);
 
-    	if (Toybox.System has :ServiceDelegate) {
-			//DEBUG*/ logMessage("Will run BG every " + (bgIntervals / 60) + " minutes" );
-			Background.registerForTemporalEvent(new Time.Duration(bgIntervals));
-		}
-    }
-
-    // onStop() is called when your application is exiting
-    function onStop(state) {
-		/*DEBUG*/ logMessage("Stop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
-		if (mView != null) { // Don't let the background process store an old copy of mHistory
-			if (mHistory != null) {
-				$.objectStorePut("HISTORY", mHistory);
-			}
-		}
-    }
-
-    (:glance)
-    function getGlanceView() {
-		/*DEBUG*/ logMessage("GL");
-		getHistoryFromStorage();
-
-		mView = new BatteryMonitorGlanceView();
-		mGlance = mView; // So we know it's specifically a Glance view
-        return [ mView ];
-    }
-
-    // Return the initial view of your application here
-    function getInitialView() {	
-		/*DEBUG*/ logMessage("VW");
-		getHistoryFromStorage();
-
-		mView = new BatteryMonitorView();
-		mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive));
-        return [ mView , mDelegate ];
-    }
-    
-    function getServiceDelegate(){
-		/*DEBUG*/ logMessage("SD");
-        return [new BatteryMonitorServiceDelegate()];
+		//DEBUG*/ logMessage("Will run BG every " + (bgIntervals / 60) + " minutes" );
+		Background.registerForTemporalEvent(new Time.Duration(300));
     }
 
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
-    	/*DEBUG*/ logMessage("onBG (" + (mView == null ? "SD" : (mGlance == null ? "VW" : "GL")) + "): " + data);
+    	/*DEBUG*/ logMessage("onBG " + data);
+
+		// Make sure we have the latest data from storage if we're empty, otherwise use what you have
+		if (mHistory == null) {
+			getHistoryFromStorage();
+		}
+		else {
+	    	/*DEBUG*/ logMessage("Already have " + mHistorySize);
+		}
 
 		// if ($.objectStoreGet("IGNORE_NEXT_BGDATA", false) == true) { // So we skip pending updates that could potentially be in the wrong format after an array redefinition
 		// 	$.objectStorePut("IGNORE_NEXT_BGDATA", false);
@@ -128,12 +98,70 @@ class BatteryMonitorApp extends App.AppBase {
 			$.analyzeAndStoreData(data, data.size());
 
 			// If we had more than one data waiting to be read, to be safe, save the HISTORY right now in case we crash later on
-			if (size > 1 || mGlance != null) { // Glance view calls onStart AFTER onBackground data so we'll loose this data if we don't save it!
+			if (size > 1 && mHistoryModified == true) {
 				$.objectStorePut("HISTORY", mHistory);
+		    	/*DEBUG*/ logMessage("History changed, saving " + mHistorySize);
+				mHistoryModified = false;
 			}
         	Ui.requestUpdate();
 		}
     }    
+
+    // onStop() is called when your application is exiting
+    function onStop(state) {
+		/*DEBUG*/ logMessage("Stop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		if (mHistory != null && mHistoryModified == true) {
+			$.objectStorePut("HISTORY", mHistory);
+			/*DEBUG*/ logMessage("History changed, saving " + mHistorySize);
+			mHistoryModified = false;
+		}
+
+		if (mView != null) {
+			/*DEBUG*/ logMessage("Restarting BG process");
+			Background.registerForTemporalEvent(new Time.Duration(300));
+		}
+    }
+
+    (:glance)
+    function getGlanceView() {
+		/*DEBUG*/ logMessage("getGlanceView");
+
+		/*DEBUG*/ logMessage("Stopping BG process");
+		// Terminate the background process as we'll be doing the reading while the glance view is running
+		Background.deleteTemporalEvent();
+
+		// If onBackgroundData hasn't fetched it, get the history
+		if (mHistory == null) {
+			getHistoryFromStorage();
+		}
+
+		mView = new BatteryMonitorGlanceView();
+		mGlance = mView; // So we know it's specifically a Glance view
+        return [ mView ];
+    }
+
+    // Return the initial view of your application here
+    function getInitialView() {	
+		/*DEBUG*/ logMessage("getInitialView");
+
+		/*DEBUG*/ logMessage("Stopping BG process");
+		// Terminate the background process as we'll be doing the reading while the main view is running
+		Background.deleteTemporalEvent();
+
+		// If onBackgroundData hasn't fetched it, get the history
+		if (mHistory == null) {
+			getHistoryFromStorage();
+		}
+
+		mView = new BatteryMonitorView();
+		mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive));
+        return [ mView , mDelegate ];
+    }
+    
+    function getServiceDelegate(){
+		/*DEBUG*/ logMessage("getServiceDelegate");
+        return [new BatteryMonitorServiceDelegate()];
+    }
 
 	function onSettingsChanged() {
 		if (mView != null) {
@@ -152,6 +180,10 @@ class BatteryMonitorApp extends App.AppBase {
 		}
 
 		getHistorySize();
+
+		mHistoryModified = false;
+
+		/*DEBUG*/ logMessage("getHistoryFromStorage Read " + mHistorySize);
 	}
 
 	function setHistory(history) {

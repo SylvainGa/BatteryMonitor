@@ -35,12 +35,12 @@ class BatteryMonitorView extends Ui.View {
     function onShow() {
 		$.objectStorePut("VIEW_RUNNING", true);
 
+		mRefreshCount = 0;
 		mTimer = new Timer.Timer();
-		mTimer.start(method(:refreshTimer), 5000, true); // Check every five second
+		mTimer.start(method(:refreshTimer), 5000, true); // Check every 5 seconds
     	
     	// add data to ensure most recent data is shown and no time delay on the graph.
 		mStartedCharging = false;
-		mRefreshCount = 0;
 		mLastData = $.objectStoreGet("LAST_VIEWED_DATA", null);
 		mNowData = getData();
 		analyzeAndStoreData([mNowData], 1);
@@ -119,7 +119,7 @@ class BatteryMonitorView extends Ui.View {
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
 			mNowData = getData();
-			//DEBUG*/ logMessage("Adding data " + mNowData);
+			/*DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
 			analyzeAndStoreData([mNowData], 1);
 			mRefreshCount = 0;
 		}
@@ -225,7 +225,7 @@ class BatteryMonitorView extends Ui.View {
 		var history = mApp.mHistory;
 		var size = mApp.mHistorySize;
 	
-		/*DEBUG*/ Sys.print("["); for (var i = 0; i < history.size(); i++) { Sys.print(history[i]); if (i < history.size() - 1) { Sys.print(","); } } Sys.println("]");
+		//DEBUG*/ Sys.print("["); for (var i = 0; i < history.size(); i++) { Sys.print(history[i]); if (i < history.size() - 1) { Sys.print(","); } } Sys.println("]");
 		//DEBUG*/ for (var i = 0; i < history.size(); i++) { var timeStartMoment = new Time.Moment(history[i][TIMESTAMP]); var timeStartInfo = Gregorian.info(timeStartMoment, Time.FORMAT_MEDIUM); Sys.println("At " + timeStartInfo.hour + "h" + timeStartInfo.min + "m - Batterie " + history[i][BATTERY].toFloat() / 10.0 + "%" + (history[i].size() == 3 ? " - Solar " + history[i][SOLAR] + "%" : "")); } Sys.println("");
 
 		if (!(history instanceof Toybox.Lang.Array)) {

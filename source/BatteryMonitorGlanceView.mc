@@ -9,6 +9,8 @@ using Toybox.Time.Gregorian;
 
 (:glance)
 class BatteryMonitorGlanceView extends Ui.GlanceView {
+	var mTimer;
+	var mRefreshCount;
 	var mFontType;
     var mFontHeight;
 	var mSummaryMode;
@@ -19,9 +21,28 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
     function onShow() {
         onSettingsChanged();
+
+		mRefreshCount = 0;
+		mTimer = new Timer.Timer();
+		mTimer.start(method(:refreshTimer), 5000, true); // Check every five second
     }
 
     function onHide() {
+        if (mTimer) {
+            mTimer.stop();
+            mTimer = null;
+        }
+    }
+
+	function refreshTimer() as Void {
+		mRefreshCount++;
+		if (mRefreshCount == 12) { // Every minute, read a new set of data
+            var data = getData();
+			/*DEBUG*/ logMessage("refreshTimer Read data " + data);
+			analyzeAndStoreData([data], 1);
+			mRefreshCount = 0;
+		}
+		Ui.requestUpdate();
     }
 
     function onLayout(dc) {

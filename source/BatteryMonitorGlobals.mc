@@ -9,6 +9,7 @@ using Toybox.Math;
 using Toybox.Lang;
 using Toybox.Application.Storage;
 
+(:background)
 function getData() {
     var stats = Sys.getSystemStats();
     var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
@@ -73,8 +74,7 @@ function analyzeAndStoreData(data, dataSize) {
 		}
 
 		var historyRefresh = false;
-
-		/*DEBUG*/ logMessage("historySize " + historySize + " dataSize " + dataSize);
+		/*DEBUG*/ var addedData = []; logMessage("historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 			if (historySize < maxSize) {
 				if (history[((historySize - 1) * elementSize) + BATTERY] != data[dataIndex][BATTERY]) {
@@ -84,9 +84,11 @@ function analyzeAndStoreData(data, dataSize) {
 					else {
 						history.addAll([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY]]); // As long as we didn't reach the end of our allocated space, keep adding
 					}
-					/*DEBUG*/ logMessage("Added " + data[dataIndex]);
+
 					historySize++;
 					added = true;
+
+					/*DEBUG*/ addedData.add(data[dataIndex]);
 				}
 				else {
 					/*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
@@ -136,6 +138,8 @@ function analyzeAndStoreData(data, dataSize) {
 			}
 		}
 
+		/*DEBUG*/ logMessage("Added " + addedData);
+
 		if (added == true) {
 			// Reset the whole App history array if we had to redo a new one because we outgrew it size (see above)
 			if (historyRefresh == true) {
@@ -158,6 +162,7 @@ function analyzeAndStoreData(data, dataSize) {
 
 	if (added) {
 		objectStorePut("LAST_HISTORY_KEY", lastHistory);
+		App.getApp().mHistoryModified = true;	
 	}
 }
 
@@ -179,7 +184,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 	// Don't run too often, it's CPU intensive!
 	var lastRun = objectStoreGet("LAST_SLOPE_CALC", 0);
 	var now = Time.now().value();
-	if (now < lastRun + 5) {
+	if (now < lastRun + 30) {
 		var lastSlope = objectStoreGet("LAST_SLOPE_VALUE", null);
 		if (lastSlope != null) {
 			//DEBUG*/ logMessage("Retreiving last stored slope (" + lastSlope + ")");
