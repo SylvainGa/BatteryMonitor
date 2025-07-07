@@ -9,7 +9,7 @@ using Toybox.Math;
 using Toybox.Lang;
 using Toybox.Application.Storage;
 
-(:background)
+(:glance)
 function getData() {
     var stats = Sys.getSystemStats();
     var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
@@ -29,7 +29,7 @@ function getData() {
     return [now, battery, solar];
 }
 
-(:background)
+(:glance)
 function analyzeAndStoreData(data, dataSize) {
 	//DEBUG*/ logMessage("analyzeAndStoreData");
 
@@ -38,7 +38,7 @@ function analyzeAndStoreData(data, dataSize) {
 	var lastHistory = objectStoreGet("LAST_HISTORY_KEY", null);
 	var history = App.getApp().mHistory;
 	var historySize = App.getApp().mHistorySize;
-	var added = false;
+	var added = 0;
 
 	if (lastHistory == null || history == null) { // no data yet (if we haven't got a last history, we can safely assume history was also empty)
 		history = new [0];
@@ -57,8 +57,8 @@ function analyzeAndStoreData(data, dataSize) {
 		historySize = ret[1];
 
 		lastHistory = data[dataSize - 1];
-		added = true;
-		/*DEBUG*/ logMessage("Added " + data);
+		added = dataSize;
+		/*DEBUG*/ logMessage("First addition (" + added + ") " + data);
 	}
 	else { // We have a history and a last history, see if the battery value is different than the last and if so, store it
 		var screenWidth = Sys.getDeviceSettings().screenWidth;
@@ -76,26 +76,7 @@ function analyzeAndStoreData(data, dataSize) {
 		var historyRefresh = false;
 		/*DEBUG*/ var addedData = []; logMessage("historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
-			if (historySize < maxSize) {
-				if (history[((historySize - 1) * elementSize) + BATTERY] != data[dataIndex][BATTERY]) {
-					if (isSolar) {
-						history.addAll([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY], data[dataIndex][SOLAR]]); // As long as we didn't reach the end of our allocated space, keep adding
-					}
-					else {
-						history.addAll([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY]]); // As long as we didn't reach the end of our allocated space, keep adding
-					}
-
-					historySize++;
-					added = true;
-
-					/*DEBUG*/ addedData.add(data[dataIndex]);
-				}
-				else {
-					/*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
-				}
-			}
-			else {
-				// We've reached the max size, average the bottom half of the array so we have room too grow without affecting the latest data. If there are too many entries, we may need to come back here and do it all over
+			if (historySize >= maxSize) { // We've reached the max size, average the bottom half of the array so we have room too grow without affecting the latest data. If there are too many entries, we may need to come back here and do it all over
 				var newSize = maxSize / 2 + maxSize / 4;
 				var newHistory = new [newSize * elementSize]; // Shrink by 25%
 				/*DEBUG*/ logMessage("Making room for new entries. From " + historySize + " down to " + newSize);
@@ -136,11 +117,28 @@ function analyzeAndStoreData(data, dataSize) {
 				newHistory = null; // Clear it out to reclaim space
 				historyRefresh = true;
 			}
+
+			if (history[((historySize - 1) * elementSize) + BATTERY] != data[dataIndex][BATTERY]) {
+				if (isSolar) {
+					history.addAll([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY], data[dataIndex][SOLAR]]); // As long as we didn't reach the end of our allocated space, keep adding
+				}
+				else {
+					history.addAll([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY]]); // As long as we didn't reach the end of our allocated space, keep adding
+				}
+
+				historySize++;
+				added++;
+
+				/*DEBUG*/ addedData.add(data[dataIndex]);
+			}
+			else {
+				/*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
+			}
 		}
 
-		/*DEBUG*/ logMessage("Added " + addedData);
+		/*DEBUG*/ logMessage("Added (" + added + ") " + addedData);
 
-		if (added == true) {
+		if (added > 0) {
 			// Reset the whole App history array if we had to redo a new one because we outgrew it size (see above)
 			if (historyRefresh == true) {
 				var ret = App.getApp().setHistory(history);
@@ -160,13 +158,13 @@ function analyzeAndStoreData(data, dataSize) {
 		}
 	}
 
-	if (added) {
+	if (added > 0) {
 		objectStorePut("LAST_HISTORY_KEY", lastHistory);
-		App.getApp().mHistoryModified = true;	
+		App.getApp().setHistoryModified(true);
 	}
 }
 
-(:background)
+(:glance)
 function downSlope() { //data is history data as array / return a slope in percentage point per second
 	var app = App.getApp();
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
@@ -329,7 +327,6 @@ function objectStoreErase(key) {
     Storage.deleteValue(key);
 }
 
-(:background)
 function getBatteryColor(battery) {
     var colorBat;
 
@@ -349,7 +346,7 @@ function getBatteryColor(battery) {
     return colorBat;
 }
 
-(:background)
+(:glance)
 function minToStr(min, fullText) {
 	var str;
 	if (min < 1){
@@ -395,7 +392,7 @@ function to_array(string, splitter) {
 }
 
 
-(:debug, :background)
+(:debug, :glance)
 function secToStr(sec) {
 	var str;
 	if (sec < 1) {
@@ -428,7 +425,7 @@ function secToStr(sec) {
 	return str;
 }
 
-(:release, :background)
+(:release, :glance)
 function secToStr(sec) {
 }
 

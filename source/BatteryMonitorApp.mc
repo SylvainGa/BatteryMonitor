@@ -122,6 +122,12 @@ class BatteryMonitorApp extends App.AppBase {
 		}
     }
 
+	function onSettingsChanged() {
+		if (mView != null) {
+			mView.onSettingsChanged();
+		}
+	}
+
     (:glance)
     function getGlanceView() {
 		/*DEBUG*/ logMessage("getGlanceView");
@@ -163,12 +169,6 @@ class BatteryMonitorApp extends App.AppBase {
         return [new BatteryMonitorServiceDelegate()];
     }
 
-	function onSettingsChanged() {
-		if (mView != null) {
-			mView.onSettingsChanged();
-		}
-	}
-
 	function getHistoryFromStorage() {
 		mHistory = $.objectStoreGet("HISTORY", null);
 		if (mHistory == null) { // To prefill the history with the data we currently have in our previous history array
@@ -200,6 +200,14 @@ class BatteryMonitorApp extends App.AppBase {
 		mHistorySize = mHistory != null ? mHistory.size() / elementSize : 0;
 
 		return mHistorySize;
+	}
+
+	function getHistoryModified() {
+		return mHistoryModified;
+	}
+
+	function setHistoryModified(state) {
+		mHistoryModified = state;
 	}
 
 	// Testing array passing by references

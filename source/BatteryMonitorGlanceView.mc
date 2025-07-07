@@ -37,9 +37,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 	function refreshTimer() as Void {
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
-            var data = getData();
+            var data = $.getData();
 			/*DEBUG*/ logMessage("refreshTimer Read data " + data);
-			analyzeAndStoreData([data], 1);
+			$.analyzeAndStoreData([data], 1);
 			mRefreshCount = 0;
 		}
 		Ui.requestUpdate();
@@ -120,7 +120,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         if (downSlopeSec != null) {
             dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
             var downSlopeMin = downSlopeSec * 60;
-            remainingStr = minToStr(battery / downSlopeMin, false);
+            remainingStr = $.minToStr(battery / downSlopeMin, false);
             remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", mFontType);
 
             var downSlopeHours = downSlopeSec * 60 * 60;

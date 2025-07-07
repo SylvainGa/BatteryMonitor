@@ -42,8 +42,8 @@ class BatteryMonitorView extends Ui.View {
     	// add data to ensure most recent data is shown and no time delay on the graph.
 		mStartedCharging = false;
 		mLastData = $.objectStoreGet("LAST_VIEWED_DATA", null);
-		mNowData = getData();
-		analyzeAndStoreData([mNowData], 1);
+		mNowData = $.getData();
+		$.analyzeAndStoreData([mNowData], 1);
 
 		onSettingsChanged();
 
@@ -92,9 +92,9 @@ class BatteryMonitorView extends Ui.View {
 			mTimer.stop();
 		}
 		mTimer = null;
-		mLastData = getData();
+		mLastData = $.getData();
 		$.objectStorePut("LAST_VIEWED_DATA", mLastData);
-		analyzeAndStoreData([mLastData], 1);
+		$.analyzeAndStoreData([mLastData], 1);
 	}
 
 	function onEnterSleep() {
@@ -118,9 +118,9 @@ class BatteryMonitorView extends Ui.View {
 
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
-			mNowData = getData();
+			mNowData = $.getData();
 			/*DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
-			analyzeAndStoreData([mNowData], 1);
+			$.analyzeAndStoreData([mNowData], 1);
 			mRefreshCount = 0;
 		}
 		Ui.requestUpdate();
@@ -272,7 +272,7 @@ class BatteryMonitorView extends Ui.View {
 		if (System.getSystemStats().charging) {
 			if (mStartedCharging == false) {
 				mStartedCharging = true;
-				analyzeAndStoreData([getData()], 1);
+				$.analyzeAndStoreData([$.getData()], 1);
 			}
 			showChargingPopup(dc);
 		}

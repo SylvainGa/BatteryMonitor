@@ -31,13 +31,13 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         var now = Time.now().value(); //in seconds from UNIX epoch in UTC
 
         if (Sys.getSystemStats().charging) {
-            var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
+            var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
             if (chargingData == null) {
-                objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
+                $.objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
             }
         }
         else {
-            objectStoreErase("STARTED_CHARGING_DATA");
+            $.objectStoreErase("STARTED_CHARGING_DATA");
         }
 
         // Only add if it's newer to prevent passing data that are not going to be consumed
