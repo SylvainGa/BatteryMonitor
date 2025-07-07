@@ -36,20 +36,22 @@ function analyzeAndStoreData(data, dataSize) {
     var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 	var lastHistory = objectStoreGet("LAST_HISTORY_KEY", null);
 	var history = objectStoreGet("HISTORY_KEY", null);
+	var historySize = 0;
 	var added = false;
 
 	if (lastHistory == null || history == null) { // no data yet (if we haven't got a last history, we can safely assume history was also empty)
 		history = new [0];
 		for (var dataIndex = 0; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 			if (isSolar) {
-				history.addAll([data[dataIndex][SOLAR], data[dataIndex][BATTERY], data[dataIndex][TIMESTAMP]]); // As long as we didn't reach the end of our allocated space, keep adding
+				history.addAll([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY], data[dataIndex][SOLAR]]); // As long as we didn't reach the end of our allocated space, keep adding
 			}
 			else {
-				history.addAll([data[dataIndex][BATTERY], data[dataIndex][TIMESTAMP]]); // As long as we didn't reach the end of our allocated space, keep adding
+				history.addAll([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY]]); // As long as we didn't reach the end of our allocated space, keep adding
 			}
 		}
 
 	    Storage.setValue("HISTORY_KEY", history); // Skip ObjectStorePut to prevent pushing data back on the stack for no good reason
+		historySize = dataSize;
 		lastHistory = data[dataSize - 1];
 		added = true;
 		/*DEBUG*/ logMessage("Added " + data);
@@ -67,16 +69,16 @@ function analyzeAndStoreData(data, dataSize) {
 			}
 		}
 
-		var historySize = history.size() / elementSize;
+		historySize = history.size() / elementSize;
 		/*DEBUG*/ logMessage("historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 			if (historySize < maxSize) {
 				if (history[((historySize - 1) * elementSize) + BATTERY] != data[dataIndex][BATTERY]) {
 					if (isSolar) {
-						history.addAll([data[dataIndex][SOLAR], data[dataIndex][BATTERY], data[dataIndex][TIMESTAMP]]); // As long as we didn't reach the end of our allocated space, keep adding
+						history.addAll([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY], data[dataIndex][SOLAR]]); // As long as we didn't reach the end of our allocated space, keep adding
 					}
 					else {
-						history.addAll([data[dataIndex][BATTERY], data[dataIndex][TIMESTAMP]]); // As long as we didn't reach the end of our allocated space, keep adding
+						history.addAll([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY]]); // As long as we didn't reach the end of our allocated space, keep adding
 					}
 					/*DEBUG*/ logMessage("Added " + data[dataIndex]);
 					historySize++;
@@ -94,35 +96,28 @@ function analyzeAndStoreData(data, dataSize) {
 				
 				for (var i = 0, j = 0; j < historySize; i += elementSize) {
 					if (j < historySize / 2) {
+						newHistory[i * elementSize + TIMESTAMP] = history[j * elementSize + TIMESTAMP] + (history[(j + 1) + elementSize + TIMESTAMP] - history[j * elementSize + TIMESTAMP]) / 2;
+						newHistory[i * elementSize + BATTERY] = history[j * elementSize + BATTERY] + (history[(j + 1) * elementSize + BATTERY] - history[j * elementSize + BATTERY]) / 2;
 						if (isSolar) {
-							newHistory[i * elementSize] = history[j * elementSize] + (history[(j + 1) + elementSize] - history[j * elementSize]) / 2; // SOLAR is first in the array
-							newHistory[i * elementSize + 1] = history[j * elementSize + 1] + (history[(j + 1) * elementSize + 1] - history[j * elementSize + 1]) / 2; // BATTERY is second in the array
-							newHistory[i * elementSize + 2] = history[j * elementSize + 2] + (history[(j + 1) * elementSize + 2] - history[j * elementSize + 2]) / 2; // TIMESTAMP is third in the array
+							newHistory[i * elementSize + SOLAR] = history[j * elementSize + SOLAR] + (history[(j + 1) * elementSize + SOLAR] - history[j * elementSize + SOLAR]) / 2;
 						}
-						else {
-							newHistory[i * elementSize] = history[j * elementSize] + (history[(j + 1) * elementSize] - history[j * elementSize]) / 2; // BATTERY is first in the array
-							newHistory[i * elementSize + 1] = history[j * elementSize + 1] + (history[(j + 1) * elementSize + 1] - history[j * elementSize + 1]) / 2; // TIMESTAMP is second in the array
-						}
+
 						j += 2;
 					}
 					else if (i < newSize) {
+						newHistory[i * elementSize + TIMESTAMP] = history[j * elementSize + TIMESTAMP];
+						newHistory[i * elementSize + BATTERY] = history[j * elementSize + BATTERY];
 						if (isSolar) {
-							newHistory[i * elementSize] = history[j * elementSize]; // SOLAR is first in the array
-							newHistory[i * elementSize + 1] = history[j * elementSize + 1]; // BATTERY is second in the array
-							newHistory[i * elementSize + 2] = history[j * elementSize + 2]; // TIMESTAMP is third in the array
-						}
-						else {
-							newHistory[i * elementSize] = history[j * elementSize]; // BATTERY is first in the array
-							newHistory[i * elementSize + 1] = history[j * elementSize + 1]; // TIMESTAMP is second in the array
+							newHistory[i * elementSize + SOLAR] = history[j * elementSize + SOLAR];
 						}
 						j++;
 					}
 					else { // For the odd occasion when we didn't reserve enough room because of rounding precision
 						if (isSolar) {
-							history.add([data[dataIndex][SOLAR], data[dataIndex][BATTERY], data[dataIndex][TIMESTAMP]]); // As long as we didn't reach the end of our allocated space, keep adding
+							history.add([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY], data[dataIndex][SOLAR]]); // As long as we didn't reach the end of our allocated space, keep adding
 						}
 						else {
-							history.add([data[dataIndex][BATTERY], data[dataIndex][TIMESTAMP]]); // As long as we didn't reach the end of our allocated space, keep adding
+							history.add([data[dataIndex][TIMESTAMP], data[dataIndex][BATTERY]]); // As long as we didn't reach the end of our allocated space, keep adding
 						}
 
 						j++;
@@ -139,10 +134,10 @@ function analyzeAndStoreData(data, dataSize) {
 		if (added == true) {
 			Storage.setValue("HISTORY_KEY", history); // Skip ObjectStorePut to prevent pushing history back on the stack for no good reason. 
 			if (isSolar) {
-				lastHistory = [history[historySize - 1], history[historySize - 2], history[historySize - 3]]; // TIMESTAMP, BATTERY, SOLAR
+				lastHistory = [history[(historySize - 1) * elementSize + TIMESTAMP], history[(historySize - 1) * elementSize + BATTERY], history[(historySize - 1) * elementSize + SOLAR]]; // TIMESTAMP, BATTERY, SOLAR
 			}
 			else {
-				lastHistory = [history[historySize - 1], history[historySize - 2]]; // TIMESTAMP, BATTERY
+				lastHistory = [history[(historySize - 1) * elementSize + TIMESTAMP], history[(historySize - 1) * elementSize + BATTERY]]; // TIMESTAMP, BATTERY
 			}
 		}
 	}
@@ -184,38 +179,38 @@ function downSlope(data) { //data is history data as array / return a slope in p
 	var arrayX = new [0];
 	var arrayY = new [0];
 	var keepGoing = true;
-	var batDiff = data[BATTERY] - data[elementSize + BATTERY];
+	var batDiff = data[(size - 1) * elementSize + BATTERY] - data[(size - 2) * elementSize + BATTERY];
 
-	for (var i = 0, j = 0; i < size; i++) {
+	for (var i = size - 1, j = i; i >= 0; i--) {
 		if (batDiff < 0) { // Battery going down or staying level (or we are the last point in the dataset), build data for Correlation Coefficient and Standard Deviation calculation
 			var diffX = data[j * elementSize + TIMESTAMP] - data[i * elementSize + TIMESTAMP];
 			var battery = data[i * elementSize + BATTERY].toFloat() / 10.0;
-			//DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff + " diffX=" + secToStr(diffX) + " battery=" + battery + " count=" + count);
+			/*DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff + " diffX=" + secToStr(diffX) + " battery=" + battery + " count=" + count);
 			sumXY += diffX * battery;
 			sumX += diffX;
 			sumY += battery;
 			sumX2 += (diffX.toLong() * diffX.toLong()).toLong();
-			//DEBUG*/ logMessage("diffX=" + diffX + " diffX * diffX=" + diffX * diffX + " sumX2=" + sumX2);
 			sumY2 += battery * battery;
+			/*DEBUG*/ logMessage("diffX=" + diffX + " diffX * diffX=" + diffX * diffX + " sumX2=" + sumX2 + " sumY2=" + sumY2);
 			arrayX.add(diffX);
 			arrayY.add(battery);
 			count++;
 
-			if (i == size - 1) {
-				//DEBUG*/ logMessage("Stopping this serie because 'i == size - 1'");
+			if (i == 0) {
+				/*DEBUG*/ logMessage("Stopping this serie because 'i == 0'");
 				keepGoing = false; // We reached the end of the array, calc the last slope if we have more than one data
 			}
-			else if (i < size - 2) {
-				batDiff = data[(i + 1) * elementSize + BATTERY] - data[(i + 2) * elementSize + BATTERY]; // Get direction of the next battery level for next pass
+			else if (i > 1) {
+				batDiff = data[(i - 1) * elementSize + BATTERY] - data[(i - 2) * elementSize + BATTERY]; // Get direction of the next battery level for next pass
 			}
 			else {
-				//DEBUG*/ logMessage("Doing last data entry in the array");
+				/*DEBUG*/ logMessage("Doing last data entry in the array");
 				// Next pass is for the last data in the array, process it 'as is' since we were going down until then (leave batDiff like it was)
 			}
 		}
 		else {
 			keepGoing = false;
-			//DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff);
+			/*DEBUG*/ logMessage("Stopping at i=" + i + " batDiff=" + batDiff);
 		}
 
 		if (keepGoing) {
@@ -227,7 +222,7 @@ function downSlope(data) { //data is history data as array / return a slope in p
 			var standardDeviationY = Math.stdev(arrayY, sumY / count);
 			var r = (count * sumXY - sumX * sumY) / Math.sqrt((count * sumX2 - sumX * sumX) * (count * sumY2 - sumY * sumY));
 			var slope = r * (standardDeviationY / standardDeviationX);
-			//DEBUG*/ logMessage("count=" + count + " sumX=" + sumX + " sumY=" + sumY.format("%0.3f") + " sumXY=" + sumXY.format("%0.3f") + " sumX2=" + sumX2 + " sumY2=" + sumY2.format("%0.3f") + " stdevX=" + standardDeviationX.format("%0.3f") + " stdevY=" + standardDeviationY.format("%0.3f") + " r=" + r.format("%0.3f") + " slope=" + slope);
+			/*DEBUG*/ logMessage("count=" + count + " sumX=" + sumX + " sumY=" + sumY.format("%0.3f") + " sumXY=" + sumXY.format("%0.3f") + " sumX2=" + sumX2 + " sumY2=" + sumY2.format("%0.3f") + " stdevX=" + standardDeviationX.format("%0.3f") + " stdevY=" + standardDeviationY.format("%0.3f") + " r=" + r.format("%0.3f") + " slope=" + slope);
 
 			slopes.add(slope);
 
@@ -250,21 +245,21 @@ function downSlope(data) { //data is history data as array / return a slope in p
 		}
 
 		// Prepare for the next set of data
-		j = i + 1;
+		j = i - 1;
 		keepGoing = true;
 
-		if (j < size - 2) {
-			batDiff = data[j * elementSize + BATTERY] - data[(j + 1) * elementSize + BATTERY]; // Get direction of thr next battery level for next pass
-			//DEBUG*/ logMessage("i=" + j + " batDiff=" + batDiff);
+		if (j > 1) {
+			batDiff = data[j * elementSize + BATTERY] - data[(j - 1) * elementSize + BATTERY]; // Get direction of the next battery level for next pass
+			/*DEBUG*/ logMessage("i=" + j + " batDiff=" + batDiff);
 		}
 	}
 
 	if (slopes.size() == 0){
-		//DEBUG*/ logMessage("No slope to calculate");
+		/*DEBUG*/ logMessage("No slope to calculate");
 		return null;
 	}
 	else {
-		//DEBUG*/ logMessage("Slopes=" + slopes);
+		/*DEBUG*/ logMessage("Slopes=" + slopes);
 		var sumSlopes = 0;
 
 		// // Calc the total time these slopes have happened so we car prorate them
@@ -275,9 +270,9 @@ function downSlope(data) { //data is history data as array / return a slope in p
 		for (var i = 0; i < slopes.size(); i++) {
 			sumSlopes += slopes[i];
 		}
-		//DEBUG*/ logMessage("sumSlopes=" + sumSlopes);
+		/*DEBUG*/ logMessage("sumSlopes=" + sumSlopes);
 		var avgSlope = sumSlopes / slopes.size();
-		//DEBUG*/ logMessage("avgSlope=" + avgSlope);
+		/*DEBUG*/ logMessage("avgSlope=" + avgSlope);
 
 		objectStorePut("LAST_SLOPE_VALUE", avgSlope); // Store it so we can retreive it quickly if we're asking too frequently
 

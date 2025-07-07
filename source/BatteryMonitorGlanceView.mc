@@ -76,8 +76,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var remainingStrLen = 0;
         var chartData = objectStoreGet("HISTORY_KEY", null);
         if ((chartData instanceof Toybox.Lang.Array)) {
-        	chartData = chartData.reverse();
-
+        	// chartData = chartData.reverse();
     		var downSlopeSec = downSlope(chartData);
 		    if (downSlopeSec != null) {
 				dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
