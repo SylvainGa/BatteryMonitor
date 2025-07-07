@@ -48,7 +48,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
             var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
             var now = Time.now().value(); //in seconds from UNIX epoch in UTC
-            
+
             var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
             if (chargingData == null) {
                 $.objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
@@ -123,7 +123,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         }
 
         dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
-        var batteryStr = battery.toNumber() + "%" + (Sys.getSystemStats().charging ? "+" : "");
+        var batteryStr = battery.toNumber() + (Sys.getSystemStats().charging ? "+%" : "%");
 
         var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", mFontType);
         dc.drawText(0, 0, mFontType, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
