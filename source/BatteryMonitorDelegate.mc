@@ -105,7 +105,7 @@ class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
         }
         else {
             //Erase
-            objectStoreErase("HISTORY_KEY");
+            objectStoreErase("HISTORY");
             objectStoreErase("LAST_HISTORY_KEY");
             objectStoreErase("LAST_VIEWED_DATA");
             objectStoreErase("LAST_CHARGED_DATA");

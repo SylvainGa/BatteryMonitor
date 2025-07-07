@@ -50,7 +50,14 @@ const HISTORY_ELEMENT_SIZE = 2; // Non solar watches have two fields of 4 bytes 
 (:background)
 class BatteryMonitorApp extends App.AppBase {
 	var mView;
+	var mGlance;
 	var mDelegate;
+	public var mHistory;
+	public var mHistorySize;
+
+	// Testing array passing by references
+	// public var mArray;
+	// public var mArraySize;
 
     function initialize() {
         AppBase.initialize();
@@ -58,123 +65,72 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
+		/*DEBUG*/ logMessage("Start");
 		var bgIntervals = 5 * 60; // 5 minutes minimum
-		// var history = objectStoreGet("HISTORY_KEY", null);
-		// if (history != null) {
-		// 	var size = history.size();
-		// 	if (size > 288) { // Equivalent to a day at 5 minutes intervals
-		// 		bgIntervals = 900; // After a day's worth of data, drop the intervals to 15 minutes intervals to lessen the impact on the system
-		// 	}
-		// }
+
+        // Testing array passing by references
+		// mArray = [10, 20, 30];
+		// mArraySize = mArray.size();
+		// Sys.println("App array is " + mArray + " size is " + mArraySize);
 
     	if (Toybox.System has :ServiceDelegate) {
 			//DEBUG*/ logMessage("Will run BG every " + (bgIntervals / 60) + " minutes" );
 			Background.registerForTemporalEvent(new Time.Duration(bgIntervals));
 		}
-
-		/**** UNCOMMEMT TO UPGRADE ARRAYS STRUCTURES ****/
-		// // This update drops the precision of the Battery field from 3 decimal to 1 decimal. 3 was overboard.
-		// var update = objectStoreGet("UPDATE_DATA", null);
-		// /*DEBUG*/ logMessage("UPDATE_DATA is " + update);
-		// if (history != null) {
-		// 	if (update == null || update != UPDATE_VERSION) {
-		// 		/*DEBUG*/ logMessage("Updating arrays");
-		// 		var count = 0;
-		// 		if (history instanceof Toybox.Lang.Array) {
-		// 			if (history[0][BATTERY] instanceof Toybox.Lang.Number) {
-		// 				/*DEBUG*/ logMessage("HISTORY_KEY is the right format to update");
-		// 				for (var i = 0; i < history.size(); i++) {
-		// 					history[i][BATTERY] = (history[i][BATTERY] / 100).toNumber();
-		// 				}
-		// 				objectStorePut("HISTORY_KEY", history);
-		// 				count++;
-		// 			}
-		// 		}
-
-		// 		history = objectStoreGet("LAST_HISTORY_KEY", null);
-		// 		if (history != null) {
-		// 			if (history[BATTERY] instanceof Toybox.Lang.Number) {
-		// 				/*DEBUG*/ logMessage("LAST_HISTORY_KEY is the right format to update");
-		// 				history[BATTERY] = (history[BATTERY] / 100).toNumber();
-		// 				objectStorePut("LAST_HISTORY_KEY", history);
-		// 				count++;
-		// 			}
-		// 		}
-
-		// 		history = objectStoreGet("LAST_VIEWED_DATA", null);
-		// 		if (history != null) {
-		// 			if (history[BATTERY] instanceof Toybox.Lang.Number) {
-		// 				/*DEBUG*/ logMessage("LAST_VIEWED_DATA is the right format to update");
-		// 				history[BATTERY] = (history[BATTERY] / 100).toNumber();
-		// 				objectStorePut("LAST_VIEWED_DATA", history);
-		// 				count++;
-		// 			}
-		// 		}
-
-		// 		history = objectStoreGet("LAST_CHARGED_DATA", null);
-		// 		if (history != null) {
-		// 			if (history[BATTERY] instanceof Toybox.Lang.Number) {
-		// 				/*DEBUG*/ logMessage("LAST_CHARGED_DATA is the right format to update");
-		// 				history[BATTERY] = (history[BATTERY] / 100).toNumber();
-		// 				objectStorePut("LAST_CHARGED_DATA", history);
-		// 				count++;
-		// 			}
-		// 		}
-
-		// 		history = objectStoreGet("STARTED_CHARGING_DATA", null);
-		// 		if (history != null) {
-		// 			if (history[BATTERY] instanceof Toybox.Lang.Number) {
-		// 				/*DEBUG*/ logMessage("STARTED_CHARGING_DATA is the right format to update");
-		// 				history[BATTERY] = (history[BATTERY] / 100).toNumber();
-		// 				objectStorePut("STARTED_CHARGING_DATA", history);
-		// 				count++;
-		// 			}
-		// 		}
-
-		// 		/*DEBUG*/ logMessage("Update to version " + UPDATE_VERSION + " complete" + (count != 5 ? " but with some arrays not being updated." : "."));
-		// 		objectStorePut("UPDATE_DATA", UPDATE_VERSION);
-		// 		objectStorePut("IGNORE_NEXT_BGDATA", true);
-		// 	}
-		// }
-		// else {
-		// 	/*DEBUG*/ logMessage("No history to update");
-		// 	objectStorePut("UPDATE_DATA", UPDATE_VERSION);
-		// }
-		/**** UNCOMMEMT TO UPGRADE ARRAYS STRUCTURES ****/
     }
 
     // onStop() is called when your application is exiting
     function onStop(state) {
+		/*DEBUG*/ logMessage("Stop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		if (mView != null) { // Don't let the background process store an old copy of mHistory
+			if (mHistory != null) {
+				$.objectStorePut("HISTORY", mHistory);
+			}
+		}
     }
 
     (:glance)
     function getGlanceView() {
+		/*DEBUG*/ logMessage("GL");
+		getHistoryFromStorage();
+
 		mView = new BatteryMonitorGlanceView();
+		mGlance = mView; // So we know it's specifically a Glance view
         return [ mView ];
     }
 
     // Return the initial view of your application here
     function getInitialView() {	
+		/*DEBUG*/ logMessage("VW");
+		getHistoryFromStorage();
+
 		mView = new BatteryMonitorView();
 		mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive));
         return [ mView , mDelegate ];
     }
     
     function getServiceDelegate(){
+		/*DEBUG*/ logMessage("SD");
         return [new BatteryMonitorServiceDelegate()];
     }
 
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
-    	/*DEBUG*/ logMessage("onBG (" + (mDelegate == null ? "BG" : "VIEW") + "): " + data);
+    	/*DEBUG*/ logMessage("onBG (" + (mView == null ? "SD" : (mGlance == null ? "VW" : "GL")) + "): " + data);
 
-		if (objectStoreGet("IGNORE_NEXT_BGDATA", false) == true) { // So we skip pending updates that could potentially be in the wrong format after an array redefinition
-			objectStorePut("IGNORE_NEXT_BGDATA", false);
-			return;
-		}
+		// if ($.objectStoreGet("IGNORE_NEXT_BGDATA", false) == true) { // So we skip pending updates that could potentially be in the wrong format after an array redefinition
+		// 	$.objectStorePut("IGNORE_NEXT_BGDATA", false);
+		// 	return;
+		// }
 
 		if (data != null /* && mDelegate == null*/) {
-			analyzeAndStoreData(data, data.size());
+			var size = data.size();
+			$.analyzeAndStoreData(data, data.size());
+
+			// If we had more than one data waiting to be read, to be safe, save the HISTORY right now in case we crash later on
+			if (size > 1 || mGlance != null) { // Glance view calls onStart AFTER onBackground data so we'll loose this data if we don't save it!
+				$.objectStorePut("HISTORY", mHistory);
+			}
         	Ui.requestUpdate();
 		}
     }    
@@ -184,4 +140,46 @@ class BatteryMonitorApp extends App.AppBase {
 			mView.onSettingsChanged();
 		}
 	}
+
+	function getHistoryFromStorage() {
+		mHistory = $.objectStoreGet("HISTORY", null);
+		if (mHistory == null) { // To prefill the history with the data we currently have in our previous history array
+			var mHistory = $.objectStoreGet("HISTORY_KEY", null);
+			if (mHistory != null) {
+		    	/*DEBUG*/ logMessage("Reading from HISTORY_KEY");
+				$.objectStorePut("HISTORY", mHistory);
+			}
+		}
+
+		getHistorySize();
+	}
+
+	function setHistory(history) {
+		mHistory = history;
+		getHistorySize();
+
+		return [mHistory, mHistorySize];
+	}
+
+	function getHistorySize() {
+		var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+
+		mHistorySize = mHistory != null ? mHistory.size() / elementSize : 0;
+
+		return mHistorySize;
+	}
+
+	// Testing array passing by references
+	// function setArray(newArray) {
+	// 	mArray = newArray;
+	// 	mArraySize = mArray.size();
+
+	// 	return [mArray, mArraySize];
+	// }
+
+	// function getArraySize() {
+	// 	mArraySize = mArray.size();
+	// 	return mArraySize;
+	// }
 }

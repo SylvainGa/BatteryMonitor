@@ -26,7 +26,7 @@
     <string id="LastCharge">Dernière recharge</string>
     <string id="At">à</string>
 
-    <string id="Now" scope="glance">Maintenant</string>
+    <string id="Now" scope="glance">Présent</string>
     <string id="Minute">Minute</string>
     <string id="MinuteShort" scope="glance">m</string>
     <string id="Hour">Heure</string>

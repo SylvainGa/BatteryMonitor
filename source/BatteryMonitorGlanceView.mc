@@ -1,6 +1,7 @@
 using Toybox.System as Sys;
 using Toybox.WatchUi as Ui;
 using Toybox.Graphics as Gfx;
+using Toybox.Application as App;
 using Toybox.Application.Storage;
 using Toybox.Application.Properties;
 using Toybox.Time;
@@ -25,6 +26,19 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
     function onLayout(dc) {
 		var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE];
+
+        // Testing array passing by references
+        // var appArray = App.getApp().mArray;
+        // var appArraySize = App.getApp().mArraySize;
+		// Sys.println("onLayout App array is " + appArray + " size is " + appArraySize);
+        // var myArray = [1, 2];
+        // var ret = App.getApp().setArray(myArray);
+        // appArray = ret[0];
+        // appArraySize = ret[1];
+		// Sys.println("onLayout App array is " + appArray + " and size " + appArraySize);
+        // appArray.add(3);
+        // appArraySize = App.getApp().getArraySize();
+		// Sys.println("onLayout App array is " + appArray + " and size " + appArraySize);
 
 		// The right font is about 10% of the screen size
 		for (var i = 0; i < fonts.size(); i++) {
@@ -53,6 +67,12 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
     function onUpdate(dc) {
         // Draw the two/three rows of text on the glance widget
+
+        // Testing array passing by references
+        // var appArray = App.getApp().mArray;
+        // var appArraySize = App.getApp().mArraySize;
+		// Sys.println("onUpdate App array is " + appArray + " size is " + appArraySize);
+
         var battery = Sys.getSystemStats().battery;
         var colorBat;
         if (battery >= 20) {
@@ -74,25 +94,23 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var remainingStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
         var dischargeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
         var remainingStrLen = 0;
-        var chartData = objectStoreGet("HISTORY_KEY", null);
-        if ((chartData instanceof Toybox.Lang.Array)) {
-        	// chartData = chartData.reverse();
-    		var downSlopeSec = downSlope(chartData);
-		    if (downSlopeSec != null) {
-				dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-                var downSlopeMin = downSlopeSec * 60;
-                remainingStr = minToStr(battery / downSlopeMin, false);
-                remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", mFontType);
 
-                var downSlopeHours = downSlopeSec * 60 * 60;
-                if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
-                    dischargeStr = (downSlopeHours * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDay);
-                }
-                else {
-                    dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
-                }	
-            }            
-        }
+        var downSlopeSec = $.downSlope();
+        if (downSlopeSec != null) {
+            dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+            var downSlopeMin = downSlopeSec * 60;
+            remainingStr = minToStr(battery / downSlopeMin, false);
+            remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", mFontType);
+
+            var downSlopeHours = downSlopeSec * 60 * 60;
+            if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
+                dischargeStr = (downSlopeHours * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDay);
+            }
+            else {
+                dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
+            }	
+        }            
+
         dc.drawText(0, mFontHeight, mFontType, remainingStr, Gfx.TEXT_JUSTIFY_LEFT);
 
         var xPos = (batteryStrLen > remainingStrLen ? batteryStrLen : remainingStrLen);
