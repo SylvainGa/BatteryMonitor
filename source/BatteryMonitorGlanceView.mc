@@ -42,6 +42,22 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 			$.analyzeAndStoreData([data], 1);
 			mRefreshCount = 0;
 		}
+
+        if (Sys.getSystemStats().charging) {
+            var stats = Sys.getSystemStats();
+            var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
+            var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
+            var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+            
+            var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
+            if (chargingData == null) {
+                $.objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
+            }
+        }
+        else {
+            $.objectStoreErase("STARTED_CHARGING_DATA");
+        }
+
 		Ui.requestUpdate();
     }
 
