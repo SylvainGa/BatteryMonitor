@@ -13,6 +13,7 @@ class BatteryMonitorView extends Ui.View {
 	var mPanelOrder;
 	var mPanelSize;
 	var mPanelIndex;
+	var mGraphSizeChange;
 	var mCtrX, mCtrY;
 	var mTimer;
 	var mLastData;
@@ -37,6 +38,7 @@ class BatteryMonitorView extends Ui.View {
 		$.objectStorePut("VIEW_RUNNING", true);
 
 		mRefreshCount = 0;
+		mGraphSizeChange = 0;
 		mTimer = new Timer.Timer();
 		mTimer.start(method(:refreshTimer), 5000, true); // Check every 5 seconds
     	
@@ -168,14 +170,27 @@ class BatteryMonitorView extends Ui.View {
 		mViewScreen = mPanelOrder[0];
     }
 
-	function onReceive(newIndex) {
+	function onReceive(newIndex, graphSizeChange) {
 		if (newIndex == -1) {
 			mHideChargingPopup = !mHideChargingPopup;
 		}
 		else {
+			if (newIndex != mPanelIndex) {
+				mGraphSizeChange = 0; // If we changed panel, reset zoom of graphic view
+			}
+
 			mPanelIndex = newIndex;
 			mViewScreen = mPanelOrder[mPanelIndex];
 		}
+
+		mGraphSizeChange += graphSizeChange;
+		if (mGraphSizeChange < 0) {
+			mGraphSizeChange = 0;
+		}
+		else if (mGraphSizeChange > 5) {
+			mGraphSizeChange = 5;
+		}
+
 		Ui.requestUpdate();
 	}
 
@@ -559,8 +574,11 @@ class BatteryMonitorView extends Ui.View {
 		var timeMostRecentPoint = chartData[(dataSize - 1) * elementSize + TIMESTAMP];
 		var timeMostFuturePoint = (timeLeftSecUNIX != null && whichView == SCREEN_PROJECTION) ? timeLeftSecUNIX : timeMostRecentPoint;
 		var timeLeastRecentPoint = timeLastFullCharge(chartData, 60 * 60 * 24); // Try to show at least a day's worth of data
+
 		var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint).toFloat() / 60.0; // History time in minutes
 		xHistoryInMin = MIN(MAX(xHistoryInMin, 60.0), 60.0 * 25.0 * 30.0);
+		var zoomLevel = [1, 2, 4, 8, 16, 32];
+		xHistoryInMin /= zoomLevel[mGraphSizeChange];
 		var xFutureInMin = (timeMostFuturePoint - timeMostRecentPoint).toFloat() / 60.0; // Future time in minutes
 		xFutureInMin = MIN(MAX(xFutureInMin, 60.0), (whichView == SCREEN_PROJECTION ? 60.0 * 25.0 * 30.0 : 0));
 		var XmaxInMin = xHistoryInMin + xFutureInMin; // Total time in minutes

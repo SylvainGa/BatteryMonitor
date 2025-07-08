@@ -25,7 +25,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		/*DEBUG*/ $.analyzeAndStoreData([$.getData()], 1);
 
 		if (System.getSystemStats().charging) {
-	        mHandler.invoke(-1);
+	        mHandler.invoke(-1, 0);
 		}
 		else {
 	        onNextPage();
@@ -46,7 +46,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		if (panelIndex >= mView.getPanelSize()) {
 			panelIndex = 0;
 		}
-        mHandler.invoke(panelIndex);
+        mHandler.invoke(panelIndex, 0);
 
 		return true;
 	}
@@ -58,12 +58,14 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		if (panelIndex < 0) {
 			panelIndex = mView.getPanelSize() - 1;
 		}
-        mHandler.invoke(panelIndex);
+        mHandler.invoke(panelIndex, 0);
 
 		return true;
 	}
 
 	function onSwipe(swipeEvent) {
+        var panelIndex = mView.getPanelIndex();
+
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_DOWN) {
 			onPreviousPage();
 		}
@@ -73,7 +75,11 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		}
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_LEFT) {
-			onNextPage();
+	        mHandler.invoke(panelIndex, 1);
+		}
+
+		if (swipeEvent.getDirection() == WatchUi.SWIPE_RIGHT) {
+	        mHandler.invoke(panelIndex, -1);
 		}
 
 		return true;
