@@ -43,4 +43,4 @@ V1.1.0 The following were added
 - The history array is kept in memory and read/written less frequently to save processing time/battery drain
 - Bug fix when running the background code. Now all the accumulated history since the last time the app was viewed (glance or full view) are accounted for, not just the last one.
 - Bug fix in the auto selection of fonts based on screen size.
-- Bug fix in the short time display where there wasn't a ' ' between both fields
+- Bug fix in the short time display where there wasn't a ' ' between both fields and last field had no unit
