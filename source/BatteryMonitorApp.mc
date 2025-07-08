@@ -66,7 +66,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
-		/*DEBUG*/ logMessage("Start");
+		//DEBUG*/ logMessage("Start");
         // Testing array passing by references
 		// mArray = [10, 20, 30];
 		// mArraySize = mArray.size();
@@ -78,14 +78,14 @@ class BatteryMonitorApp extends App.AppBase {
 
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
-    	/*DEBUG*/ logMessage("onBG " + data);
+    	//DEBUG*/ logMessage("onBG " + data);
 
 		// Make sure we have the latest data from storage if we're empty, otherwise use what you have
 		if (mHistory == null) {
 			getHistoryFromStorage();
 		}
 		else {
-	    	/*DEBUG*/ logMessage("Already have " + mHistorySize);
+	    	//DEBUG*/ logMessage("Already have " + mHistorySize);
 		}
 
 		// if ($.objectStoreGet("IGNORE_NEXT_BGDATA", false) == true) { // So we skip pending updates that could potentially be in the wrong format after an array redefinition
@@ -100,7 +100,7 @@ class BatteryMonitorApp extends App.AppBase {
 			// If we had more than one data waiting to be read, to be safe, save the HISTORY right now in case we crash later on
 			if (size > 1 && mHistoryModified == true) {
 				$.objectStorePut("HISTORY", mHistory);
-		    	/*DEBUG*/ logMessage("History changed, saving " + mHistorySize);
+		    	//DEBUG*/ logMessage("History changed, saving " + mHistorySize);
 				mHistoryModified = false;
 			}
         	Ui.requestUpdate();
@@ -109,15 +109,15 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStop() is called when your application is exiting
     function onStop(state) {
-		/*DEBUG*/ logMessage("Stop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("Stop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 		if (mHistory != null && mHistoryModified == true) {
 			$.objectStorePut("HISTORY", mHistory);
-			/*DEBUG*/ logMessage("History changed, saving " + mHistorySize);
+			//DEBUG*/ logMessage("History changed, saving " + mHistorySize);
 			mHistoryModified = false;
 		}
 
 		if (mView != null) {
-			/*DEBUG*/ logMessage("Restarting BG process");
+			//DEBUG*/ logMessage("Restarting BG process");
 			Background.registerForTemporalEvent(new Time.Duration(300));
 		}
     }
@@ -130,9 +130,9 @@ class BatteryMonitorApp extends App.AppBase {
 
     (:glance)
     function getGlanceView() {
-		/*DEBUG*/ logMessage("getGlanceView");
+		//DEBUG*/ logMessage("getGlanceView");
 
-		/*DEBUG*/ logMessage("Stopping BG process");
+		//DEBUG*/ logMessage("Stopping BG process");
 		// Terminate the background process as we'll be doing the reading while the glance view is running
 		Background.deleteTemporalEvent();
 
@@ -148,9 +148,9 @@ class BatteryMonitorApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {	
-		/*DEBUG*/ logMessage("getInitialView");
+		//DEBUG*/ logMessage("getInitialView");
 
-		/*DEBUG*/ logMessage("Stopping BG process");
+		//DEBUG*/ logMessage("Stopping BG process");
 		// Terminate the background process as we'll be doing the reading while the main view is running
 		Background.deleteTemporalEvent();
 
@@ -165,7 +165,7 @@ class BatteryMonitorApp extends App.AppBase {
     }
     
     function getServiceDelegate(){
-		/*DEBUG*/ logMessage("getServiceDelegate");
+		//DEBUG*/ logMessage("getServiceDelegate");
         return [new BatteryMonitorServiceDelegate()];
     }
 
@@ -175,7 +175,7 @@ class BatteryMonitorApp extends App.AppBase {
 			// If we don't have data, see if the old history array is there and if so, convert it to the new format
 			var oldHistory = $.objectStoreGet("HISTORY_KEY", null);
 			if (oldHistory != null) {
-		    	/*DEBUG*/ logMessage("Converting from HISTORY_KEY");
+		    	//DEBUG*/ logMessage("Converting from HISTORY_KEY");
 				var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
 				var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 				mHistory = new [oldHistory.size() * elementSize];
@@ -200,7 +200,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		mHistoryModified = false;
 
-		/*DEBUG*/ logMessage("getHistoryFromStorage Read " + mHistorySize);
+		//DEBUG*/ logMessage("getHistoryFromStorage Read " + mHistorySize);
 	}
 
 	function convertData(key, isSolar) {

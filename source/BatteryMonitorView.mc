@@ -81,7 +81,7 @@ class BatteryMonitorView extends Ui.View {
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
 			mNowData = $.getData();
-			/*DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
+			//DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
 			$.analyzeAndStoreData([mNowData], 1);
 			mRefreshCount = 0;
 		}
