@@ -25,7 +25,7 @@ class BatteryMonitorView extends Ui.View {
 	var mViewScreen;
 	var mStartedCharging;
 	var mHideChargingPopup;
-	var mDebugFont;
+	//DEBUG*/ var mDebugFont;
 
     function initialize() {
         View.initialize();
@@ -40,7 +40,7 @@ class BatteryMonitorView extends Ui.View {
 
 		mRefreshCount = 0;
 		mGraphSizeChange = 0;
-		mDebugFont = 0;
+		//DEBUG*/ mDebugFont = 0;
 		mTimer = new Timer.Timer();
 		mTimer.start(method(:refreshTimer), 5000, true); // Check every 5 seconds
     	
@@ -85,7 +85,7 @@ class BatteryMonitorView extends Ui.View {
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
 			mNowData = $.getData();
-			/*DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
+			//DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
 			$.analyzeAndStoreData([mNowData], 1);
 			mRefreshCount = 0;
 		}
@@ -174,7 +174,7 @@ class BatteryMonitorView extends Ui.View {
     }
 
 	function onReceive(newIndex, graphSizeChange) {
-		/*DEBUG*/ if (graphSizeChange == 1) { mDebugFont++; if (mDebugFont > 4) { mDebugFont = 0; } }
+		//DEBUG*/ if (graphSizeChange == 1) { mDebugFont++; if (mDebugFont > 4) { mDebugFont = 0; } }
 
 		if (newIndex == -1) {
 			mHideChargingPopup = !mHideChargingPopup;

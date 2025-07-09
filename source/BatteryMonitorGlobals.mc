@@ -58,7 +58,7 @@ function analyzeAndStoreData(data, dataSize) {
 
 		lastHistory = data[dataSize - 1];
 		added = dataSize;
-		/*DEBUG*/ logMessage("First addition (" + added + ") " + data);
+		//DEBUG*/ logMessage("First addition (" + added + ") " + data);
 	}
 	else { // We have a history and a last history, see if the battery value is different than the last and if so, store it
 		var screenWidth = Sys.getDeviceSettings().screenWidth;
@@ -69,17 +69,17 @@ function analyzeAndStoreData(data, dataSize) {
 				break; // Found it!
 			}
 			else {
-				/*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
+				//DEBUG*/ logMessage("Ignored " + data[dataIndex]);
 			}
 		}
 
 		var historyRefresh = false;
-		/*DEBUG*/ var addedData = []; logMessage("historySize " + historySize + " dataSize " + dataSize);
+		//DEBUG*/ var addedData = []; logMessage("historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 			if (historySize >= maxSize) { // We've reached the max size, average the bottom half of the array so we have room too grow without affecting the latest data. If there are too many entries, we may need to come back here and do it all over
 				var newSize = maxSize / 2 + maxSize / 4;
 				var newHistory = new [newSize * elementSize]; // Shrink by 25%
-				/*DEBUG*/ logMessage("Making room for new entries. From " + historySize + " down to " + newSize);
+				//DEBUG*/ logMessage("Making room for new entries. From " + historySize + " down to " + newSize);
 
 				for (var i = 0, j = 0; j < historySize; i++) {
 					if (j < historySize / 2) {
@@ -128,14 +128,14 @@ function analyzeAndStoreData(data, dataSize) {
 				historySize++;
 				added++;
 
-				/*DEBUG*/ addedData.add(data[dataIndex]);
+				//DEBUG*/ addedData.add(data[dataIndex]);
 			}
 			else {
-				/*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
+				//DEBUG*/ logMessage("Ignored " + data[dataIndex]);
 			}
 		}
 
-		/*DEBUG*/ logMessage("Added (" + added + ") " + addedData);
+		//DEBUG*/ logMessage("Added (" + added + ") " + addedData);
 
 		if (added > 0) {
 			// Reset the whole App history array if we had to redo a new one because we outgrew it size (see above)
@@ -436,7 +436,7 @@ function logMessage(message) {
 
 (:release, :background)
 function logMessage(message) {
-	var clockTime = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
-	var dateStr = clockTime.hour + ":" + clockTime.min.format("%02d") + ":" + clockTime.sec.format("%02d");
-	Sys.println(dateStr + " : " + message);
+	// var clockTime = Gregorian.info(Time.now(), Time.FORMAT_MEDIUM);
+	// var dateStr = clockTime.hour + ":" + clockTime.min.format("%02d") + ":" + clockTime.sec.format("%02d");
+	// Sys.println(dateStr + " : " + message);
 }
