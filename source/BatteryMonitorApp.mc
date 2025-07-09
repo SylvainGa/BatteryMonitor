@@ -178,6 +178,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 	function getHistoryFromStorage() {
 		mHistory = $.objectStoreGet("HISTORY", null);
+		/*DEBUG*/ buildFakeHistory();
 		if (mHistory == null) {
 			// If we don't have data, see if the old history array is there and if so, convert it to the new format
 			var oldHistory = $.objectStoreGet("HISTORY_KEY", null);
@@ -241,16 +242,31 @@ class BatteryMonitorApp extends App.AppBase {
 		mHistoryModified = state;
 	}
 
-	// Testing array passing by references
-	// function setArray(newArray) {
-	// 	mArray = newArray;
-	// 	mArraySize = mArray.size();
+	(:debug)
+	function buildFakeHistory() {
+	    var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+		mHistory = [now - 600, 80, 0, now - 300, 79, 0, now - 120, 78, 0, now - 60, 77, 0, now, 76, 0];
+		return;
+		// var span = 60 * 2460; // 1 day 16 hours
+		// var start = now - span;
+		// var size = span / (5 * 60); // One entry per 5 minutes
+		// var batInitialLevel = 80.0;
+		// var batLastLevel = 5.0;
+		// var batDrain = (batInitialLevel - batLastLevel) / size;
+		// var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		// var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+		// mHistory = new [size * elementSize];
+		// for (var i = 0; i < size; i++) {
+		// 	mHistory[i * elementSize + TIMESTAMP] = start + i * 5 * 60;
+		// 	mHistory[i * elementSize + BATTERY] = ((batInitialLevel - batDrain * i) * 10).toNumber();
+		// 	if (isSolar) {
+		// 		mHistory[i * elementSize + SOLAR] = Math.rand() % 100;
+		// 	}
+		// }
+		// mHistorySize = size;
+	}
 
-	// 	return [mArray, mArraySize];
-	// }
-
-	// function getArraySize() {
-	// 	mArraySize = mArray.size();
-	// 	return mArraySize;
-	// }
+	(:release)
+	function buildFakeHistory() {
+	}
 }

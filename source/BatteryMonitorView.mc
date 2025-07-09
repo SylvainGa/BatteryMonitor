@@ -578,11 +578,13 @@ class BatteryMonitorView extends Ui.View {
 		var timeLeastRecentPoint = timeLastFullCharge(chartData, 60 * 60 * 24); // Try to show at least a day's worth of data
 
 		var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint).toFloat() / 60.0; // History time in minutes
-		xHistoryInMin = MIN(MAX(xHistoryInMin, 60.0), 60.0 * 25.0 * 30.0);
-		var zoomLevel = [1, 2, 4, 8, 16, 32];
-		xHistoryInMin /= zoomLevel[mGraphSizeChange];
+		xHistoryInMin = MIN(MAX(xHistoryInMin, 60.0), 60.0 * 24.0 * 30.0); // 30 days?
+		if (whichView == SCREEN_HISTORY) {
+			var zoomLevel = [1, 2, 4, 8, 16, 32];
+			xHistoryInMin /= zoomLevel[mGraphSizeChange];
+		}
 		var xFutureInMin = (timeMostFuturePoint - timeMostRecentPoint).toFloat() / 60.0; // Future time in minutes
-		xFutureInMin = MIN(MAX(xFutureInMin, 60.0), (whichView == SCREEN_PROJECTION ? 60.0 * 25.0 * 30.0 : 0));
+		xFutureInMin = MIN(MAX(xFutureInMin, 60.0), (whichView == SCREEN_PROJECTION ? 60.0 * 24.0 * 30.0 : 0)); // 30 days?
 		var XmaxInMin = xHistoryInMin + xFutureInMin; // Total time in minutes
 		var XscaleMinPerPxl = XmaxInMin / Xframe; // in minutes per pixel
 		var Xnow; // position of now in the graph, equivalent to: pixels available for left part of chart, with history only (right part is future prediction)
@@ -611,6 +613,7 @@ class BatteryMonitorView extends Ui.View {
 		var Ymax = 100; //max value for battery
 
 		//! draw history data
+		var firstOutside = true;
 		for (var i = dataSize - 1; i >= 0; i--) {
 			//DEBUG*/ logMessage(i + " " + chartData[i]);
 			// End (closer to now)
@@ -621,34 +624,38 @@ class BatteryMonitorView extends Ui.View {
 			var colorBat = $.getBatteryColor(battery);
 
 			if (dataTimeDistanceInMinEnd > xHistoryInMin) {
-				continue; // This data point is outside of the graph view, ignore it
+				if (firstOutside == false) {
+					continue; // This data point is outside of the graph view and it's not the first one being outside, ignore it
+				}
+				else {
+					firstOutside = false; // Still draw it so we have a rectangle from the edge of the screen to the last point position
+				}
 			}
-			else {
-				var ySolar = null;
-				if (isSolar) {
-					var solar, dataHeightSolar;
-					solar = chartData[i * elementSize + SOLAR];
-					if (solar != null) {
-						dataHeightSolar = (solar * Yframe) / Ymax;
-						ySolar = Y2 - dataHeightSolar;
-					}
-				}
 
-				var dataHeightBat = (battery * Yframe) / Ymax;
-				var yBat = Y2 - dataHeightBat;
-				var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / XscaleMinPerPxl;
-				var x = X1 + Xnow - dataTimeDistanceInPxl;
-				dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
-
-				if (lastPoint[0] != null) {
-					dc.fillRectangle(x, yBat, lastPoint[0] - x + 1, Y2 - yBat);
+			var ySolar = null;
+			if (isSolar) {
+				var solar, dataHeightSolar;
+				solar = chartData[i * elementSize + SOLAR];
+				if (solar != null) {
+					dataHeightSolar = (solar * Yframe) / Ymax;
+					ySolar = Y2 - dataHeightSolar;
 				}
-				if (ySolar && lastPoint[1] != null) {
-					dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
-					dc.drawLine(x, ySolar, lastPoint[0], lastPoint[1]);
-				}
-				lastPoint = [x, ySolar];
 			}
+
+			var dataHeightBat = (battery * Yframe) / Ymax;
+			var yBat = Y2 - dataHeightBat;
+			var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / XscaleMinPerPxl;
+			var x = X1 + Xnow - dataTimeDistanceInPxl;
+			dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
+
+			if (lastPoint[0] != null) {
+				dc.fillRectangle(x, yBat, lastPoint[0] - x + 1, Y2 - yBat);
+			}
+			if (ySolar && lastPoint[1] != null) {
+				dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
+				dc.drawLine(x, ySolar, lastPoint[0], lastPoint[1]);
+			}
+			lastPoint = [x, ySolar];
 		}
 		
 		//! draw future estimation
