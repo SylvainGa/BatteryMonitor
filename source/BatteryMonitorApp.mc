@@ -3,6 +3,8 @@ using Toybox.Background;
 using Toybox.System as Sys;
 using Toybox.WatchUi as Ui;
 using Toybox.Graphics as Gfx;
+using Toybox.Complications;
+using Toybox.Attention;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.Math;
@@ -67,10 +69,15 @@ class BatteryMonitorApp extends App.AppBase {
     // onStart() is called on application start up
     function onStart(state) {
 		/*DEBUG*/ logMessage("Start");
-        // Testing array passing by references
-		// mArray = [10, 20, 30];
-		// mArraySize = mArray.size();
-		// Sys.println("App array is " + mArray + " size is " + mArraySize);
+
+        if (state != null) {
+            if (state.get(:launchedFromComplication) != null) {
+                if (Attention has :vibrate) {
+                    var vibeData = [ new Attention.VibeProfile(50, 200) ]; // On for 200 ms at 50% duty cycle
+                    Attention.vibrate(vibeData);
+                }
+            }
+        }
 
 		//DEBUG*/ logMessage("Will run BG every " + (bgIntervals / 60) + " minutes" );
 		Background.registerForTemporalEvent(new Time.Duration(300));
@@ -161,7 +168,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		mView = new BatteryMonitorView();
 		mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive));
-        return [ mView , mDelegate ];
+		return [ mView , mDelegate ];
     }
     
     function getServiceDelegate(){

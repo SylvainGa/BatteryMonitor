@@ -191,6 +191,8 @@ class BatteryMonitorView extends Ui.View {
 			mGraphSizeChange = 5;
 		}
 
+		/*DEBUG*/ logMessage("mGraphSizeChange is " + mGraphSizeChange);
+
 		Ui.requestUpdate();
 	}
 
