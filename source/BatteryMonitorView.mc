@@ -25,6 +25,7 @@ class BatteryMonitorView extends Ui.View {
 	var mViewScreen;
 	var mStartedCharging;
 	var mHideChargingPopup;
+	var mDebugFont;
 
     function initialize() {
         View.initialize();
@@ -39,6 +40,7 @@ class BatteryMonitorView extends Ui.View {
 
 		mRefreshCount = 0;
 		mGraphSizeChange = 0;
+		mDebugFont = 0;
 		mTimer = new Timer.Timer();
 		mTimer.start(method(:refreshTimer), 5000, true); // Check every 5 seconds
     	
@@ -92,25 +94,26 @@ class BatteryMonitorView extends Ui.View {
 
     // Load your resources here
     function onLayout(dc) {
-    	mCtrX = dc.getWidth() / 2;
-    	mCtrY = dc.getHeight() / 2; 
-
-		var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE];
-
-		// The right font is about 10% of the screen size
-		for (var i = 0; i < fonts.size(); i++) {
-			var fontHeight = Gfx.getFontHeight(fonts[i]);
-			if (dc.getHeight() / fontHeight < 9) {
-				mFontType = fonts[i];
+		// Find the right font size based on screen size
+		var fontByScreenSizes = [[218, Gfx.FONT_SMALL], [240, Gfx.FONT_SMALL], [260, Gfx.FONT_SMALL], [280, Gfx.FONT_SMALL], [320, Gfx.FONT_LARGE ], [322, Gfx.FONT_LARGE], [360, Gfx.FONT_XTINY], [390, Gfx.FONT_TINY], [416, Gfx.FONT_SMALL], [454, Gfx.FONT_TINY], [470, Gfx.FONT_LARGE], [486, Gfx.FONT_TINY], [800, Gfx.FONT_MEDIUM]];
+		var height = dc.getHeight();
+		mFontType = null;
+		for (var i = 0; i < fontByScreenSizes.size(); i++) {
+			if (height == fontByScreenSizes[i][0]) {
+				mFontType = fontByScreenSizes[i][1];
 				break;
 			}
 		}
 
 		if (mFontType == null) {
-			mFontType = Gfx.FONT_LARGE;
+			mFontType = Gfx.FONT_SMALL; // Defaults to Small font
 		}
 
 		mFontHeight = Gfx.getFontHeight(mFontType);
+
+    	mCtrX = dc.getWidth() / 2;
+    	mCtrY = height / 2;
+
     }
 
     function onSettingsChanged() {
@@ -171,6 +174,8 @@ class BatteryMonitorView extends Ui.View {
     }
 
 	function onReceive(newIndex, graphSizeChange) {
+		/*DEBUG*/ if (graphSizeChange == 1) { mDebugFont++; if (mDebugFont > 4) { mDebugFont = 0; } }
+
 		if (newIndex == -1) {
 			mHideChargingPopup = !mHideChargingPopup;
 		}
@@ -191,7 +196,7 @@ class BatteryMonitorView extends Ui.View {
 			mGraphSizeChange = 5;
 		}
 
-		/*DEBUG*/ logMessage("mGraphSizeChange is " + mGraphSizeChange);
+		//DEBUG*/ logMessage("mGraphSizeChange is " + mGraphSizeChange);
 
 		Ui.requestUpdate();
 	}
@@ -205,7 +210,9 @@ class BatteryMonitorView extends Ui.View {
         View.onUpdate(dc);
         
        	dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);	
-        
+
+		//DEBUG*/ var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE]; mFontType = fonts[mDebugFont]; dc.drawText(0, mCtrY, mFontType, mDebugFont, Gfx.TEXT_JUSTIFY_LEFT);
+
 		var history = mApp.mHistory;
 		var size = mApp.mHistorySize;
 	
@@ -330,9 +337,11 @@ class BatteryMonitorView extends Ui.View {
 		//! Now add the 'popup' if the device is currently charging
 		dc.setPenWidth(2);
 		dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-		dc.fillRoundedRectangle(27, mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * 27, 2 * (mFontHeight + mFontHeight / 2), 5);
+		var screenFormat = System.getDeviceSettings().screenShape;
+
+		dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrY * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrY * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
 		dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-		dc.drawRoundedRectangle(27, mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * 27, 2 * (mFontHeight + mFontHeight / 2), 5);
+		dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrY * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrY * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
 		var battery = Sys.getSystemStats().battery;
 		dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Charging) + " " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
 		var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
@@ -402,7 +411,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		// Now to the right of the gauge
-		xPos = mCtrX * 2 * 4 / 5;
+		xPos = mCtrX * 2 * 163 / 200;
 		yPos = mCtrY * 2 * 5 / 16;
 
 		if (lastChargeData != null) {
@@ -686,10 +695,12 @@ class BatteryMonitorView extends Ui.View {
 		//! x-legend
 		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 		var timeStr = $.minToStr(xHistoryInMin, false);
-		dc.drawText(27, Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0),  "<-" + timeStr, Gfx.TEXT_JUSTIFY_LEFT);
+		var screenFormat = System.getDeviceSettings().screenShape;
+
+		dc.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 26 * mCtrY * 2 / 240), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0),  "<-" + timeStr, Gfx.TEXT_JUSTIFY_LEFT);
 		
 		timeStr = $.minToStr(xFutureInMin, false);
-		dc.drawText(mCtrX * 2 - 27, Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0), timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
+		dc.drawText(mCtrX * 2 - (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (26 * mCtrY * 2 / 240)), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0), timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
 		
 		if (downSlopeSec != null){
 			var timeLeftMin = (100.0 / (downSlopeSec * 60.0)).toNumber();

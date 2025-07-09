@@ -12,7 +12,7 @@ In the Summary view, the number on the right of the batterie gauge represents th
 
 When charging, a popup will show up showing the battery level and the rate of increase per hour. Touching the screen or pressing the Select button will toggle this display on and off.
 
-In the graph views, the battery level chart, just like for the battery level in data views, is color coded. 100-50% is green, 49-30% is yellow, 29-10% is orange and below 10% is red. If the device supports solar charging, a dark red line will represent the solar intensity (in %) as seen by the device. Below the graphs, the left arrow represent the earliest sample time, the right arrow represent "Now' for the History view and the time the device is projected to have a depleted battery in the Projection view. The '100=' further down is how long the battery is projected to last if the device was charged to 100%. The other fields are quite self explanatory.
+In the graph views, the battery level is color coded. 100-50% is green, 49-30% is yellow, 29-10% is orange and below 10% is red. If the device supports solar charging, a dark red line will represent the solar intensity (in %) as seen by the device. Below the graphs, the left arrow represent the earliest sample time, the right arrow represent "Now' for the History view and the time the device is projected to have a depleted battery in the Projection view. The '100=' further down is how long the battery is projected to last if the device was charged to 100%. The other fields are quite self explanatory. Pressing Select will zoom in towards now.
 
 The default order of the panels is 1,2,3,4,5,6 which are respectively Summary, by hour view, by day view, last charge, History and a Projection view. Changing the order and removing a number will affect was is shown and their order.
 
@@ -31,8 +31,12 @@ https://bit.ly/sylvainga
 Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Garmin-BatteryAnalyzer) and inspired by the work of dsapptech (https://apps.garmin.com/developer/b5b5e5f1-8148-42b7-9f66-f23de2625304/apps), which is missing the launch from watch face, and after asking if he could implement it and got no response, decide to build my own, hence this app :-)
 
 If you would like to translate the language file in your own language, contact me and we'll work on it.
-
+ 
 ## Changelog
+V1.2.0 Added the following
+- History graph can be zoomed in (towards now) by touching the screen or pressing Select.
+- Bug fix in the auto font selection code. Turns out 'one size fits all' doesn't work here.
+- Fixed up a few field positions
 
 V1.1.0 The following were added
 - Added Solar data on the graph views for watch that are solar capable. 
@@ -41,8 +45,8 @@ V1.1.0 The following were added
 - Changed the way the history array is kept. Instead of dropping the last entry when the history is full, the latest half is averaged in half to leave room for more data.
 - The history size is the smallest of either four times the screen width or 1200.
 - When the app hasn't ran for a long period, the history data waiting to be processed might get too big to be transfered to the app once awaken. If this happens, the data waiting to be processed is cut in half and it retries to process it again. If it's still to big, it's cut in half again and repeat the process until the data to be processed can be transfered.
-- "Flatten" the history array to save 15 bytes per data entry (more than twice of the data entry!)
-- The history array is kept in memory and read/written less frequently to save processing time/battery drain
+- "Flatten" the history array to save 15 bytes per data entry (more than twice of the data entry!).
+- The history array is kept in memory and read/written less frequently to save processing time/battery drain.
 - Bug fix when running the background code. Now all the accumulated history since the last time the app was viewed (glance or full view) are accounted for, not just the last one.
 - Bug fix in the auto selection of fonts based on screen size.
-- Bug fix in the short time display where there wasn't a ' ' between both fields and last field had no unit
+- Bug fix in the short time display where there wasn't a ' ' between both fields and last field had no unit.
