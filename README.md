@@ -33,6 +33,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
  
 ## Changelog
+V1.3.0 Added the following
+You can now pan the history windows using a left and right swipe for a touch enabled device. For button device, press the Select button first to move into 'Pan' mode where the Next and Previous button are then used to pan the history. Press the Select button again to return to view scroll mode. When swipping right, DON'T swipe all the way from the left of the screen as this is interpreted as pushing the Back button and will close the app.
+
 V1.2.0 Added the following
 - History graph can be zoomed in (towards now) by touching the screen or pressing Select.
 - Bug fix in the auto font selection code. Turns out 'one size fits all' doesn't work here.

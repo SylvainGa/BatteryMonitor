@@ -8,6 +8,12 @@ using Toybox.Time.Gregorian;
 using Toybox.Graphics as Gfx;
 using Toybox.Application.Properties;
 
+enum {
+	ViewMode,
+	ZoomMode,
+	PanMode
+}
+
 class BatteryMonitorView extends Ui.View {
     var mApp;
 	var mPanelOrder;
@@ -24,8 +30,10 @@ class BatteryMonitorView extends Ui.View {
 	var mSummaryMode;
 	var mViewScreen;
 	var mStartedCharging;
+	var mSelectMode;
+
 	var mHideChargingPopup;
-	var mDebugFont;
+	//DEBUG*/ var mDebugFont;
 
     function initialize() {
         View.initialize();
@@ -40,7 +48,9 @@ class BatteryMonitorView extends Ui.View {
 
 		mRefreshCount = 0;
 		mGraphSizeChange = 0;
-		mDebugFont = 0;
+		mSelectMode = ViewMode;
+
+		//DEBUG*/ mDebugFont = 0;
 		mTimer = new Timer.Timer();
 		mTimer.start(method(:refreshTimer), 5000, true); // Check every 5 seconds
     	
@@ -113,7 +123,6 @@ class BatteryMonitorView extends Ui.View {
 
     	mCtrX = dc.getWidth() / 2;
     	mCtrY = height / 2;
-
     }
 
     function onSettingsChanged() {
@@ -174,14 +183,22 @@ class BatteryMonitorView extends Ui.View {
     }
 
 	function onReceive(newIndex, graphSizeChange) {
-		/*DEBUG*/ if (graphSizeChange == 1) { mDebugFont++; if (mDebugFont > 4) { mDebugFont = 0; } }
+		//DEBUG*/ if (graphSizeChange == 1) { mDebugFont++; if (mDebugFont > 4) { mDebugFont = 0; } }
 
 		if (newIndex == -1) {
 			mHideChargingPopup = !mHideChargingPopup;
 		}
+		else if (newIndex == -2) {
+			mSelectMode += 1;
+			if (mSelectMode > PanMode) {
+				mSelectMode = ViewMode;
+			}
+			/*DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
+		}
 		else {
 			if (newIndex != mPanelIndex) {
 				mGraphSizeChange = 0; // If we changed panel, reset zoom of graphic view
+				mSelectMode = ViewMode; // and our view mode in the history view
 			}
 
 			mPanelIndex = newIndex;
@@ -339,9 +356,9 @@ class BatteryMonitorView extends Ui.View {
 		dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
 		var screenFormat = System.getDeviceSettings().screenShape;
 
-		dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrY * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrY * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
+		dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
 		dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-		dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrY * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrY * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
+		dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
 		var battery = Sys.getSystemStats().battery;
 		dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Charging) + " " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
 		var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
@@ -598,7 +615,24 @@ class BatteryMonitorView extends Ui.View {
 		var XscaleMinPerPxl = XmaxInMin / Xframe; // in minutes per pixel
 		var Xnow; // position of now in the graph, equivalent to: pixels available for left part of chart, with history only (right part is future prediction)
 		Xnow = (xHistoryInMin / XscaleMinPerPxl).toNumber();
-		
+
+		//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right 
+		if (whichView == SCREEN_HISTORY) {
+			var str;
+			if (mSelectMode == ViewMode) {
+				str = Ui.loadResource(Rez.Strings.ViewMode);
+			}
+			else if (mSelectMode == ZoomMode) {
+				str = Ui.loadResource(Rez.Strings.ZoomMode);
+			}
+			else {
+				str = Ui.loadResource(Rez.Strings.PanMode);
+			}
+
+			var screenFormat = System.getDeviceSettings().screenShape;
+			dc.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (30 * mCtrX * 2 / 240)), Y1 - mFontHeight - 3, mFontType, str, Gfx.TEXT_JUSTIFY_LEFT);
+		}
+
 		//! draw now position on axis
 		dc.setPenWidth(2);
 		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
@@ -697,10 +731,10 @@ class BatteryMonitorView extends Ui.View {
 		var timeStr = $.minToStr(xHistoryInMin, false);
 		var screenFormat = System.getDeviceSettings().screenShape;
 
-		dc.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 26 * mCtrY * 2 / 240), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0),  "<-" + timeStr, Gfx.TEXT_JUSTIFY_LEFT);
+		dc.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 26 * mCtrX * 2 / 240), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0),  "<-" + timeStr, Gfx.TEXT_JUSTIFY_LEFT);
 		
 		timeStr = $.minToStr(xFutureInMin, false);
-		dc.drawText(mCtrX * 2 - (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (26 * mCtrY * 2 / 240)), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0), timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
+		dc.drawText(mCtrX * 2 - (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (26 * mCtrX * 2 / 240)), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0), timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
 		
 		if (downSlopeSec != null){
 			var timeLeftMin = (100.0 / (downSlopeSec * 60.0)).toNumber();

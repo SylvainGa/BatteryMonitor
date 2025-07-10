@@ -11,82 +11,189 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	var mHandler;
     var mDragStartX;
     var mDragStartY;
+	var mSkipNextEvent;
+	var mDebounceTimer;
 
 	function initialize(view, handler) {
 		mView = view;
 		mHandler = handler;
+		mSkipNextEvent = false;
 
         BehaviorDelegate.initialize();
 	}
 	
+	function onBack() {
+		/*DEBUG*/ logMessage("onBack");
+		return false;
+	}
+
     function onSelect() {
+		/*DEBUG*/ logMessage("onSelect");
 		//DEBUG*/ $.analyzeAndStoreData([$.getData()], 1);
 
 		if (System.getSystemStats().charging) {
 	        mHandler.invoke(-1, 0);
 		}
 		else {
-	        mHandler.invoke(mView.getPanelIndex(), 1);
+	        mHandler.invoke(-2, 0);
 		}
         return true;    
     }
 	
     function onTap(evt) {
+		/*DEBUG*/ logMessage("onTap");
 		onSelect();
 		return true;
     }
 
     function onNextPage() {
-        var panelIndex = mView.getPanelIndex();
+		if (mSkipNextEvent == false) {
+			/*DEBUG*/ logMessage("onNextPage");
+			var panelIndex = mView.getPanelIndex();
 
-		panelIndex++;
-		if (panelIndex >= mView.getPanelSize()) {
-			panelIndex = 0;
+			panelIndex++;
+			if (panelIndex >= mView.getPanelSize()) {
+				panelIndex = 0;
+			}
+			mHandler.invoke(panelIndex, 0);
 		}
-        mHandler.invoke(panelIndex, 0);
-
+		else {
+			/*DEBUG*/ logMessage("Skipping this onNextPage");
+		}
 		return true;
 	}
 
     function onPreviousPage() {
-        var panelIndex = mView.getPanelIndex();
+		if (mSkipNextEvent == false) {
+			/*DEBUG*/ logMessage("onPreviousPage");
+			var panelIndex = mView.getPanelIndex();
 
-		panelIndex--;
-		if (panelIndex < 0) {
-			panelIndex = mView.getPanelSize() - 1;
+			panelIndex--;
+			if (panelIndex < 0) {
+				panelIndex = mView.getPanelSize() - 1;
+			}
+			mHandler.invoke(panelIndex, 0);
 		}
-        mHandler.invoke(panelIndex, 0);
-
+		else {
+			/*DEBUG*/ logMessage("Skipping this onPreviousPage");
+		}
 		return true;
 	}
 
 	function onKey(keyEvent) {
 		var key = keyEvent.getKey();
-    	if (key == Ui.KEY_ENTER){
+    	if (key == Ui.KEY_ENTER) {
+			/*DEBUG*/ logMessage("onKey/Enter");
 			onSelect();
 			return true;
     	}
     	
-    	if (key == Ui.KEY_MENU){
+    	else if (key == Ui.KEY_MENU) {
+			/*DEBUG*/ logMessage("onKey/Menu");
     		return onMenu();
     	}
     	
+    	else if (key == Ui.KEY_MENU) {
+			/*DEBUG*/ logMessage("onKey/Menu");
+    		return onMenu();
+    	}
+
+    	else if (key == Ui.KEY_UP) { // Needed for GPS devices
+			/*DEBUG*/ logMessage("onKey/Up");
+			var panelIndex = mView.getPanelIndex();
+			mHandler.invoke(panelIndex, 1);
+			return true;
+    	}
+    	
+    	
+    	else if (key == Ui.KEY_DOWN) { // Needed for GPS devices
+			/*DEBUG*/ logMessage("onKey/Down");
+			var panelIndex = mView.getPanelIndex();
+			mHandler.invoke(panelIndex, -1);
+			return true;
+    	}
+    	
+		/*DEBUG*/ logMessage("onKey with " + key);
+
 		return false;
+	}
+
+	function debounceTimer() {
+		mSkipNextEvent = false;
+		mDebounceTimer = null;
+	}
+
+    function onDrag(dragEvent ) {
+        var coord = dragEvent.getCoordinates();
+	
+		if (dragEvent.getType() == WatchUi.DRAG_TYPE_START) {
+            mDragStartX = coord[0];
+            mDragStartY = coord[1];
+        }
+        else if (dragEvent.getType() == WatchUi.DRAG_TYPE_STOP && mDragStartX != null && mDragStartY != null) { //I've got an unhandled exception on the next line. Was mDragStartX null? Check just in case
+			var xMovement = (mDragStartX - coord[0]).abs();
+			var yMovement = (mDragStartY - coord[1]).abs();
+
+			if (xMovement > yMovement) { // We 'swiped' left or right predominantly
+				if (mDragStartX > coord[0]) { // Like WatchUi.SWIPE_LEFT
+					/*DEBUG*/ logMessage(("Drag left"));
+					var panelIndex = mView.getPanelIndex();
+					mHandler.invoke(panelIndex, 1);
+				}
+				else { // Like  WatchUi.SWIPE_RIGHT
+					/*DEBUG*/ logMessage(("Drag right"));
+					var panelIndex = mView.getPanelIndex();
+					mHandler.invoke(panelIndex, -1);
+				}
+			}
+			else { // We 'swiped' up or down predominantly
+				if (mDragStartY > coord[1]) { // Like WatchUi.SWIPE_UP
+					/*DEBUG*/ logMessage(("Drag up"));
+					onNextPage();
+			
+				}
+				else { // Like  WatchUi.SWIPE_DOWN
+					/*DEBUG*/ logMessage(("Drag down"));
+					onPreviousPage();
+				}
+			}
+
+			mSkipNextEvent = true; // Why does a drag generate an event like onNextPage on my physical Fenix 7S Pro !?!
+			mDebounceTimer = new Timer.Timer();
+			mDebounceTimer.start(method(:debounceTimer), 250, false); // Debounce time is 250 msec. Any event happening within that period of time is ignored
+		}
+
+		return true;
 	}
 
 	function onSwipe(swipeEvent) {
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_DOWN) {
-			onPreviousPage();
+			/*DEBUG*/ logMessage(("Swipe down"));
+			// onPreviousPage();
 		}
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_UP) {
-			onNextPage();
+			/*DEBUG*/ logMessage(("Swipe up"));
+			// onNextPage();
+		}
+
+		if (swipeEvent.getDirection() == WatchUi.SWIPE_LEFT) {
+			/*DEBUG*/ logMessage(("Swipe left"));
+			// var panelIndex = mView.getPanelIndex();
+			// mHandler.invoke(panelIndex, 1);
+		}
+
+		if (swipeEvent.getDirection() == WatchUi.SWIPE_RIGHT) {
+			/*DEBUG*/ logMessage(("Swipe right"));
+			// var panelIndex = mView.getPanelIndex();
+			// mHandler.invoke(panelIndex, -1);
 		}
 
 		return true;
 	}
 
     function onMenu() {
+		/*DEBUG*/ logMessage("onMenu");
         var dialog = new Ui.Confirmation("Erase history");
         Ui.pushView(dialog, new ConfirmationDialogDelegate(), Ui.SLIDE_IMMEDIATE);
         return true;

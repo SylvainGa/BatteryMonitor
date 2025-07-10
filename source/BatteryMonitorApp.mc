@@ -143,6 +143,9 @@ class BatteryMonitorApp extends App.AppBase {
 		// Terminate the background process as we'll be doing the reading while the glance view is running
 		Background.deleteTemporalEvent();
 
+		// Tell the 'Main View' that we launched from Glance
+        Storage.setValue("fromGlance", true);
+
 		// If onBackgroundData hasn't fetched it, get the history
 		if (mHistory == null) {
 			getHistoryFromStorage();
@@ -166,9 +169,17 @@ class BatteryMonitorApp extends App.AppBase {
 			getHistoryFromStorage();
 		}
 
-		mView = new BatteryMonitorView();
-		mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive));
-		return [ mView , mDelegate ];
+        if ($.objectStoreGet("fromGlance", false) == true) { // Up/Down buttons work when launched from glance (or if we don't have/need buttons)
+            $.objectStorePut("fromGlance", false); // In case we change our watch setting later on that we want to start from the widget and not the glance
+
+			mView = new BatteryMonitorView();
+			mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive));
+			return [ mView , mDelegate ];
+        }
+        else { // Sucks, but we have to have an extra view so the Up/Down button work in our main view
+            $.objectStorePut("fromGlance", false); // In case we change our watch setting later on that we want to start from the widget and not the glance
+            return [ new NoGlanceView(), new NoGlanceDelegate() ];
+        }
     }
     
     function getServiceDelegate(){

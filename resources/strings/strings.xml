@@ -1,8 +1,13 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion">Battery Monitor V1.2.0.b14</string>
+    <string id="AppNameVersion">Battery Monitor V1.3.0.b5</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
+
+    <!-- No glance view -->
+    <string id="label_touch">Press Back</string>
+    <string id="label_press">Press Back</string>
+    <string id="label_quit">to quit</string>
 
     <string id="NotAvailableShort" scope="glance">N/A</string>
     <string id="PercentPerDay" scope="glance">%/d</string>
@@ -26,6 +31,10 @@
 
     <string id="LastCharge">Last Charge</string>
     <string id="At">at</string>
+
+    <string id="ViewMode">View</string>
+    <string id="ZoomMode">Zoom</string>
+    <string id="PanMode">Pan</string>
 
     <string id="Now" scope="glance">Now</string>
     <string id="Minute">Minute</string>

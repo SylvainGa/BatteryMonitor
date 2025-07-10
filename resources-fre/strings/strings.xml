@@ -3,6 +3,11 @@
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
+    <!-- No glance view -->
+    <string id="label_touch">Appuyer sur Back</string>
+    <string id="label_press">Appuyer sur Back</string>
+    <string id="label_quit">pour quitter</string>
+
     <string id="NotAvailableShort" scope="glance">N/D</string>
     <string id="PercentPerDay" scope="glance">%/j</string>
     <string id="PercentPerHour" scope="glance">%/h</string>
@@ -25,6 +30,10 @@
 
     <string id="LastCharge">Dernière recharge</string>
     <string id="At">à</string>
+
+    <string id="ViewMode">Vue</string>
+    <string id="ZoomMode">Agrandissement</string>
+    <string id="PanMode">Déplacer</string>
 
     <string id="Now" scope="glance">Présent</string>
     <string id="Minute">Minute</string>

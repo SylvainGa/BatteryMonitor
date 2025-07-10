@@ -1,0 +1,5 @@
+<layout id="NoGlanceLayout">
+    <bitmap id="icon" x="center" y="25%" filename="..\drawables\battery_icon.png" />
+    <label x="center" y="50%" font="Graphics.FONT_SMALL" text="@Strings.label_touch" color="Gfx.COLOR_WHITE" justification="Gfx.TEXT_JUSTIFY_CENTER" />
+    <label x="center" y="65%" font="Graphics.FONT_SMALL" text="@Strings.label_quit" color="Gfx.COLOR_WHITE" justification="Gfx.TEXT_JUSTIFY_CENTER" />
+</layout>
