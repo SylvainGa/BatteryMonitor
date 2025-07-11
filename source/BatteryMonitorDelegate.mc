@@ -50,12 +50,16 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		if (mSkipNextEvent == false) {
 			/*DEBUG*/ logMessage("onNextPage");
 			var panelIndex = mView.getPanelIndex();
-
-			panelIndex++;
-			if (panelIndex >= mView.getPanelSize()) {
-				panelIndex = 0;
+			if (mView.getVSelectMode() == ViewMode) {
+				panelIndex++;
+				if (panelIndex >= mView.getPanelSize()) {
+					panelIndex = 0;
+				}
+				mHandler.invoke(panelIndex, 0);
 			}
-			mHandler.invoke(panelIndex, 0);
+			else {
+				mHandler.invoke(panelIndex, -1);
+			}
 		}
 		else {
 			/*DEBUG*/ logMessage("Skipping this onNextPage");
@@ -67,12 +71,16 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		if (mSkipNextEvent == false) {
 			/*DEBUG*/ logMessage("onPreviousPage");
 			var panelIndex = mView.getPanelIndex();
-
-			panelIndex--;
-			if (panelIndex < 0) {
-				panelIndex = mView.getPanelSize() - 1;
+			if (mView.getVSelectMode() == ViewMode) {
+				panelIndex--;
+				if (panelIndex < 0) {
+					panelIndex = mView.getPanelSize() - 1;
+				}
+				mHandler.invoke(panelIndex, 0);
 			}
-			mHandler.invoke(panelIndex, 0);
+			else {
+				mHandler.invoke(panelIndex, 1);
+			}
 		}
 		else {
 			/*DEBUG*/ logMessage("Skipping this onPreviousPage");

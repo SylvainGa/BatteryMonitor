@@ -20,6 +20,7 @@ class BatteryMonitorView extends Ui.View {
 	var mPanelSize;
 	var mPanelIndex;
 	var mGraphSizeChange;
+	var mGraphOffsetChange;
 	var mCtrX, mCtrY;
 	var mTimer;
 	var mLastData;
@@ -48,6 +49,7 @@ class BatteryMonitorView extends Ui.View {
 
 		mRefreshCount = 0;
 		mGraphSizeChange = 0;
+		mGraphOffsetChange = 0;
 		mSelectMode = ViewMode;
 
 		//DEBUG*/ mDebugFont = 0;
@@ -95,7 +97,7 @@ class BatteryMonitorView extends Ui.View {
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
 			mNowData = $.getData();
-			/*DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
+			//DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
 			$.analyzeAndStoreData([mNowData], 1);
 			mRefreshCount = 0;
 		}
@@ -189,15 +191,18 @@ class BatteryMonitorView extends Ui.View {
 			mHideChargingPopup = !mHideChargingPopup;
 		}
 		else if (newIndex == -2) {
-			mSelectMode += 1;
-			if (mSelectMode > PanMode) {
-				mSelectMode = ViewMode;
+			if (mViewScreen == SCREEN_HISTORY) {
+				mSelectMode += 1;
+				if (mSelectMode > PanMode) {
+					mSelectMode = ViewMode;
+				}
+				/*DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
 			}
-			/*DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
 		}
 		else {
 			if (newIndex != mPanelIndex) {
 				mGraphSizeChange = 0; // If we changed panel, reset zoom of graphic view
+				mGraphOffsetChange = 0; // and offset
 				mSelectMode = ViewMode; // and our view mode in the history view
 			}
 
@@ -205,14 +210,29 @@ class BatteryMonitorView extends Ui.View {
 			mViewScreen = mPanelOrder[mPanelIndex];
 		}
 
-		mGraphSizeChange += graphSizeChange;
-		if (mGraphSizeChange < 0) {
-			mGraphSizeChange = 0;
-		}
-		else if (mGraphSizeChange > 5) {
-			mGraphSizeChange = 5;
+		if (mSelectMode == ViewMode && graphSizeChange != 0) {
+			mSelectMode = ZoomMode;
 		}
 
+		if (mSelectMode == PanMode) {
+			mGraphOffsetChange += graphSizeChange;
+			if (mGraphOffsetChange < 0) {
+				mGraphOffsetChange = 0;
+			}
+		}
+		else {
+			mGraphSizeChange += graphSizeChange;
+			if (mGraphSizeChange < 0) {
+				mGraphSizeChange = 0;
+			}
+			else if (mGraphSizeChange > 5) {
+				mGraphSizeChange = 5;
+			}
+
+			if (graphSizeChange < 0) {
+				mGraphOffsetChange /= 4; // Pan to the right if we zoomed out
+			}
+		}
 		//DEBUG*/ logMessage("mGraphSizeChange is " + mGraphSizeChange);
 
 		Ui.requestUpdate();
@@ -603,18 +623,33 @@ class BatteryMonitorView extends Ui.View {
 		var timeMostFuturePoint = (timeLeftSecUNIX != null && whichView == SCREEN_PROJECTION) ? timeLeftSecUNIX : timeMostRecentPoint;
 		var timeLeastRecentPoint = timeLastFullCharge(chartData, 60 * 60 * 24); // Try to show at least a day's worth of data
 
-		var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint).toFloat() / 60.0; // History time in minutes
-		xHistoryInMin = MIN(MAX(xHistoryInMin, 60.0), 60.0 * 24.0 * 30.0); // 30 days?
+		var halfSpan = 0;
 		if (whichView == SCREEN_HISTORY) {
 			var zoomLevel = [1, 2, 4, 8, 16, 32];
-			xHistoryInMin /= zoomLevel[mGraphSizeChange];
+			var span = timeMostRecentPoint - timeLeastRecentPoint;
+			/*DEBUG*/ logMessage("span is " + span + " timeMostRecentPoint is " + timeMostRecentPoint + " timeLeastRecentPoint is " + timeLeastRecentPoint + " zoom is " + mGraphSizeChange + " pan is " + mGraphOffsetChange);
+
+			timeLeastRecentPoint = timeMostRecentPoint - span / zoomLevel[mGraphSizeChange];
+
+			halfSpan = span / zoomLevel[mGraphSizeChange] / 2;
+			timeMostRecentPoint -= halfSpan * mGraphOffsetChange;
+			timeLeastRecentPoint -= halfSpan * mGraphOffsetChange;
 		}
+
+		var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint).toFloat() / 60.0; // History time in minutes
+		xHistoryInMin = MIN(MAX(xHistoryInMin, 60.0), 60.0 * 24.0 * 30.0); // 30 days?
+
+		// if (whichView == SCREEN_HISTORY) {
+		// 	var zoomLevel = [1, 2, 4, 8, 16, 32];
+		// 	xHistoryInMin /= zoomLevel[mGraphSizeChange];
+		// }
+
 		var xFutureInMin = (timeMostFuturePoint - timeMostRecentPoint).toFloat() / 60.0; // Future time in minutes
 		xFutureInMin = MIN(MAX(xFutureInMin, 60.0), (whichView == SCREEN_PROJECTION ? 60.0 * 24.0 * 30.0 : 0)); // 30 days?
-		var XmaxInMin = xHistoryInMin + xFutureInMin; // Total time in minutes
-		var XscaleMinPerPxl = XmaxInMin / Xframe; // in minutes per pixel
-		var Xnow; // position of now in the graph, equivalent to: pixels available for left part of chart, with history only (right part is future prediction)
-		Xnow = (xHistoryInMin / XscaleMinPerPxl).toNumber();
+		var xMaxInMin = xHistoryInMin + xFutureInMin; // Total time in minutes
+		var xScaleMinPerPxl = xMaxInMin / Xframe; // in minutes per pixel
+		var xNow; // position of now in the graph, equivalent to: pixels available for left part of chart, with history only (right part is future prediction)
+		xNow = (xHistoryInMin / xScaleMinPerPxl).toNumber();
 
 		//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right 
 		if (whichView == SCREEN_HISTORY) {
@@ -636,7 +671,7 @@ class BatteryMonitorView extends Ui.View {
 		//! draw now position on axis
 		dc.setPenWidth(2);
 		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-		dc.drawLine(X1 + Xnow, Y1 - mCtrY * 2 / 50, X1 + Xnow, Y2);
+		dc.drawLine(X1 + xNow, Y1 - mCtrY * 2 / 50, X1 + xNow, Y2);
 
 		//! draw y gridlines
 		dc.setPenWidth(1);
@@ -687,8 +722,8 @@ class BatteryMonitorView extends Ui.View {
 
 			var dataHeightBat = (battery * Yframe) / Ymax;
 			var yBat = Y2 - dataHeightBat;
-			var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / XscaleMinPerPxl;
-			var x = X1 + Xnow - dataTimeDistanceInPxl;
+			var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / xScaleMinPerPxl;
+			var x = X1 + xNow - dataTimeDistanceInPxl;
 			dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
 
 			if (lastPoint[0] != null) {
@@ -706,16 +741,16 @@ class BatteryMonitorView extends Ui.View {
 			dc.setPenWidth(1);
 			if (downSlopeSec != null){
 				
-				var pixelsAvail = Xframe - Xnow;
-				var timeDistanceMin = pixelsAvail * XscaleMinPerPxl;
-				var xStart = X1 + Xnow;
+				var pixelsAvail = Xframe - xNow;
+				var timeDistanceMin = pixelsAvail * xScaleMinPerPxl;
+				var xStart = X1 + xNow;
 				var xEnd = xStart + pixelsAvail;
 				var valueStart = chartData[(dataSize - 1) * elementSize + BATTERY].toFloat() / 10.0;
 				var valueEnd = valueStart + -downSlopeSec * 60.0 * timeDistanceMin;
 				if (valueEnd < 0){
 					timeDistanceMin = valueStart / (downSlopeSec * 60.0);
 					valueEnd = 0;
-					xEnd = xStart + timeDistanceMin / XscaleMinPerPxl;
+					xEnd = xStart + timeDistanceMin / xScaleMinPerPxl;
 				}
 				var yStart = Y2 - (valueStart * Yframe) / Ymax;
 				var yEnd = Y2 - (valueEnd * Yframe) / Ymax;
@@ -728,12 +763,12 @@ class BatteryMonitorView extends Ui.View {
 
 		//! x-legend
 		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-		var timeStr = $.minToStr(xHistoryInMin, false);
+		var timeStr = $.minToStr(xHistoryInMin + (halfSpan * mGraphOffsetChange) / 60, false);
 		var screenFormat = System.getDeviceSettings().screenShape;
 
 		dc.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 26 * mCtrX * 2 / 240), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0),  "<-" + timeStr, Gfx.TEXT_JUSTIFY_LEFT);
 		
-		timeStr = $.minToStr(xFutureInMin, false);
+		timeStr = $.minToStr(xFutureInMin + (halfSpan * mGraphOffsetChange) / 60, false);
 		dc.drawText(mCtrX * 2 - (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (26 * mCtrX * 2 / 240)), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0), timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
 		
 		if (downSlopeSec != null){
@@ -788,6 +823,10 @@ class BatteryMonitorView extends Ui.View {
 		else {
 			return val2;
 		}
+	}
+
+	public function getVSelectMode() {
+		return(mSelectMode);
 	}
 
 	public function getPanelIndex() {
