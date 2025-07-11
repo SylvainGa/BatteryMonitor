@@ -189,7 +189,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 	function getHistoryFromStorage() {
 		mHistory = $.objectStoreGet("HISTORY", null);
-		/*DEBUG*/ buildFakeHistory();
+		//DEBUG*/ buildFakeHistory();
 		if (mHistory == null) {
 			// If we don't have data, see if the old history array is there and if so, convert it to the new format
 			var oldHistory = $.objectStoreGet("HISTORY_KEY", null);
