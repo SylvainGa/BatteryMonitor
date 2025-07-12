@@ -1,4 +1,5 @@
 using Toybox.Application as App;
+using Toybox.Activity;
 using Toybox.Background;
 using Toybox.System as Sys;
 using Toybox.WatchUi as Ui;
@@ -25,6 +26,11 @@ function getData() {
     else {
         objectStoreErase("STARTED_CHARGING_DATA");
     }
+
+	var activityStartTime = Activity.getActivityInfo().startTime;
+	if (activityStartTime != null) { // we'll hack the battery level to flag that an activity is running by adding 2000 (which is 200 * 10) to the battery level.
+		battery += 2000;
+	}
 
     return [now, battery, solar];
 }
@@ -84,7 +90,25 @@ function analyzeAndStoreData(data, dataSize) {
 				for (var i = 0, j = 0; j < historySize; i++) {
 					if (j < historySize / 2) {
 						newHistory[i * elementSize + TIMESTAMP] = history[j * elementSize + TIMESTAMP] + (history[(j + 1) * elementSize + TIMESTAMP] - history[j * elementSize + TIMESTAMP]) / 2;
-						newHistory[i * elementSize + BATTERY] = history[j * elementSize + BATTERY] + (history[(j + 1) * elementSize + BATTERY] - history[j * elementSize + BATTERY]) / 2;
+						var bat1, bat2;
+						var batActivity = false;
+						bat1 = history[j * elementSize + BATTERY];
+						bat2 = history[(j + 1) * elementSize + BATTERY];
+						if (bat1 >= 2000) {
+							batActivity = true;
+							bat1 -= 2000;
+						}
+						if (bat2 >= 2000) {
+							batActivity = true;
+							bat2 -= 2000;
+						}
+						bat1 = bat1 + (bat2 - bat1) / 2;
+
+						if (batActivity == true) {
+							bat1 += 2000;							
+						}
+						newHistory[i * elementSize + BATTERY] = bat1;
+
 						if (isSolar) {
 							newHistory[i * elementSize + SOLAR] = history[j * elementSize + SOLAR] + (history[(j + 1) * elementSize + SOLAR] - history[j * elementSize + SOLAR]) / 2;
 						}
@@ -197,12 +221,26 @@ function downSlope() { //data is history data as array / return a slope in perce
 	var arrayX = new [0];
 	var arrayY = new [0];
 	var keepGoing = true;
-	var batDiff = data[(size - 1) * elementSize + BATTERY] - data[(size - 2) * elementSize + BATTERY];
+	var bat1 = data[(size - 1) * elementSize + BATTERY];
+	if (bat1 >= 2000) {
+		bat1 -= 2000;
+	}
+	var bat2 = data[(size - 2) * elementSize + BATTERY];
+	if (bat2 >= 2000) {
+		bat2 -= 2000;
+	}
+	var batDiff = bat1 - bat2;
 
 	for (var i = size - 1, j = i; i >= 0; i--) {
 		if (batDiff < 0) { // Battery going down or staying level (or we are the last point in the dataset), build data for Correlation Coefficient and Standard Deviation calculation
 			var diffX = data[j * elementSize + TIMESTAMP] - data[i * elementSize + TIMESTAMP];
-			var battery = data[i * elementSize + BATTERY].toFloat() / 10.0;
+
+			var battery = data[i * elementSize + BATTERY];
+			if (battery >= 2000) {
+				battery -= 2000;
+			}
+			battery = battery.toFloat() / 10.0;
+
 			//DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff + " diffX=" + secToStr(diffX) + " battery=" + battery + " count=" + count);
 			sumXY += diffX * battery;
 			sumX += diffX;
@@ -219,7 +257,15 @@ function downSlope() { //data is history data as array / return a slope in perce
 				keepGoing = false; // We reached the end of the array, calc the last slope if we have more than one data
 			}
 			else if (i > 1) {
-				batDiff = data[(i - 1) * elementSize + BATTERY] - data[(i - 2) * elementSize + BATTERY]; // Get direction of the next battery level for next pass
+				bat1 = data[(i - 1) * elementSize + BATTERY];
+				if (bat1 >= 2000) {
+					bat1 -= 2000;
+				}
+				bat2 = data[(i - 2) * elementSize + BATTERY];
+				if (bat2 >= 2000) {
+					bat2 -= 2000;
+				}
+				batDiff = bat1 - bat2; // Get direction of the next battery level for next pass
 			}
 			else {
 				//DEBUG*/ logMessage("Doing last data entry in the array");
@@ -243,15 +289,6 @@ function downSlope() { //data is history data as array / return a slope in perce
 			//DEBUG*/ logMessage("count=" + count + " sumX=" + sumX + " sumY=" + sumY.format("%0.3f") + " sumXY=" + sumXY.format("%0.3f") + " sumX2=" + sumX2 + " sumY2=" + sumY2.format("%0.3f") + " stdevX=" + standardDeviationX.format("%0.3f") + " stdevY=" + standardDeviationY.format("%0.3f") + " r=" + r.format("%0.3f") + " slope=" + slope);
 
 			slopes.add(slope);
-
-			// var diffY = data[i][BATTERY].toFloat() / 10.0 - data[j][BATTERY].toFloat() / 10.0;
-			// var diffX = data[j][TIMESTAMP] - data[i][TIMESTAMP];
-			// /*DEBUG*/ logMessage("count=" + count + " diffX=" + diffX + " sec (" + secToStr(diffX) + ") diffY=" + diffY.format("%0.3f") + "%");
-			// if (diffX != 0) {
-			// 	var slope = diffY / diffX;
-			// 	/*DEBUG*/ logMessage("slope=" + slope);
-			// 	slopes.add(slope);
-			// }
 		}
 
 		// Reset of variables for next pass if we had something in them from last pass
@@ -267,7 +304,15 @@ function downSlope() { //data is history data as array / return a slope in perce
 		keepGoing = true;
 
 		if (j > 1) {
-			batDiff = data[j * elementSize + BATTERY] - data[(j - 1) * elementSize + BATTERY]; // Get direction of the next battery level for next pass
+			bat1 = data[j * elementSize + BATTERY];
+			if (bat1 >= 2000) {
+				bat1 -= 2000;
+			}
+			bat2 = data[(j - 1) * elementSize + BATTERY];
+			if (bat2 >= 2000) {
+				bat2 -= 2000;
+			}
+			batDiff = bat1 - bat2; // Get direction of the next battery level for next pass
 			//DEBUG*/ logMessage("i=" + j + " batDiff=" + batDiff);
 		}
 	}
@@ -328,6 +373,9 @@ function objectStoreErase(key) {
 function getBatteryColor(battery) {
     var colorBat;
 
+	if (battery >= 2000) {
+		battery -= 2000;
+	}
     if (battery >= 50) {
         colorBat = COLOR_BAT_OK;
     }

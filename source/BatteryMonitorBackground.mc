@@ -1,4 +1,5 @@
 using Toybox.Background;
+using Toybox.Activity;
 using Toybox.System as Sys;
 using Toybox.Time;
 
@@ -38,6 +39,11 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         }
         else {
             $.objectStoreErase("STARTED_CHARGING_DATA");
+        }
+
+        var activityStartTime = Activity.getActivityInfo().startTime;
+        if (activityStartTime != null) { // we"ll hack the battery level to flag the start and end of the activity. We'll add 2000 (which is 200 * 10) to the battery level to flag when an activity is running.
+            battery += 2000;
         }
 
         // Only add if it's newer to prevent passing data that are not going to be consumed

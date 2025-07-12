@@ -266,20 +266,17 @@ class BatteryMonitorView extends Ui.View {
 			//! Calculate projected usage slope
 			var downSlopeSec = $.downSlope();
 			var lastChargeData = LastChargeData(history);
-			var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
-			var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
-			var nowData = [history[(size - 1) * elementSize + TIMESTAMP], history[(size - 1) * elementSize + BATTERY], isSolar ? history[(size - 1) * elementSize + SOLAR] : null];
 			switch (mViewScreen) {
 				case SCREEN_DATA_MAIN:
-					showMainPage(dc, downSlopeSec, lastChargeData, nowData);
+					showMainPage(dc, downSlopeSec, lastChargeData);
 					break;
 					
 				case SCREEN_DATA_HR:
-					showDataPage(dc, SCREEN_DATA_HR, downSlopeSec, lastChargeData, nowData);
+					showDataPage(dc, SCREEN_DATA_HR, downSlopeSec, lastChargeData);
 					break;
 
 				case SCREEN_DATA_DAY:
-					showDataPage(dc, SCREEN_DATA_DAY, downSlopeSec, lastChargeData, nowData);
+					showDataPage(dc, SCREEN_DATA_DAY, downSlopeSec, lastChargeData);
 					break;
 
 				case SCREEN_LAST_CHARGE:
@@ -399,7 +396,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 	}
 
-	function showMainPage(dc, downSlopeSec, lastChargeData, nowData) {
+	function showMainPage(dc, downSlopeSec, lastChargeData) {
 		// Draw and color charge gauge
 		var xPos = mCtrX * 2 * 3 / 5;
 		var width = mCtrX * 2 / 18;
@@ -478,7 +475,7 @@ class BatteryMonitorView extends Ui.View {
 
 	}
 
-	function showDataPage(dc, whichView, downSlopeSec, lastChargeData, nowData) {
+	function showDataPage(dc, whichView, downSlopeSec, lastChargeData) {
 	    var battery = Sys.getSystemStats().battery;
 		var yPos = doHeader(dc, whichView, battery, downSlopeSec );
 
@@ -491,8 +488,16 @@ class BatteryMonitorView extends Ui.View {
 		//! Bat usage since last view
 		var batUsage;
 		var timeDiff = 0;
-		if (mNowData && mLastData) {
-			batUsage = (mNowData[BATTERY] - mLastData[BATTERY]).toFloat() / 10.0;
+		if (mNowData != null && mLastData != null) {
+			var bat1 = mNowData[BATTERY];
+			if (bat1 >= 2000) {
+				bat1 -= 2000;
+			}
+			var bat2 = mLastData[BATTERY];
+			if (bat2 >= 2000) {
+				bat2 -= 2000;
+			}
+			batUsage = (bat1 - bat2).toFloat() / 10.0;
 			timeDiff = mNowData[TIMESTAMP] - mLastData[TIMESTAMP];
 		}
 
@@ -521,9 +526,17 @@ class BatteryMonitorView extends Ui.View {
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SinceLastCharge), Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 
-		if (lastChargeData != null) {
-			batUsage = (nowData[BATTERY] - lastChargeData[BATTERY]).toFloat() / 10.0;
-			timeDiff = nowData[TIMESTAMP] - lastChargeData[TIMESTAMP];
+		if (mNowData != null && lastChargeData != null) {
+			var bat1 = mNowData[BATTERY];
+			if (bat1 >= 2000) {
+				bat1 -= 2000;
+			}
+			var bat2 = lastChargeData[BATTERY];
+			if (bat2 >= 2000) {
+				bat2 -= 2000;
+			}
+			batUsage = (bat1 - bat2).toFloat() / 10.0;
+			timeDiff = mNowData[TIMESTAMP] - lastChargeData[TIMESTAMP];
 
 			if (timeDiff != 0) {
 				dischargeRate = batUsage * 60 * 60 * (mViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
@@ -548,7 +561,6 @@ class BatteryMonitorView extends Ui.View {
 
 	function showLastChargePage(dc, downSlopeSec, lastChargeData) {
 	    var battery = Sys.getSystemStats().battery;
-
 		var yPos = doHeader(dc, 2, battery, downSlopeSec); // We"ll show the same header as SCREEN_DATA_HR
 
 		//! How long for last charge?
@@ -575,7 +587,7 @@ class BatteryMonitorView extends Ui.View {
 					ampm = "pm";
 					hours12 -= 12;
 				}
-				
+
 				timeStr = Lang.format("$1$:$2$$3$", [hours12.format("%2d"), date.min.format("%02d"), ampm]);
 			}
 
@@ -610,9 +622,14 @@ class BatteryMonitorView extends Ui.View {
 		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 		var dataSize = chartData.size() / elementSize;
 
+		var latestBattery = chartData[(dataSize - 1) * elementSize + BATTERY];
+		if (latestBattery >= 2000) {
+			latestBattery -= 2000;
+		}
+		latestBattery = (latestBattery.toFloat() / 10.0).toNumber();
+
 		if (downSlopeSec != null) {
-			var battery = (chartData[(dataSize - 1) * elementSize + BATTERY].toFloat() / 10.0).toNumber();
-			var timeLeftSec = (battery / downSlopeSec).toNumber();
+			var timeLeftSec = (latestBattery / downSlopeSec).toNumber();
 			timeLeftSecUNIX = timeLeftSec + chartData[(dataSize - 1) * elementSize + TIMESTAMP];
 		}
 
@@ -698,7 +715,13 @@ class BatteryMonitorView extends Ui.View {
 			var timeEnd = chartData[i * elementSize + TIMESTAMP];
 			var dataTimeDistanceInMinEnd = ((timeMostRecentPoint - timeEnd) / 60).toNumber();
 
-			var battery = chartData[i * elementSize + BATTERY].toFloat() / 10.0;
+			var batActivity = false;
+			var battery = chartData[i * elementSize + BATTERY];
+			if (battery >= 2000) {
+				battery -= 2000;
+				batActivity = true;
+			}
+			battery = (battery.toFloat() / 10.0).toNumber();
 			var colorBat = $.getBatteryColor(battery);
 
 			if (dataTimeDistanceInMinEnd > xHistoryInMin) {
@@ -729,9 +752,16 @@ class BatteryMonitorView extends Ui.View {
 			if (lastPoint[0] != null) {
 				dc.fillRectangle(x, yBat, lastPoint[0] - x + 1, Y2 - yBat);
 			}
-			if (ySolar && lastPoint[1] != null) {
+			if (ySolar && lastPoint[0] != null) {
 				dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
 				dc.drawLine(x, ySolar, lastPoint[0], lastPoint[1]);
+			}
+
+			if (batActivity == true && lastPoint[0] != null) { // We had an activity during that time span, draw the X axis in blue to say so
+				dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
+				dc.setPenWidth(3);
+				dc.drawLine(x, Y2, lastPoint[0], Y2);
+				dc.setPenWidth(1);
 			}
 			lastPoint = [x, ySolar];
 		}
@@ -745,7 +775,7 @@ class BatteryMonitorView extends Ui.View {
 				var timeDistanceMin = pixelsAvail * xScaleMinPerPxl;
 				var xStart = X1 + xNow;
 				var xEnd = xStart + pixelsAvail;
-				var valueStart = chartData[(dataSize - 1) * elementSize + BATTERY].toFloat() / 10.0;
+				var valueStart = latestBattery;
 				var valueEnd = valueStart + -downSlopeSec * 60.0 * timeDistanceMin;
 				if (valueEnd < 0){
 					timeDistanceMin = valueStart / (downSlopeSec * 60.0);
@@ -785,8 +815,16 @@ class BatteryMonitorView extends Ui.View {
 		var dataSize = data.size() / elementSize;
 
 		for (var i = dataSize - 1; i > 0; i--) {
-			if (data[i * elementSize + BATTERY] > data[(i - 1) * elementSize + BATTERY]){
-				return [data[i * elementSize + TIMESTAMP], data[i * elementSize + BATTERY], isSolar ? data[i * elementSize + SOLAR] : null];
+			var bat1 = data[i * elementSize + BATTERY];
+			if (bat1 >= 2000) {
+				bat1 -= 2000;
+			}
+			var bat2 = data[(i - 1) * elementSize + BATTERY];
+			if (bat2 >= 2000) {
+				bat2 -= 2000;
+			}
+			if (bat1 > bat2){
+				return [data[i * elementSize + TIMESTAMP], bat1, isSolar ? data[i * elementSize + SOLAR] : null];
 			}
 		}
     	return null;
@@ -798,7 +836,11 @@ class BatteryMonitorView extends Ui.View {
 		var dataSize = data.size() / elementSize;
 
 		for (var i = dataSize - 1; i >= 0; i--) {
-			if (data[i * elementSize + BATTERY] == 1000) { // 100% is 1000 here as we * by 10 to get one decimal place
+			var bat = data[i * elementSize + BATTERY];
+			if (bat >= 2000) {
+				bat -= 2000;
+			}
+			if (bat == 1000) { // 100% is 1000 here as we * by 10 to get one decimal place
 				if (minTime == null || data[TIMESTAMP] - minTime < data[i * elementSize + TIMESTAMP] ) { // If we ask for a minimum time to display, honor it, even if we saw a full charge already
 					return data[i * elementSize + TIMESTAMP];
 				}

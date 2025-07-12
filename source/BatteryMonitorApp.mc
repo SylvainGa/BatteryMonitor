@@ -256,25 +256,25 @@ class BatteryMonitorApp extends App.AppBase {
 	(:debug)
 	function buildFakeHistory() {
 	    var now = Time.now().value(); //in seconds from UNIX epoch in UTC
-		// mHistory = [now - 600, 80, 0, now - 300, 79, 0, now - 120, 78, 0, now - 60, 77, 0, now, 76, 0];
-		// return;
-		var span = 60 * 2460; // 1 day 16 hours
-		var start = now - span;
-		var size = span / (5 * 60); // One entry per 5 minutes
-		var batInitialLevel = 80.0;
-		var batLastLevel = 5.0;
-		var batDrain = (batInitialLevel - batLastLevel) / size;
-		var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
-		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
-		mHistory = new [size * elementSize];
-		for (var i = 0; i < size; i++) {
-			mHistory[i * elementSize + TIMESTAMP] = start + i * 5 * 60;
-			mHistory[i * elementSize + BATTERY] = ((batInitialLevel - batDrain * i) * 10).toNumber();
-			if (isSolar) {
-				mHistory[i * elementSize + SOLAR] = Math.rand() % 100;
-			}
-		}
-		mHistorySize = size;
+		mHistory = [now - 6000, 800, 0, now - 3000, 2790, 0, now - 1200, 2780, 0, now - 900, 2775, 0, now - 600, 770, 0, now - 300, 750, 0, now - 200, 740, 0, now - 100, 730, 0, now, 730, 0];
+		return;
+		// var span = 60 * 2460; // 1 day 16 hours
+		// var start = now - span;
+		// var size = span / (5 * 60); // One entry per 5 minutes
+		// var batInitialLevel = 80.0;
+		// var batLastLevel = 5.0;
+		// var batDrain = (batInitialLevel - batLastLevel) / size;
+		// var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		// var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+		// mHistory = new [size * elementSize];
+		// for (var i = 0; i < size; i++) {
+		// 	mHistory[i * elementSize + TIMESTAMP] = start + i * 5 * 60;
+		// 	mHistory[i * elementSize + BATTERY] = ((batInitialLevel - batDrain * i) * 10).toNumber();
+		// 	if (isSolar) {
+		// 		mHistory[i * elementSize + SOLAR] = Math.rand() % 100;
+		// 	}
+		// }
+		// mHistorySize = size;
 	}
 
 	(:release)
