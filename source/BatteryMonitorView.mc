@@ -251,7 +251,6 @@ class BatteryMonitorView extends Ui.View {
 		//DEBUG*/ var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE]; mFontType = fonts[mDebugFont]; dc.drawText(0, mCtrY, mFontType, mDebugFont, Gfx.TEXT_JUSTIFY_LEFT);
 
 		var history = mApp.mHistory;
-		var size = mApp.mHistorySize;
 	
 		//DEBUG*/ Sys.print("["); for (var i = 0; i < history.size(); i++) { Sys.print(history[i]); if (i < history.size() - 1) { Sys.print(","); } } Sys.println("]");
 		//DEBUG*/ for (var i = 0; i < history.size(); i++) { var timeStartMoment = new Time.Moment(history[i][TIMESTAMP]); var timeStartInfo = Gregorian.info(timeStartMoment, Time.FORMAT_MEDIUM); Sys.println("At " + timeStartInfo.hour + "h" + timeStartInfo.min + "m - Batterie " + history[i][BATTERY].toFloat() / 10.0 + "%" + (history[i].size() == 3 ? " - Solar " + history[i][SOLAR] + "%" : "")); } Sys.println("");
@@ -684,6 +683,7 @@ class BatteryMonitorView extends Ui.View {
 			var screenFormat = System.getDeviceSettings().screenShape;
 			dc.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (30 * mCtrX * 2 / 240)), Y1 - mFontHeight - 3, mFontType, str, Gfx.TEXT_JUSTIFY_LEFT);
 		}
+		/*DEBUG*/ if (whichView == SCREEN_PROJECTION) { dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 3, mFontType, mApp.mHistorySize, Gfx.TEXT_JUSTIFY_LEFT); }
 
 		//! draw now position on axis
 		dc.setPenWidth(2);

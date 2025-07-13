@@ -85,7 +85,7 @@ function analyzeAndStoreData(data, dataSize) {
 			if (historySize >= maxSize) { // We've reached the max size, average the bottom half of the array so we have room too grow without affecting the latest data. If there are too many entries, we may need to come back here and do it all over
 				var newSize = maxSize / 2 + maxSize / 4;
 				var newHistory = new [newSize * elementSize]; // Shrink by 25%
-				//DEBUG*/ logMessage("Making room for new entries. From " + historySize + " down to " + newSize);
+				/*DEBUG*/ logMessage("Making room for new entries. From " + historySize + " down to " + newSize);
 
 				for (var i = 0, j = 0; j < historySize; i++) {
 					if (j < historySize / 2) {
@@ -182,6 +182,7 @@ function analyzeAndStoreData(data, dataSize) {
 	}
 
 	if (added > 0) {
+		/*DEBUG*/ logMessage("Added " + added + ". history now " + App.getApp().getHistorySize());
 		objectStorePut("LAST_HISTORY_KEY", lastHistory);
 		App.getApp().setHistoryModified(true);
 	}
