@@ -759,7 +759,7 @@ class BatteryMonitorView extends Ui.View {
 
 			if (batActivity == true && lastPoint[0] != null) { // We had an activity during that time span, draw the X axis in blue to say so
 				dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
-				dc.setPenWidth(3);
+				dc.setPenWidth(5);
 				dc.drawLine(x, Y2, lastPoint[0], Y2);
 				dc.setPenWidth(1);
 			}
