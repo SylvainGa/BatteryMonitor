@@ -10,6 +10,7 @@ using Toybox.Math;
 using Toybox.Lang;
 using Toybox.Application.Storage;
 
+/*DEBUG*/ var gSlopesSize;
 (:glance)
 function getData() {
     var stats = Sys.getSystemStats();
@@ -131,6 +132,7 @@ function analyzeAndStoreData(data, dataSize) {
 		/*DEBUG*/ logMessage("Added " + added + ". history now " + App.getApp().getHistorySize());
 		objectStorePut("LAST_HISTORY_KEY", lastHistory);
 		App.getApp().setHistoryModified(true);
+		App.getApp().setFullHistoryNeedsRefesh(true);
 	}
 }
 
@@ -148,32 +150,43 @@ function downSlope() { //data is history data as array / return a slope in perce
 	}
 	objectStorePut("LAST_SLOPE_CALC", now);
 
+	var startTime = Sys.getTimer();
+	/*DEBUG*/ logMessage("Calculating slope");
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
     var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
 	var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 	var historyArraySize = historyArray.size();
-	var totalSlopes = [];
 
-	for (var index = 0; index < historyArraySize; index++) {
-		var slope = $.objectStoreGet("SLOPES_" + historyArray[index], null);
-		if (slope == null) {
+	var totalSlopes = [];
+	var firstPass = true; // In case we have no history arrays yet, we still need to process our current in memory history
+	for (var index = 0; index < historyArraySize || firstPass == true; index++) {
+		firstPass = false;
+		var slopes;
+		if (historyArraySize > 0) {
+			slopes = $.objectStoreGet("SLOPES_" + historyArray[index], null);
+		}
+		if (slopes == null) {
 			var data;
 			var size;
-			if (index == historyArraySize - 1) {
+			if (index == historyArraySize - 1 || historyArraySize == 0) { // Last history is from memory
 				data = App.getApp().mHistory;
 				size = App.getApp().mHistorySize;
 			}
 			else {
 				data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
-				size = HISTORY_MAX;
+				var i;
+				for (i = 0; i < HISTORY_MAX && data[i * elementSize] != null; i++) {
+					// Find first null, which will indicate where our array ends
+				}
+				size = i;
 			}
 
 			if (size <= 2) {
 				continue;
 			}
 
-			var slopes = [];
+			slopes = [];
 
 			var count = 0;
 			var sumXY = 0, sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0;
@@ -244,10 +257,11 @@ function downSlope() { //data is history data as array / return a slope in perce
 					var standardDeviationX = Math.stdev(arrayX, sumX / count);
 					var standardDeviationY = Math.stdev(arrayY, sumY / count);
 					var r = (count * sumXY - sumX * sumY) / Math.sqrt((count * sumX2 - sumX * sumX) * (count * sumY2 - sumY * sumY));
-					slope = r * (standardDeviationY / standardDeviationX);
+					var slope = r * (standardDeviationY / standardDeviationX);
 					//DEBUG*/ logMessage("count=" + count + " sumX=" + sumX + " sumY=" + sumY.format("%0.3f") + " sumXY=" + sumXY.format("%0.3f") + " sumX2=" + sumX2 + " sumY2=" + sumY2.format("%0.3f") + " stdevX=" + standardDeviationX.format("%0.3f") + " stdevY=" + standardDeviationY.format("%0.3f") + " r=" + r.format("%0.3f") + " slope=" + slope);
 
 					slopes.add(slope);
+					totalSlopes.add(slope);
 				}
 
 				// Reset of variables for next pass if we had something in them from last pass
@@ -278,33 +292,25 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 			if (slopes.size() > 0) {
 				//DEBUG*/ logMessage("Slopes=" + slopes);
-				var sumSlopes = 0;
-
-				// // Calc the total time these slopes have happened so we car prorate them
-				// var time = 0;
-				// for (var i = 0; i < slopes.size(); i++) {
-				// 	time += slopes[i][1];
-				// }
-				for (var i = 0; i < slopes.size(); i++) {
-					sumSlopes += slopes[i];
-				}
-				//DEBUG*/ logMessage("sumSlopes=" + sumSlopes);
-
-				var avgSlope = sumSlopes / slopes.size();
-				//DEBUG*/ logMessage("avgSlope=" + avgSlope);
 				if (index < historyArraySize - 1) { // Don't store the current history we're working on
-					$.objectStorePut("SLOPES_" + historyArray[index], avgSlope);
+					$.objectStorePut("SLOPES_" + historyArray[index], slopes);
 				}
-
-				totalSlopes.add(avgSlope);
 			}
 		}
 		else {
-			totalSlopes.add(slope);
+			for (var i = 0; i < slopes.size(); i++) {
+				totalSlopes.add(slopes[i]);
+			}
 		}
 	}
 
+	// If we have no slopes, return null
+	if (totalSlopes.size() == 0) {
+		return null;
+	}
+
 	var sumSlopes = 0;
+	/*DEBUG*/ gSlopesSize = totalSlopes.size();
 	for (var i = 0; i < totalSlopes.size(); i++) {
 		sumSlopes += totalSlopes[i];
 	}
@@ -312,6 +318,11 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 	var avgSlope = sumSlopes / totalSlopes.size();
 	objectStorePut("LAST_SLOPE_VALUE", avgSlope); // Store it so we can retreive it quickly if we're asking too frequently
+
+	var endTime = Sys.getTimer();
+
+	/*DEBUG*/ logMessage("downslope took " + (endTime - startTime) + "msec");
+
 	return avgSlope;
 }
 

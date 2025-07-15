@@ -218,12 +218,28 @@ class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 			//Keep
         }
         else {
+			var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+			var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+
             //Erase
+			App.getApp().setHistoryNeedsReload(true);
+			App.getApp().setHistoryModified(true);
+			App.getApp().setHistory(new [HISTORY_MAX * elementSize]);
+
+			var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
+			var historyArraySize = historyArray.size();
+			for (var index = 0; index < historyArraySize; index++) {
+				$.objectStoreErase("HISTORY_" + historyArray[index]);
+				$.objectStoreErase("SLOPES_" + historyArray[index]);
+			}
+            $.objectStoreErase("HISTORY_ARRAY");
             $.objectStoreErase("HISTORY");
             $.objectStoreErase("HISTORY_KEY");
             $.objectStoreErase("LAST_HISTORY_KEY");
             $.objectStoreErase("LAST_VIEWED_DATA");
             $.objectStoreErase("LAST_CHARGED_DATA");
+            $.objectStoreErase("LAST_SLOPE_CALC");
+            $.objectStoreErase("LAST_SLOPE_VALUE");
         }
 		return true;
     }

@@ -41,6 +41,7 @@ If you would like to translate the language file in your own language, contact m
 ## Changelog
 V1.4.0 Added the following
 - A blue line was added under the graph to show when an activity was occuring. Helpful to see how much the battery drained within an activity compared to a timeline without an activity running.
+- Redid completely how the history is stored because Glance mode can work with far less data than the app can work with and will crash once over 700 elements are stored. Now it has room for 5 arrays of 500 elements each. Only the last array is dealt with in Glance and once an array is filled, its slopes becomes static and don't need to be recalculated. This also improves efficiencies.
 
 V1.3.0 Added the following
 - You can now pan the history windows using a left and right swipe for a touch enabled device. For button device, press the Start button first to move into 'Pan' mode where the Next and Previous button are then used to pan the history. Press the Start button again to return to view scroll mode. When swipping right, DON'T swipe all the way from the left of the screen as this is interpreted as pushing the Back button and will close the app.
