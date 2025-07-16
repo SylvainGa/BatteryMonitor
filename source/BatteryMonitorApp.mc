@@ -87,7 +87,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
-    	/*DEBUG*/ logMessage("onBG: " + data);
+    	//DEBUG*/ logMessage("onBG: " + data);
 
 		// Make sure we have the latest data from storage if we're empty, otherwise use what you have
 		if (mHistory == null) {
@@ -108,7 +108,7 @@ class BatteryMonitorApp extends App.AppBase {
 		
 			// Because onBackgroundData is called BEFORE the getGlanceView/getInitialView, we need to save our data otherwise it will be lost when we read the history in those function
 			if (mHistoryModified == true) {
-		    	/*DEBUG*/ logMessage("onBG: History changed, saving " + mHistorySize);
+		    	//DEBUG*/ logMessage("onBG: History changed, saving " + mHistorySize);
 				storeHistory(true, mHistory[0 + TIMESTAMP]);
 			}
         	Ui.requestUpdate();
@@ -120,7 +120,7 @@ class BatteryMonitorApp extends App.AppBase {
 		//DEBUG*/ logMessage("Stop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 
 		if (mHistory != null && mHistoryModified == true) {
-			/*DEBUG*/ logMessage("onStop: History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
+			//DEBUG*/ logMessage("onStop: History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
 
 			storeHistory(true, mHistory[0 + TIMESTAMP]);
 		}
@@ -168,7 +168,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		// If onBackgroundData hasn't fetched it, get the history
 		if (mHistory == null) {
-			// /*DEBUG*/ buildFakeHistory();
+			// //DEBUG*/ buildFakeHistory();
 			// $.objectStorePut("HISTORY", mHistory); // Amnd erase the old data
 			// var historyArray = $.objectStoreGet("HISTORY_ARRAY", null);
 			// if (historyArray != null) {
@@ -208,7 +208,7 @@ class BatteryMonitorApp extends App.AppBase {
 		if (historyArray.size() == 0 || historyArray[historyArray.size() - 1] != timestamp) { // If that key isn't in the array of histories, add it
 			historyArray.add(timestamp);
 			if (historyArray.size() > 5) { // But if we already have 5 history arrays, drop the earliest one
-				/*DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
+				//DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
 				$.objectStoreErase("HISTORY_" + historyArray[0]);
 				$.objectStoreErase("SLOPES_" + historyArray[0]);
 				historyArray.remove(historyArray[0]);
@@ -231,11 +231,11 @@ class BatteryMonitorApp extends App.AppBase {
 			if (historyArray != null && historyArray.size() > 0) {
 				mHistory = $.objectStoreGet("HISTORY_" + historyArray[historyArray.size() - 1], null);
 				if (mHistory != null) {
-					/*DEBUG*/ getHistorySize(); logMessage("getLatestHistoryFromStorage Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
+					//DEBUG*/ getHistorySize(); logMessage("getLatestHistoryFromStorage Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
 					break;
 				 }
 				 else { // We had corruption? Drop it and try again
-				 	/*DEBUG*/ logMessage("Unable to read from HISTORY_" + historyArray[historyArray.size() - 1] + ". Dropping it");
+				 	//DEBUG*/ logMessage("Unable to read from HISTORY_" + historyArray[historyArray.size() - 1] + ". Dropping it");
 					$.objectStoreErase("HISTORY_" + historyArray[historyArray.size() - 1]);
 					historyArray.remove(historyArray[historyArray.size() - 1]);
 					if (historyArray.size() > 0) {
@@ -257,14 +257,14 @@ class BatteryMonitorApp extends App.AppBase {
 			var historyArray = [];
 			var history = $.objectStoreGet("HISTORY_KEY", null);
 			if (history != null) {
-				/*DEBUG*/ logMessage("Old HISTORY_KEY format found, dropping it");
+				//DEBUG*/ logMessage("Old HISTORY_KEY format found, dropping it");
 				$.objectStoreErase("HISTORY_KEY", null);
 			}
 		
 			history = $.objectStoreGet("HISTORY", null);
 			//DEBUG*/ buildFakeHistory(); history = mHistory;
 			if (history != null) {
-				/*DEBUG*/ logMessage("Converting old history format to new one");
+				//DEBUG*/ logMessage("Converting old history format to new one");
 				var i = 0;
 				while (i < history.size()) {
 					mHistory = null;
@@ -275,7 +275,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 					historyArray.add(mHistory[0 + TIMESTAMP]);
 					$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory);
-					/*DEBUG*/ logMessage("HISTORY_" + mHistory[0 + TIMESTAMP] + " added to store with " + (mHistory.size() / elementSize) + " elements");
+					//DEBUG*/ logMessage("HISTORY_" + mHistory[0 + TIMESTAMP] + " added to store with " + (mHistory.size() / elementSize) + " elements");
 				}
 
 				$.objectStorePut("HISTORY_ARRAY", historyArray);
@@ -284,7 +284,7 @@ class BatteryMonitorApp extends App.AppBase {
 		}
 
 		if (mHistory == null) {
-			/*DEBUG*/ logMessage("Starting from fresh!");
+			//DEBUG*/ logMessage("Starting from fresh!");
 			mHistory = new [HISTORY_MAX * elementSize];
 		}
 
