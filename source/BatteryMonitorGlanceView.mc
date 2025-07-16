@@ -14,6 +14,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 	var mFontType;
     var mFontHeight;
 	var mSummaryMode;
+	var mHistoryLastPos;
 
     function initialize() {
         GlanceView.initialize();
@@ -132,7 +133,12 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var dischargeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
         var remainingStrLen = 0;
 
-        var downSlopeSec = $.downSlope();
+		var downSlopeSec = objectStoreGet("LAST_SLOPE_VALUE", null);
+		if (downSlopeSec == null || mHistoryLastPos == null || mHistoryLastPos != App.getApp().mHistorySize) {
+			downSlopeSec = $.downSlope();
+			mHistoryLastPos = App.getApp().mHistorySize;
+		}
+
         if (downSlopeSec != null) {
             dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
             var downSlopeMin = downSlopeSec * 60;

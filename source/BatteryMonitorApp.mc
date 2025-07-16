@@ -70,7 +70,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
-		/*DEBUG*/ logMessage("Start");
+		//DEBUG*/ logMessage("Start");
 
         if (state != null) {
             if (state.get(:launchedFromComplication) != null) {

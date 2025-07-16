@@ -138,18 +138,6 @@ function analyzeAndStoreData(data, dataSize) {
 
 (:glance)
 function downSlope() { //data is history data as array / return a slope in percentage point per second
-	// Don't run too often, it's CPU intensive!
-	var lastRun = objectStoreGet("LAST_SLOPE_CALC", 0);
-	var now = Time.now().value();
-	if (now < lastRun + 30) {
-		var lastSlope = objectStoreGet("LAST_SLOPE_VALUE", null);
-		if (lastSlope != null) {
-			/*DEBUG*/ logMessage("Retreiving last stored slope (" + lastSlope + ")");
-			return lastSlope;
-		}
-	}
-	objectStorePut("LAST_SLOPE_CALC", now);
-
 	var startTime = Sys.getTimer();
 	/*DEBUG*/ logMessage("Calculating slope");
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
@@ -158,20 +146,30 @@ function downSlope() { //data is history data as array / return a slope in perce
 	var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 	var historyArraySize = historyArray.size();
 
+	// for (var i = 0; i < historyArraySize; i++) {
+	// 	$.objectStoreErase("SLOPES_" + historyArray[i]);
+	// }
+
 	var totalSlopes = [];
 	var firstPass = true; // In case we have no history arrays yet, we still need to process our current in memory history
 	for (var index = 0; index < historyArraySize || firstPass == true; index++) {
 		firstPass = false;
-		var slopes;
+		var slopes = null;
+		var slopesStartPos = 0;
 		if (historyArraySize > 0) {
-			slopes = $.objectStoreGet("SLOPES_" + historyArray[index], null);
+			var slopesData = $.objectStoreGet("SLOPES_" + historyArray[index], null);
+			if (slopesData != null) {
+				slopes = slopesData[0];
+				slopesStartPos = slopesData[1];
+			} 
 		}
-		if (slopes == null) {
+		if (slopes == null || slopesStartPos != HISTORY_MAX) { // Slopes not calculated yet for that array or the array isn't fully calculated
 			var data;
 			var size;
 			if (index == historyArraySize - 1 || historyArraySize == 0) { // Last history is from memory
 				data = App.getApp().mHistory;
 				size = App.getApp().mHistorySize;
+				/*DEBUG*/ logMessage("Doing current history, size " + size + " start at " + slopesStartPos);
 			}
 			else {
 				data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
@@ -180,6 +178,8 @@ function downSlope() { //data is history data as array / return a slope in perce
 					// Find first null, which will indicate where our array ends
 				}
 				size = i;
+
+				slopesStartPos = 0;
 			}
 
 			if (size <= 2) {
@@ -193,19 +193,24 @@ function downSlope() { //data is history data as array / return a slope in perce
 			var arrayX = [];
 			var arrayY = [];
 			var keepGoing = true;
-			var bat1 = data[(size - 1) * elementSize + BATTERY];
+
+			var i = slopesStartPos, j = slopesStartPos;
+
+			var bat1 = data[slopesStartPos * elementSize + BATTERY];
 			if (bat1 >= 2000) {
 				bat1 -= 2000;
 			}
-			var bat2 = data[(size - 2) * elementSize + BATTERY];
+			var bat2 = data[(slopesStartPos + 1) * elementSize + BATTERY];
 			if (bat2 >= 2000) {
 				bat2 -= 2000;
 			}
-			var batDiff = bat1 - bat2;
-
-			for (var i = size - 1, j = i; i >= 0; i--) {
+			var batDiff = bat2 - bat1;
+			for (; i < size; i++) {
+				// if (i == size - 2) {
+				// 	logMessage("Here!");
+				// }
 				if (batDiff < 0) { // Battery going down or staying level (or we are the last point in the dataset), build data for Correlation Coefficient and Standard Deviation calculation
-					var diffX = data[j * elementSize + TIMESTAMP] - data[i * elementSize + TIMESTAMP];
+					var diffX = data[i * elementSize + TIMESTAMP] - data[j * elementSize + TIMESTAMP];
 
 					var battery = data[i * elementSize + BATTERY];
 					if (battery >= 2000) {
@@ -224,20 +229,20 @@ function downSlope() { //data is history data as array / return a slope in perce
 					arrayY.add(battery);
 					count++;
 
-					if (i == 0) {
-						//DEBUG*/ logMessage("Stopping this serie because 'i == 0'");
+					if (i == size - 1) {
+						//DEBUG*/ logMessage("Stopping this serie because we've reached the end so calculate the last slope of this array");
 						keepGoing = false; // We reached the end of the array, calc the last slope if we have more than one data
 					}
-					else if (i > 1) {
-						bat1 = data[(i - 1) * elementSize + BATTERY];
+					else if (i < size - 2) {
+						bat1 = data[(i + 1) * elementSize + BATTERY];
 						if (bat1 >= 2000) {
 							bat1 -= 2000;
 						}
-						bat2 = data[(i - 2) * elementSize + BATTERY];
+						bat2 = data[(i + 2) * elementSize + BATTERY];
 						if (bat2 >= 2000) {
 							bat2 -= 2000;
 						}
-						batDiff = bat1 - bat2; // Get direction of the next battery level for next pass
+						batDiff = bat2 - bat1; // Get direction of the next battery level for next pass
 					}
 					else {
 						//DEBUG*/ logMessage("Doing last data entry in the array");
@@ -257,7 +262,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 					var standardDeviationX = Math.stdev(arrayX, sumX / count);
 					var standardDeviationY = Math.stdev(arrayY, sumY / count);
 					var r = (count * sumXY - sumX * sumY) / Math.sqrt((count * sumX2 - sumX * sumX) * (count * sumY2 - sumY * sumY));
-					var slope = r * (standardDeviationY / standardDeviationX);
+					var slope = -(r * (standardDeviationY / standardDeviationX));
 					//DEBUG*/ logMessage("count=" + count + " sumX=" + sumX + " sumY=" + sumY.format("%0.3f") + " sumXY=" + sumXY.format("%0.3f") + " sumX2=" + sumX2 + " sumY2=" + sumY2.format("%0.3f") + " stdevX=" + standardDeviationX.format("%0.3f") + " stdevY=" + standardDeviationY.format("%0.3f") + " r=" + r.format("%0.3f") + " slope=" + slope);
 
 					slopes.add(slope);
@@ -273,28 +278,30 @@ function downSlope() { //data is history data as array / return a slope in perce
 				}
 
 				// Prepare for the next set of data
-				j = i - 1;
+				if (i == size - 1) {
+					break; // We've reached the end of our array, don't touch 'j' so we can store it later on to point where we need to start again next time around
+				}
+
+				j = i + 1;
 				keepGoing = true;
 
-				if (j > 1) {
+				if (j < size - 1) {
 					bat1 = data[j * elementSize + BATTERY];
 					if (bat1 >= 2000) {
 						bat1 -= 2000;
 					}
-					bat2 = data[(j - 1) * elementSize + BATTERY];
+					bat2 = data[(j + 1) * elementSize + BATTERY];
 					if (bat2 >= 2000) {
 						bat2 -= 2000;
 					}
-					batDiff = bat1 - bat2; // Get direction of the next battery level for next pass
+					batDiff = bat2 - bat1; // Get direction of the next battery level for next pass
 					//DEBUG*/ logMessage("i=" + j + " batDiff=" + batDiff);
 				}
 			}
 
 			if (slopes.size() > 0) {
-				//DEBUG*/ logMessage("Slopes=" + slopes);
-				if (index < historyArraySize - 1) { // Don't store the current history we're working on
-					$.objectStorePut("SLOPES_" + historyArray[index], slopes);
-				}
+				/*DEBUG*/ logMessage("Slopes=" + slopes + " start at " + (size != HISTORY_MAX ? j : HISTORY_MAX));
+				$.objectStorePut("SLOPES_" + historyArray[index], [slopes, (size != HISTORY_MAX ? j : HISTORY_MAX)]); // j is the starting position of the last known serie of down movement in the array
 			}
 		}
 		else {

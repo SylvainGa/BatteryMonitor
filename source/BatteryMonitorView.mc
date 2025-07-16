@@ -19,6 +19,7 @@ class BatteryMonitorView extends Ui.View {
 	var mFullHistory;
 	var mFullHistorySize;
 	var mHistoryStartPos;
+	var mHistoryLastPos;
 	var mElementSize;
 	var mIsSolar;
 	var mPanelOrder;
@@ -272,7 +273,12 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		//! Calculate projected usage slope
-		var downSlopeSec = $.downSlope();
+		var downSlopeSec = objectStoreGet("LAST_SLOPE_VALUE", null);
+		if (downSlopeSec == null || mHistoryLastPos == null || mHistoryLastPos != mApp.mHistorySize) {
+			downSlopeSec = $.downSlope();
+			mHistoryLastPos = mApp.mHistorySize;
+		}
+
 		var lastChargeData = LastChargeData();
 		switch (mViewScreen) {
 			case SCREEN_DATA_MAIN:
