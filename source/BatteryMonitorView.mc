@@ -261,7 +261,7 @@ class BatteryMonitorView extends Ui.View {
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);
 	
-		/*DEBUG*/var startTime = Sys.getTimer();
+		/*DEBUG*/ var startTime = Sys.getTimer();
 
        	dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);	
 
@@ -326,9 +326,7 @@ class BatteryMonitorView extends Ui.View {
 			}
 		}
 
-		var endTime = Sys.getTimer();
-
-		/*DEBUG*/ logMessage("onUpdate for " + mViewScreen + " took " + (endTime - startTime) + "msec");
+		/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("onUpdate for " + mViewScreen + " took " + (endTime - startTime) + "msec");
     }
 
 	function doHeader(dc, whichView, battery, downSlopeSec) {
@@ -749,18 +747,12 @@ class BatteryMonitorView extends Ui.View {
 				}
 			}
 
-			var timeEnd = timestamp; //mFullHistory[i * mElementSize + TIMESTAMP];
-
-			// if (i != mFullHistorySize - 1 && lastDataTime - timeEnd < xScaleMinPerPxl * 60 / 5) {
-			// 	/*DEBUG*/ skipped++;
-			// 	continue;
-			// }
-			// lastDataTime = timeEnd;
+			var timeEnd = timestamp;
 
 			var dataTimeDistanceInMinEnd = ((timeMostRecentPoint - timeEnd) / 60).toNumber();
 
 			var batActivity = false;
-			var battery = bat; //mFullHistory[i * mElementSize + BATTERY];
+			var battery = bat;
 			if (battery >= 2000) {
 				battery -= 2000;
 				batActivity = true;

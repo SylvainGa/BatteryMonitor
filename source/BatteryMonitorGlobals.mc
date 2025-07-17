@@ -138,7 +138,7 @@ function analyzeAndStoreData(data, dataSize) {
 
 (:glance)
 function downSlope() { //data is history data as array / return a slope in percentage point per second
-	var startTime = Sys.getTimer();
+	/*DEBUG*/ var startTime = Sys.getTimer();
 	/*DEBUG*/ logMessage("Calculating slope");
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
     var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
@@ -326,9 +326,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 	var avgSlope = sumSlopes / totalSlopes.size();
 	objectStorePut("LAST_SLOPE_VALUE", avgSlope); // Store it so we can retreive it quickly if we're asking too frequently
 
-	var endTime = Sys.getTimer();
-
-	/*DEBUG*/ logMessage("downslope took " + (endTime - startTime) + "msec");
+	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
 	return avgSlope;
 }
