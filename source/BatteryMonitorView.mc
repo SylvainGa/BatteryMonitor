@@ -662,7 +662,7 @@ class BatteryMonitorView extends Ui.View {
 		if (whichView == SCREEN_HISTORY) {
 			var zoomLevel = [1, 2, 4, 8, 16, 32];
 			var span = timeMostRecentPoint - timeLeastRecentPoint;
-			/*DEBUG*/ logMessage("span is " + span + " timeMostRecentPoint is " + timeMostRecentPoint + " timeLeastRecentPoint is " + timeLeastRecentPoint + " zoom is " + mGraphSizeChange + " pan is " + mGraphOffsetChange);
+			//DEBUG*/ logMessage("span is " + span + " timeMostRecentPoint is " + timeMostRecentPoint + " timeLeastRecentPoint is " + timeLeastRecentPoint + " zoom is " + mGraphSizeChange + " pan is " + mGraphOffsetChange);
 
 			timeLeastRecentPoint = timeMostRecentPoint - span / zoomLevel[mGraphSizeChange];
 

@@ -70,7 +70,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
-		//DEBUG*/ logMessage("Start");
+		/*DEBUG*/ logMessage("Start: mHistory " + (mHistory != null ? "has data" : "is null"));
 
         if (state != null) {
             if (state.get(:launchedFromComplication) != null) {
@@ -87,7 +87,8 @@ class BatteryMonitorApp extends App.AppBase {
 
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
-    	/*DEBUG*/ logMessage("onBG: " + data);
+		/*DEBUG*/ logMessage("onBG (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")) + " data: " + data);
+    	//DEBUG*/ logMessage("onBG: " + data);
 
 		// Make sure we have the latest data from storage if we're empty, otherwise use what you have
 		if (mHistory == null) {
@@ -139,6 +140,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     (:glance)
     function getGlanceView() {
+		/*DEBUG*/ logMessage("getGlanceView: mHistory " + (mHistory != null ? "has data" : "is null"));
 		//DEBUG*/ logMessage("getGlanceView");
 
 		//DEBUG*/ logMessage("Stopping BG process");
@@ -160,6 +162,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {	
+		/*DEBUG*/ logMessage("getInitialView: mHistory " + (mHistory != null ? "has data" : "is null"));
 		//DEBUG*/ logMessage("getInitialView");
 
 		//DEBUG*/ logMessage("Stopping BG process");
@@ -195,6 +198,7 @@ class BatteryMonitorApp extends App.AppBase {
     }
     
     function getServiceDelegate(){
+		/*DEBUG*/ logMessage("getServiceDelegate: mHistory " + (mHistory != null ? "has data" : "is null"));
 		//DEBUG*/ logMessage("getServiceDelegate");
         return [new BatteryMonitorServiceDelegate()];
     }
@@ -231,7 +235,7 @@ class BatteryMonitorApp extends App.AppBase {
 			if (historyArray != null && historyArray.size() > 0) {
 				mHistory = $.objectStoreGet("HISTORY_" + historyArray[historyArray.size() - 1], null);
 				if (mHistory != null) {
-					/*DEBUG*/ getHistorySize(); logMessage("getLatestHistoryFromStorage Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
+					/*DEBUG*/ getHistorySize(); logMessage("getLatest.. Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
 					break;
 				 }
 				 else { // We had corruption? Drop it and try again

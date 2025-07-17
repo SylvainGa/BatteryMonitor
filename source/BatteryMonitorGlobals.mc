@@ -38,7 +38,7 @@ function getData() {
 
 (:glance)
 function analyzeAndStoreData(data, dataSize) {
-	/*DEBUG*/ logMessage("analyzeAndStoreData");
+	//DEBUG*/ logMessage("analyzeAndStoreData");
 
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
     var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
@@ -63,7 +63,7 @@ function analyzeAndStoreData(data, dataSize) {
 
 		lastHistory = data[dataSize - 1];
 		added = dataSize;
-		/*DEBUG*/ logMessage("First addition (" + added + ") " + data);
+		/*DEBUG*/ logMessage("Analize: First addition (" + added + ") " + data);
 	}
 	else { // We have a history and a last history, see if the battery value is different than the last and if so, store it
 		var dataIndex;
@@ -77,7 +77,7 @@ function analyzeAndStoreData(data, dataSize) {
 		}
 
 		var historyRefresh = false;
-		/*DEBUG*/ var addedData = []; logMessage("historySize " + historySize + " dataSize " + dataSize);
+		/*DEBUG*/ var addedData = []; logMessage("Analize: historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 			if (historySize >= 500) { // We've reached 500, start a new array
 				App.getApp().storeHistory(added > 0 || App.getApp().getHistoryModified() == true, data[dataIndex][TIMESTAMP]); // Store the current history if modified and create a new one based on the latest time stamp
@@ -169,7 +169,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 			if (index == historyArraySize - 1 || historyArraySize == 0) { // Last history is from memory
 				data = App.getApp().mHistory;
 				size = App.getApp().mHistorySize;
-				/*DEBUG*/ logMessage("Doing current history, size " + size + " start at " + slopesStartPos);
+				/*DEBUG*/ logMessage("History: size " + size + " start " + slopesStartPos);
 			}
 			else {
 				data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
@@ -300,7 +300,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 			}
 
 			if (slopes.size() > 0) {
-				/*DEBUG*/ logMessage("Slopes=" + slopes + " start at " + (size != HISTORY_MAX ? j : HISTORY_MAX));
+				/*DEBUG*/ logMessage("Slopes=" + slopes + " start " + (size != HISTORY_MAX ? j : HISTORY_MAX));
 				$.objectStorePut("SLOPES_" + historyArray[index], [slopes, (size != HISTORY_MAX ? j : HISTORY_MAX)]); // j is the starting position of the last known serie of down movement in the array
 			}
 		}
