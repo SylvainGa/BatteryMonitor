@@ -13,7 +13,13 @@ class NoGlanceView extends Ui.View {
             mLaunched = true;
 
 			var view = new BatteryMonitorView();
-			Ui.pushView(view, new BatteryMonitorDelegate(view, view.method(:onReceive)), Ui.SLIDE_IMMEDIATE);
+            var delegate = new BatteryMonitorDelegate(view, view.method(:onReceive));
+
+            App.getApp().mView = view;
+            App.getApp().mDelegate = delegate;
+
+            /*DEBUG*/ logMessage(("Launching main view"));
+			Ui.pushView(view, delegate, Ui.SLIDE_IMMEDIATE);
         }
         else {
             try {

@@ -70,7 +70,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
-		/*DEBUG*/ logMessage("Start: mHistory " + (mHistory != null ? "has data" : "is null"));
+		/*DEBUG*/ logMessage("Start: mHistory " + (mHistory != null ? "has data" : "is null") + " state is " + state);
 
         if (state != null) {
             if (state.get(:launchedFromComplication) != null) {
@@ -80,9 +80,6 @@ class BatteryMonitorApp extends App.AppBase {
                 }
             }
         }
-
-		//DEBUG*/ logMessage("Will run BG every " + (bgIntervals / 60) + " minutes" );
-		Background.registerForTemporalEvent(new Time.Duration(300));
     }
 
     function onBackgroundData(data) {
@@ -118,10 +115,10 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStop() is called when your application is exiting
     function onStop(state) {
-		/*DEBUG*/ logMessage("Stop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		/*DEBUG*/ logMessage("onStop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 
 		if (mHistory != null && mHistoryModified == true) {
-			/*DEBUG*/ logMessage("onStop: History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
+			/*DEBUG*/ logMessage("History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
 
 			storeHistory(true, mHistory[0 + TIMESTAMP]);
 		}
@@ -157,7 +154,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		mView = new BatteryMonitorGlanceView();
 		mGlance = mView; // So we know it's specifically a Glance view
-        return [ mView ];
+        return [mView];
     }
 
     // Return the initial view of your application here
@@ -187,16 +184,21 @@ class BatteryMonitorApp extends App.AppBase {
         if ($.objectStoreGet("fromGlance", false) == true) { // Up/Down buttons work when launched from glance (or if we don't have/need buttons)
             $.objectStorePut("fromGlance", false); // In case we change our watch setting later on that we want to start from the widget and not the glance
 
+            /*DEBUG*/ logMessage(("Launching main view"));
 			mView = new BatteryMonitorView();
 			mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive));
-			return [ mView , mDelegate ];
+			return [mView , mDelegate];
         }
         else { // Sucks, but we have to have an extra view so the Up/Down button work in our main view
             $.objectStorePut("fromGlance", false); // In case we change our watch setting later on that we want to start from the widget and not the glance
-            return [ new NoGlanceView(), new NoGlanceDelegate() ];
+
+            /*DEBUG*/ logMessage(("Launching no glance view"));
+			mView = new NoGlanceView();
+			mDelegate = new NoGlanceDelegate();
+			return [mView , mDelegate];
         }
     }
-    
+
     function getServiceDelegate(){
 		/*DEBUG*/ logMessage("getServiceDelegate: mHistory " + (mHistory != null ? "has data" : "is null"));
 		//DEBUG*/ logMessage("getServiceDelegate");
