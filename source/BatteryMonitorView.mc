@@ -38,7 +38,7 @@ class BatteryMonitorView extends Ui.View {
 	var mViewScreen;
 	var mStartedCharging;
 	var mSelectMode;
-	/*DEBUG*/ var mHistoryArraySize;
+	//DEBUG*/ var mHistoryArraySize;
 
 	var mHideChargingPopup;
 	//DEBUG*/ var mDebugFont;
@@ -211,7 +211,7 @@ class BatteryMonitorView extends Ui.View {
 				if (mSelectMode > PanMode) {
 					mSelectMode = ViewMode;
 				}
-				/*DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
+				//DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
 			}
 		}
 		else {
@@ -261,7 +261,7 @@ class BatteryMonitorView extends Ui.View {
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);
 	
-		/*DEBUG*/ var startTime = Sys.getTimer();
+		//DEBUG*/ var startTime = Sys.getTimer();
 
        	dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);	
 
@@ -326,7 +326,7 @@ class BatteryMonitorView extends Ui.View {
 			}
 		}
 
-		/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("onUpdate for " + mViewScreen + " took " + (endTime - startTime) + "msec");
+		//DEBUG*/ var endTime = Sys.getTimer(); logMessage("onUpdate for " + mViewScreen + " took " + (endTime - startTime) + "msec");
     }
 
 	function doHeader(dc, whichView, battery, downSlopeSec) {
@@ -729,8 +729,8 @@ class BatteryMonitorView extends Ui.View {
 		if (steps < 2) {
 			steps = 1;
 		}
-		/*DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, steps is " + steps);
-		/*DEBUG*/ if (whichView == SCREEN_PROJECTION) { dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 3, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + steps + "/" + gSlopesSize, Gfx.TEXT_JUSTIFY_LEFT); }
+		//DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, steps is " + steps);
+		//DEBUG*/ if (whichView == SCREEN_PROJECTION) { dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 3, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + steps + "/" + gSlopesSize, Gfx.TEXT_JUSTIFY_LEFT); }
 
 		for (var i = mFullHistorySize - 1/*, lastDataTime = mFullHistory[i * mElementSize + TIMESTAMP]*/; i >= 0; i -= steps) {
 			//DEBUG*/ logMessage(i + " " + mFullHistory[i]);
@@ -851,7 +851,7 @@ class BatteryMonitorView extends Ui.View {
 		if (mApp.getHistoryNeedsReload() == true || mFullHistory == null) { // Full refresh of the array
 			var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 			var historyArraySize = historyArray.size();
-			/*DEBUG*/ mHistoryArraySize = historyArraySize;
+			//DEBUG*/ mHistoryArraySize = historyArraySize;
 
 			mFullHistory = null; // Release memory before asking for more of the same thing
 			mFullHistory = new [HISTORY_MAX * mElementSize * (historyArraySize == 0 ? 1 : historyArraySize)];
