@@ -118,7 +118,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStop() is called when your application is exiting
     function onStop(state) {
-		//DEBUG*/ logMessage("Stop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		/*DEBUG*/ logMessage("Stop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 
 		if (mHistory != null && mHistoryModified == true) {
 			/*DEBUG*/ logMessage("onStop: History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
@@ -127,7 +127,7 @@ class BatteryMonitorApp extends App.AppBase {
 		}
 
 		if (mView != null) {
-			//DEBUG*/ logMessage("Restarting BG process");
+			/*DEBUG*/ logMessage("Restarting BG process");
 			Background.registerForTemporalEvent(new Time.Duration(300));
 		}
     }
