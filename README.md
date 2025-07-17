@@ -39,7 +39,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
  
 ## Changelog
-V1.4.1 Bug fix where when not launched from Glance would not relaunch the background process when leaving the app
+V1.4.1 Bug fixes
+- Where when not launched from Glance would not relaunch the background process when leaving the app.
+- Calculation of the slopes could crash under very specific circumstances.
 
 V1.4.0 Added the following
 - A blue line was added under the graph to show when an activity was occuring. Helpful to see how much the battery drained within an activity compared to a timeline without an activity running.

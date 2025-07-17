@@ -194,13 +194,19 @@ function downSlope() { //data is history data as array / return a slope in perce
 			var arrayY = [];
 			var keepGoing = true;
 
+			if (slopesStartPos >= size) { // Sanity check that we don't go over the size of our filled array
+				slopesStartPos = 0;
+				$.objectStoreErase("SLOPES_" + historyArray[index]);
+			}
+
 			var i = slopesStartPos, j = slopesStartPos;
 
 			var bat1 = data[slopesStartPos * elementSize + BATTERY];
 			if (bat1 >= 2000) {
 				bat1 -= 2000;
 			}
-			var bat2 = data[(slopesStartPos + 1) * elementSize + BATTERY];
+
+			var bat2 = data[(slopesStartPos + (slopesStartPos < size - 1 ? 1 : 0)) * elementSize + BATTERY]; // Make sure we don't go over the max size of the array with that +1
 			if (bat2 >= 2000) {
 				bat2 -= 2000;
 			}
