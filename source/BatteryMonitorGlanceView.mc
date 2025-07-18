@@ -65,19 +65,6 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     function onLayout(dc) {
 		var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE];
 
-        // Testing array passing by references
-        // var appArray = App.getApp().mArray;
-        // var appArraySize = App.getApp().mArraySize;
-		// Sys.println("onLayout App array is " + appArray + " size is " + appArraySize);
-        // var myArray = [1, 2];
-        // var ret = App.getApp().setArray(myArray);
-        // appArray = ret[0];
-        // appArraySize = ret[1];
-		// Sys.println("onLayout App array is " + appArray + " and size " + appArraySize);
-        // appArray.add(3);
-        // appArraySize = App.getApp().getArraySize();
-		// Sys.println("onLayout App array is " + appArray + " and size " + appArraySize);
-
 		// The right font is about 10% of the screen size
 		for (var i = 0; i < fonts.size(); i++) {
 			var fontHeight = Gfx.getFontHeight(fonts[i]);
@@ -133,10 +120,19 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var dischargeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
         var remainingStrLen = 0;
 
-		var downSlopeSec = objectStoreGet("LAST_SLOPE_VALUE", null);
-		if (downSlopeSec == null || mHistoryLastPos == null || mHistoryLastPos != App.getApp().mHistorySize) {
+		// See if we can use our previously calculated slope data
+		var downSlopeData = $.objectStoreGet("LAST_SLOPE_DATA", null);
+		var downSlopeSec;
+		if (downSlopeData != null) {
+			downSlopeSec = downSlopeData[0];
+			mHistoryLastPos = downSlopeData[1];
+		}
+		if (downSlopeSec == null || mHistoryLastPos != App.getApp().mHistorySize) {
+			// Calculate projected usage slope
 			downSlopeSec = $.downSlope();
 			mHistoryLastPos = App.getApp().mHistorySize;
+			downSlopeData = [downSlopeSec, mHistoryLastPos];
+			$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
 		}
 
         if (downSlopeSec != null) {

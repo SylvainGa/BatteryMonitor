@@ -307,7 +307,17 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 			if (slopes.size() > 0) {
 				/*DEBUG*/ logMessage("Slopes=" + slopes + " start " + (size != HISTORY_MAX ? j : HISTORY_MAX));
-				$.objectStorePut("SLOPES_" + historyArray[index], [slopes, (size != HISTORY_MAX ? j : HISTORY_MAX)]); // j is the starting position of the last known serie of down movement in the array
+				var slopesName;
+				var slopesSize;
+				if (size != HISTORY_MAX || historyArraySize == 0) { // We're working on the live history file and not a stored one
+					slopesName = data[0 + TIMESTAMP];
+					slopesSize = j; // j is the starting position of the last known serie of down movement in the array
+				}
+				else {
+					slopesName = historyArray[index];
+					slopesSize = HISTORY_MAX;
+				}
+				$.objectStorePut("SLOPES_" + slopesName, [slopes, slopesSize]);
 			}
 		}
 		else {
@@ -330,7 +340,6 @@ function downSlope() { //data is history data as array / return a slope in perce
 	//DEBUG*/ logMessage("sumSlopes=" + sumSlopes);
 
 	var avgSlope = sumSlopes / totalSlopes.size();
-	objectStorePut("LAST_SLOPE_VALUE", avgSlope); // Store it so we can retreive it quickly if we're asking too frequently
 
 	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 

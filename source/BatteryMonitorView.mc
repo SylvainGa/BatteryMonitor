@@ -272,11 +272,19 @@ class BatteryMonitorView extends Ui.View {
 			return;
 		}
 
-		//! Calculate projected usage slope
-		var downSlopeSec = objectStoreGet("LAST_SLOPE_VALUE", null);
-		if (downSlopeSec == null || mHistoryLastPos == null || mHistoryLastPos != mApp.mHistorySize) {
+		// See if we can use our previously calculated slope data
+		var downSlopeData = $.objectStoreGet("LAST_SLOPE_DATA", null);
+		var downSlopeSec;
+		if (downSlopeData != null) {
+			downSlopeSec = downSlopeData[0];
+			mHistoryLastPos = downSlopeData[1];
+		}
+		if (downSlopeSec == null || mHistoryLastPos != mApp.mHistorySize) { // Only if we have change our data size or we haven't have a chance to calculate our slope yet
+			// Calculate projected usage slope
 			downSlopeSec = $.downSlope();
 			mHistoryLastPos = mApp.mHistorySize;
+			downSlopeData = [downSlopeSec, mHistoryLastPos];
+			$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
 		}
 
 		var lastChargeData = LastChargeData();

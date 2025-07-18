@@ -95,20 +95,15 @@ class BatteryMonitorApp extends App.AppBase {
 	    	//DEBUG*/ logMessage("Already have " + mHistorySize);
 		}
 
-		// if ($.objectStoreGet("IGNORE_NEXT_BGDATA", false) == true) { // So we skip pending updates that could potentially be in the wrong format after an array redefinition
-		// 	$.objectStorePut("IGNORE_NEXT_BGDATA", false);
-		// 	return;
-		// }
-
 		if (data != null /* && mDelegate == null*/) {
 			var size = data.size();
 			$.analyzeAndStoreData(data, size);
 		
 			// Because onBackgroundData is called BEFORE the getGlanceView/getInitialView, we need to save our data otherwise it will be lost when we read the history in those function
-			if (mHistoryModified == true) {
-		    	/*DEBUG*/ logMessage("onBG: History changed, saving " + mHistorySize);
-				storeHistory(true, mHistory[0 + TIMESTAMP]);
-			}
+			// if (mHistoryModified == true) {
+		    // 	/*DEBUG*/ logMessage("onBG: History changed, saving " + mHistorySize);
+			// 	storeHistory(true, mHistory[0 + TIMESTAMP]);
+			// }
         	Ui.requestUpdate();
 		}
     }    
@@ -231,7 +226,6 @@ class BatteryMonitorApp extends App.AppBase {
 		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
 		mHistory = null; // Free up memory if we had any set aside
-
 		while (true) {
 			var historyArray = $.objectStoreGet("HISTORY_ARRAY", null);
 			if (historyArray != null && historyArray.size() > 0) {
