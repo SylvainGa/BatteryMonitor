@@ -40,8 +40,9 @@ If you would like to translate the language file in your own language, contact m
  
 ## Changelog
 V1.4.2 Added tge following
-- Improves the efficiency of the app by limiting when to save data history and when to recalculate the slopes
-- Bug fix in the finding of the last charge
+- Improves the efficiency of the app by limiting when to save data history and when to recalculate the slopes.
+- Added two more zoom level, so from one to seven instead of one to five.
+- Bug fix in the finding of the last charge.
 
 V1.4.1 Bug fixes
 - Where when not launched from Glance would not relaunch the background process when leaving the app.
