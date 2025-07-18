@@ -39,7 +39,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
  
 ## Changelog
-V1.4.2 Improves the efficiency of the app by limiting when to save data history and when to recalculate the slopes
+V1.4.2 Added tge following
+- Improves the efficiency of the app by limiting when to save data history and when to recalculate the slopes
+- Bug fix in the finding of the last charge
 
 V1.4.1 Bug fixes
 - Where when not launched from Glance would not relaunch the background process when leaving the app.

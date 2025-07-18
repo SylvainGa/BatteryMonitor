@@ -240,8 +240,8 @@ class BatteryMonitorView extends Ui.View {
 			if (mGraphSizeChange < 0) {
 				mGraphSizeChange = 0;
 			}
-			else if (mGraphSizeChange > 5) {
-				mGraphSizeChange = 5;
+			else if (mGraphSizeChange > 7) {
+				mGraphSizeChange = 7;
 			}
 
 			if (graphSizeChange < 0) {
@@ -666,7 +666,7 @@ class BatteryMonitorView extends Ui.View {
 
 		var halfSpan = 0;
 		if (whichView == SCREEN_HISTORY) {
-			var zoomLevel = [1, 2, 4, 8, 16, 32];
+			var zoomLevel = [1, 2, 4, 8, 16, 32, 64, 128];
 			var span = timeMostRecentPoint - timeLeastRecentPoint;
 			//DEBUG*/ logMessage("span is " + span + " timeMostRecentPoint is " + timeMostRecentPoint + " timeLeastRecentPoint is " + timeLeastRecentPoint + " zoom is " + mGraphSizeChange + " pan is " + mGraphOffsetChange);
 
@@ -733,7 +733,7 @@ class BatteryMonitorView extends Ui.View {
 		//! draw history data
 		var firstOutside = true;
 
-		var steps = mFullHistorySize / xFrame;
+		var steps = mFullHistorySize / xFrame / (mGraphSizeChange + 1);
 		if (steps < 2) {
 			steps = 1;
 		}
@@ -897,17 +897,18 @@ class BatteryMonitorView extends Ui.View {
 	}
 
     function LastChargeData() {
-		var bat2 = 1000;
+		var bat2 = 0;
 
-		if (mFullHistory != null) { // Ran out of data in our current history, look through our previous history array
+		if (mFullHistory != null) {
 			for (var i = mFullHistorySize - 1; i > 0; i--) {
 				var bat1 = mFullHistory[i * mElementSize + BATTERY];
 				if (bat1 >= 2000) {
 					bat1 -= 2000;
 				}
 
-				if (bat1 > bat2) {
-					return [mFullHistory[i * mElementSize + TIMESTAMP], bat1, mIsSolar ? mFullHistory[i * mElementSize + SOLAR] : null];
+				if (bat2 > bat1) {
+					i++; // We won't overflow as the first pass is always false with bat2 being 0
+					return [mFullHistory[i * mElementSize + TIMESTAMP], bat2, mIsSolar ? mFullHistory[i * mElementSize + SOLAR] : null];
 				}
 
 				bat2 = bat1;

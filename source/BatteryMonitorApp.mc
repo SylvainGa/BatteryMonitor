@@ -350,9 +350,9 @@ class BatteryMonitorApp extends App.AppBase {
 
 	(:debug)
 	function buildFakeHistory() {
-	    // var now = Time.now().value(); //in seconds from UNIX epoch in UTC
-		// mHistory = [now - 6000, 800, 0, now - 3000, 2790, 0, now - 1200, 2780, 0, now - 900, 2775, 0, now - 600, 770, 0, now - 300, 750, 0, now - 200, 740, 0, now - 100, 730, 0, now, 730, 0];
-		// return;
+	    var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+		mHistory = [now - 16000, 800, 0, now - 13000, 790, 0, now - 11200, 800, 0, now - 1900, 875, 0, now - 1600, 770, 0, now - 300, 750, 0, now - 1200, 740, 0, now - 1100, 730, 0, now, 720, 0];
+		return;
 		// var span = 60 * 2460; // 1 day 16 hours
 		// var start = now - span;
 		// var size = span / (5 * 60); // One entry per 5 minutes
