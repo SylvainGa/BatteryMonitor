@@ -226,6 +226,8 @@ class BatteryMonitorApp extends App.AppBase {
 		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
 		mHistory = null; // Free up memory if we had any set aside
+		mHistorySize = 0;
+
 		while (true) {
 			var historyArray = $.objectStoreGet("HISTORY_ARRAY", null);
 			if (historyArray != null && historyArray.size() > 0) {
@@ -299,6 +301,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 	function setHistory(history) {
 		mHistory = history;
+		mHistorySize = 0;
 		getHistorySize();
 		mHistoryNeedsReload = true;
 		mFullHistoryNeedsRefesh = true;
@@ -314,11 +317,36 @@ class BatteryMonitorApp extends App.AppBase {
 		var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
 		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
-		for (mHistorySize = 0; mHistorySize < HISTORY_MAX * elementSize; mHistorySize++) {
+		//DEBUG*/ logMessage("(1) mHistorySize is " + mHistorySize + " mHistory.size() is " + mHistory.size() + " elementSize is " + elementSize);
+
+		var historySize = mHistory.size();
+		if (historySize != HISTORY_MAX * elementSize) {
+			/*DEBUG*/ logMessage("mHistory is " + mHistory.size() + "elements instead of " + HISTORY_MAX * elementSize + "! Resizing it");
+			var newHistory = new [HISTORY_MAX * elementSize];
+			var i = 0;
+			for (; i < historySize && i < HISTORY_MAX * elementSize; i++) {
+				newHistory[i] = mHistory[i];
+			}
+
+			mHistory = newHistory;
+			mHistorySize = i / elementSize;
+		}
+
+		// If our current postion is null and our previous is ALSO null, start from scratch, otherwise start from our current position to improve performance
+		if (mHistorySize == null || mHistorySize >= HISTORY_MAX * elementSize || mHistorySize == 0 || mHistory[(mHistorySize - 1) * elementSize + TIMESTAMP] == null) {
+			/*DEBUG*/ logMessage("mHistorySize was " + mHistorySize);
+			mHistorySize = 0;
+		}
+
+		//DEBUG*/ logMessage("(2) mHistorySize is " + mHistorySize + " mHistory.size() is " + mHistory.size() + " elementSize is " + elementSize + " HISTORY_MAX is " + HISTORY_MAX + " TIMESTAMP is " + TIMESTAMP);
+
+		for (; mHistorySize < HISTORY_MAX; mHistorySize++) {
 			if (mHistory[mHistorySize * elementSize + TIMESTAMP] == null) {
 				break;
 			}
 		}
+
+		//DEBUG*/ logMessage("(3) mHistorySize is " + mHistorySize + " mHistory.size() is " + mHistory.size() + " elementSize is " + elementSize);
 
 		return mHistorySize;
 	}

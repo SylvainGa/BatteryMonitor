@@ -39,6 +39,8 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
  
 ## Changelog
+V1.4.3 Fixed a potential crash when calculating the history array size
+
 V1.4.2 Added tge following
 - Improves the efficiency of the app by limiting when to save data history and when to recalculate the slopes.
 - Added two more zoom level, so from one to seven instead of one to five.

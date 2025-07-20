@@ -79,7 +79,7 @@ function analyzeAndStoreData(data, dataSize) {
 		var historyRefresh = false;
 		/*DEBUG*/ var addedData = []; logMessage("Analize: historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
-			if (historySize >= 500) { // We've reached 500, start a new array
+			if (historySize >= HISTORY_MAX) { // We've reached 500 (HISTORY_MAX), start a new array
 				App.getApp().storeHistory(added > 0 || App.getApp().getHistoryModified() == true, data[dataIndex][TIMESTAMP]); // Store the current history if modified and create a new one based on the latest time stamp
 
 				// Now start fresh
