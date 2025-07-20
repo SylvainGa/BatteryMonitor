@@ -63,7 +63,7 @@ function analyzeAndStoreData(data, dataSize) {
 
 		lastHistory = data[dataSize - 1];
 		added = dataSize;
-		/*DEBUG*/ logMessage("Analize: First addition (" + added + ") " + data);
+		/*DEBUG*/ logMessage("analyze: First addition (" + added + ") " + data);
 	}
 	else { // We have a history and a last history, see if the battery value is different than the last and if so, store it
 		var dataIndex;
@@ -77,7 +77,7 @@ function analyzeAndStoreData(data, dataSize) {
 		}
 
 		var historyRefresh = false;
-		/*DEBUG*/ var addedData = []; logMessage("Analize: historySize " + historySize + " dataSize " + dataSize);
+		/*DEBUG*/ var addedData = []; logMessage("analyze: historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 			if (historySize >= HISTORY_MAX) { // We've reached 500 (HISTORY_MAX), start a new array
 				App.getApp().storeHistory(added > 0 || App.getApp().getHistoryModified() == true, data[dataIndex][TIMESTAMP]); // Store the current history if modified and create a new one based on the latest time stamp
@@ -152,6 +152,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 	var totalSlopes = [];
 	var firstPass = true; // In case we have no history arrays yet, we still need to process our current in memory history
+	var slopeNeedsCalc = false; // When we're done, we don't need to come back to calculate more slopes (beside the active history)
 	for (var index = 0; index < historyArraySize || firstPass == true; index++) {
 		firstPass = false;
 		var slopes = null;
@@ -306,7 +307,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 			}
 
 			if (slopes.size() > 0) {
-				/*DEBUG*/ logMessage("Slopes=" + slopes + " start " + (size != HISTORY_MAX ? j : HISTORY_MAX));
+				/*DEBUG*/ logMessage("Slopes=" + slopes + " start " + (size != HISTORY_MAX ? j : HISTORY_MAX) + (historyArraySize > 0 ? " for HISTORY_" + historyArray[index] : " with no historyArray"));
 				var slopesName;
 				var slopesSize;
 				if (size != HISTORY_MAX || historyArraySize == 0) { // We're working on the live history file and not a stored one
@@ -319,6 +320,11 @@ function downSlope() { //data is history data as array / return a slope in perce
 				}
 				$.objectStorePut("SLOPES_" + slopesName, [slopes, slopesSize]);
 			}
+
+			if (index < historyArraySize - 1) {
+				slopeNeedsCalc = true; // Flag that we need to come back for more HISTORY_... to be calculated
+			}
+			break;
 		}
 		else {
 			for (var i = 0; i < slopes.size(); i++) {
@@ -329,7 +335,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 	// If we have no slopes, return null
 	if (totalSlopes.size() == 0) {
-		return null;
+		return [null, true];
 	}
 
 	var sumSlopes = 0;
@@ -343,7 +349,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
-	return avgSlope;
+	return [avgSlope, slopeNeedsCalc];
 }
 
 // Global method for getting a key from the object store

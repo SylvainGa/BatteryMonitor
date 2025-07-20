@@ -15,6 +15,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mFontHeight;
 	var mSummaryMode;
 	var mHistoryLastPos;
+    var mSlopeNeedsCalc;
 
     function initialize() {
         GlanceView.initialize();
@@ -79,6 +80,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		}
 
 		mFontHeight = Gfx.getFontHeight(mFontType);
+        mSlopeNeedsCalc = false;
     }
 
     function onSettingsChanged() {
@@ -127,9 +129,11 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 			downSlopeSec = downSlopeData[0];
 			mHistoryLastPos = downSlopeData[1];
 		}
-		if (downSlopeSec == null || mHistoryLastPos != App.getApp().mHistorySize) {
+		if (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != App.getApp().mHistorySize) {
 			// Calculate projected usage slope
-			downSlopeSec = $.downSlope();
+			var downSlopeResult = $.downSlope();
+            downSlopeSec = downSlopeResult[0];
+            mSlopeNeedsCalc = downSlopeResult[1];
 			mHistoryLastPos = App.getApp().mHistorySize;
 			downSlopeData = [downSlopeSec, mHistoryLastPos];
 			$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);

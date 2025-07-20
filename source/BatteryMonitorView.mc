@@ -38,6 +38,7 @@ class BatteryMonitorView extends Ui.View {
 	var mViewScreen;
 	var mStartedCharging;
 	var mSelectMode;
+	var mSlopeNeedsCalc;
 	/*DEBUG*/ var mHistoryArraySize;
 
 	var mHideChargingPopup;
@@ -137,6 +138,8 @@ class BatteryMonitorView extends Ui.View {
 		// Used throughout the code to know the size of each element and if we should deal with solar data
 		mIsSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
 		mElementSize = mIsSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+
+		mSlopeNeedsCalc = false;
 
 		// Build our history array
 		buildFullHistory();
@@ -279,9 +282,11 @@ class BatteryMonitorView extends Ui.View {
 			downSlopeSec = downSlopeData[0];
 			mHistoryLastPos = downSlopeData[1];
 		}
-		if (downSlopeSec == null || mHistoryLastPos != mApp.mHistorySize) { // Only if we have change our data size or we haven't have a chance to calculate our slope yet
+		if (mViewScreen != SCREEN_HISTORY && mViewScreen != SCREEN_PROJECTION && (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mApp.mHistorySize)) { // Only if we have change our data size or we haven't have a chance to calculate our slope yet and we're not in a CPU intensive view (graphs)
 			// Calculate projected usage slope
-			downSlopeSec = $.downSlope();
+			var downSlopeResult = $.downSlope();
+            downSlopeSec = downSlopeResult[0];
+            mSlopeNeedsCalc = downSlopeResult[1];
 			mHistoryLastPos = mApp.mHistorySize;
 			downSlopeData = [downSlopeSec, mHistoryLastPos];
 			$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
@@ -692,8 +697,8 @@ class BatteryMonitorView extends Ui.View {
 		var xNow; // position of now in the graph, equivalent to: pixels available for left part of chart, with history only (right part is future prediction)
 		xNow = (xHistoryInMin / xScaleMinPerPxl).toNumber();
 
-		//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right 
-		if (whichView == SCREEN_HISTORY) {
+		//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right (unless we have no data to work with)
+		if (whichView == SCREEN_HISTORY && downSlopeSec != null) {
 			var str;
 			if (mSelectMode == ViewMode) {
 				str = Ui.loadResource(Rez.Strings.ViewMode);

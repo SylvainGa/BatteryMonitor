@@ -39,6 +39,8 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
  
 ## Changelog
+V1.4.4 As data accumulates, calculating the slopes and drawing the graph can cause a "running for too long" crash. Now in Graph views, the slope aren't updated until the view is changed to a text view.
+
 V1.4.3 Fixed a potential crash when calculating the history array size
 
 V1.4.2 Added tge following
