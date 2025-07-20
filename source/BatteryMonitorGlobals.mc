@@ -10,7 +10,7 @@ using Toybox.Math;
 using Toybox.Lang;
 using Toybox.Application.Storage;
 
-/*DEBUG*/ var gSlopesSize;
+//DEBUG*/ var gSlopesSize;
 (:glance)
 function getData() {
     var stats = Sys.getSystemStats();
@@ -63,7 +63,7 @@ function analyzeAndStoreData(data, dataSize) {
 
 		lastHistory = data[dataSize - 1];
 		added = dataSize;
-		/*DEBUG*/ logMessage("Analize: First addition (" + added + ") " + data);
+		//DEBUG*/ logMessage("Analize: First addition (" + added + ") " + data);
 	}
 	else { // We have a history and a last history, see if the battery value is different than the last and if so, store it
 		var dataIndex;
@@ -77,7 +77,7 @@ function analyzeAndStoreData(data, dataSize) {
 		}
 
 		var historyRefresh = false;
-		/*DEBUG*/ var addedData = []; logMessage("Analize: historySize " + historySize + " dataSize " + dataSize);
+		//DEBUG*/ var addedData = []; logMessage("Analize: historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 			if (historySize >= HISTORY_MAX) { // We've reached 500 (HISTORY_MAX), start a new array
 				App.getApp().storeHistory(added > 0 || App.getApp().getHistoryModified() == true, data[dataIndex][TIMESTAMP]); // Store the current history if modified and create a new one based on the latest time stamp
@@ -99,14 +99,14 @@ function analyzeAndStoreData(data, dataSize) {
 				historySize++;
 				added++;
 
-				/*DEBUG*/ addedData.add(data[dataIndex]);
+				//DEBUG*/ addedData.add(data[dataIndex]);
 			}
 			else {
-				/*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
+				//DEBUG*/ logMessage("Ignored " + data[dataIndex]);
 			}
 		}
 
-		/*DEBUG*/ logMessage("Added (" + added + ") " + addedData);
+		//DEBUG*/ logMessage("Added (" + added + ") " + addedData);
 
 		if (added > 0) {
 			// Reset the whole App history array if we had to redo a new one because we outgrew it size (see above)
@@ -129,7 +129,7 @@ function analyzeAndStoreData(data, dataSize) {
 	}
 
 	if (added > 0) {
-		/*DEBUG*/ logMessage("Added " + added + ". history now " + App.getApp().getHistorySize());
+		//DEBUG*/ logMessage("Added " + added + ". history now " + App.getApp().getHistorySize());
 		objectStorePut("LAST_HISTORY_KEY", lastHistory);
 		App.getApp().setHistoryModified(true);
 		App.getApp().setFullHistoryNeedsRefesh(true);
@@ -138,8 +138,8 @@ function analyzeAndStoreData(data, dataSize) {
 
 (:glance)
 function downSlope() { //data is history data as array / return a slope in percentage point per second
-	/*DEBUG*/ var startTime = Sys.getTimer();
-	/*DEBUG*/ logMessage("Calculating slope");
+	//DEBUG*/ var startTime = Sys.getTimer();
+	//DEBUG*/ logMessage("Calculating slope");
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
     var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
@@ -169,7 +169,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 			if (index == historyArraySize - 1 || historyArraySize == 0) { // Last history is from memory
 				data = App.getApp().mHistory;
 				size = App.getApp().mHistorySize;
-				/*DEBUG*/ logMessage("History: size " + size + " start " + slopesStartPos);
+				//DEBUG*/ logMessage("History: size " + size + " start " + slopesStartPos);
 			}
 			else {
 				data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
@@ -306,7 +306,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 			}
 
 			if (slopes.size() > 0) {
-				/*DEBUG*/ logMessage("Slopes=" + slopes + " start " + (size != HISTORY_MAX ? j : HISTORY_MAX));
+				//DEBUG*/ logMessage("Slopes=" + slopes + " start " + (size != HISTORY_MAX ? j : HISTORY_MAX));
 				var slopesName;
 				var slopesSize;
 				if (size != HISTORY_MAX || historyArraySize == 0) { // We're working on the live history file and not a stored one
@@ -333,7 +333,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 	}
 
 	var sumSlopes = 0;
-	/*DEBUG*/ gSlopesSize = totalSlopes.size();
+	//DEBUG*/ gSlopesSize = totalSlopes.size();
 	for (var i = 0; i < totalSlopes.size(); i++) {
 		sumSlopes += totalSlopes[i];
 	}
@@ -341,7 +341,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 	var avgSlope = sumSlopes / totalSlopes.size();
 
-	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
+	//DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
 	return avgSlope;
 }

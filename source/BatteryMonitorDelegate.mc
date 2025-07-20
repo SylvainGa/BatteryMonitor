@@ -23,7 +23,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	}
 	
 	function onBack() {
-		/*DEBUG*/ logMessage("onBack");
+		//DEBUG*/ logMessage("onBack");
 		return false;
 	}
 
