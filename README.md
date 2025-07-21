@@ -39,7 +39,11 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
  
 ## Changelog
-V1.4.4 As data accumulates, calculating the slopes and drawing the graph can cause a "running for too long" crash. Now in Graph views, the slope aren't updated until the view is changed to a text view.
+V1.4.4 Added tge following
+- Graph history view defaults to showing data from the last full charge (if any) or one hour if less than that. However, zomming OUT while not zoomed toggle showing this or the whole data.
+- When zooming, the zoom level is shown.
+- Optimized the search for the last full charge because if you're like me, you hardly charhe to 100% and searching the whole array wasted too much time.
+- In Graph views, the slope is decoupled from the graph update. It update at its own intervals. As data accumulates, calculating the slopes and drawing the graph can cause a "running for too long" crash.
 
 V1.4.3 Fixed a potential crash when calculating the history array size
 

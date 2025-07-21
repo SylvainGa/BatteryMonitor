@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion">Battery Monitor V1.4.4.b1</string>
+    <string id="AppNameVersion">Battery Monitor V1.4.4.b2</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -35,6 +35,7 @@
     <string id="ViewMode">View</string>
     <string id="ZoomMode">Zoom</string>
     <string id="PanMode">Pan</string>
+    <string id="ZoomFull">Full</string>
 
     <string id="Now" scope="glance">Now</string>
     <string id="Minute">Minute</string>

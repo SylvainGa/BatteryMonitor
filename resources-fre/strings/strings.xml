@@ -34,6 +34,7 @@
     <string id="ViewMode">Vue</string>
     <string id="ZoomMode">Agrandissement</string>
     <string id="PanMode">Déplacer</string>
+    <string id="ZoomFull">Entier</string>
 
     <string id="Now" scope="glance">Présent</string>
     <string id="Minute">Minute</string>
