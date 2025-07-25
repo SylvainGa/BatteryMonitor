@@ -39,10 +39,13 @@ class BatteryMonitorView extends Ui.View {
 	var mViewScreen;
 	var mStartedCharging;
 	var mSelectMode;
+	var mSummaryProjection;
 	var mDownSlopeSec;
 	var mSlopeNeedsCalc;
+	var mSlopesSize;
 	var mTimeLastFullChargeTime;
 	var mTimeLastFullChargePos;
+	var mDebug;
 	/*DEBUG*/ var mHistoryArraySize;
 
 	var mHideChargingPopup;
@@ -59,11 +62,13 @@ class BatteryMonitorView extends Ui.View {
     function onShow() {
 		$.objectStorePut("VIEW_RUNNING", true);
 
+		mDebug = 0;
 		mRefreshCount = 0;
 		mGraphSizeChange = 0;
 		mGraphOffsetChange = 0;
 		mGraphShowFull = false;
 		mSelectMode = ViewMode;
+		mSummaryProjection = true;
 
 		//DEBUG*/ mDebugFont = 0;
 		mTimer = new Timer.Timer();
@@ -108,6 +113,10 @@ class BatteryMonitorView extends Ui.View {
 			// Update UI, log charging status, etc.
 		}
 
+		if (mDebug < 5 || mDebug >= 10) {
+			mDebug = 0;
+		}
+
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
 			mNowData = $.getData();
@@ -119,29 +128,6 @@ class BatteryMonitorView extends Ui.View {
 		doDownSlope();
 
 		Ui.requestUpdate();
-	}
-
-	function doDownSlope() {
-		if (mDownSlopeSec == null) { // Gte what we have nothing (ie, started) and we have something stored from previous run
-			var downSlopeData = $.objectStoreGet("LAST_SLOPE_DATA", null);
-			if (downSlopeData != null) {
-				mDownSlopeSec = downSlopeData[0];
-				mHistoryLastPos = downSlopeData[1];
-			}
-			else {
-				mSlopeNeedsCalc = true;
-			}
-		}
-
-		if (mDownSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mApp.mHistorySize) { // Only if we have change our data size or we haven't have a chance to calculate our slope yet
-			// Calculate projected usage slope
-			var downSlopeResult = $.downSlope();
-            mDownSlopeSec = downSlopeResult[0];
-            mSlopeNeedsCalc = downSlopeResult[1];
-			mHistoryLastPos = mApp.mHistorySize;
-			var downSlopeData = [mDownSlopeSec, mHistoryLastPos];
-			$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
-		}
 	}
 
     // Load your resources here
@@ -241,7 +227,13 @@ class BatteryMonitorView extends Ui.View {
 			mHideChargingPopup = !mHideChargingPopup;
 		}
 		else if (newIndex == -2) {
-			if (mViewScreen == SCREEN_HISTORY) {
+			if (mViewScreen == SCREEN_DATA_MAIN) {
+				mSummaryProjection = !mSummaryProjection;
+			}
+			else if (mViewScreen == SCREEN_PROJECTION) {
+				mDebug++;
+			}
+			else if (mViewScreen == SCREEN_HISTORY) {
 				if (mDownSlopeSec != null) {
 					mSelectMode += 1;
 					if (mSelectMode > PanMode) {
@@ -256,10 +248,12 @@ class BatteryMonitorView extends Ui.View {
 		}
 		else {
 			if (newIndex != mPanelIndex) {
-				mGraphSizeChange = 0; // If we changed panel, reset zoom of graphic view
+				mGraphSizeChange = 0; // If we changed panel, reset zoom of graphic view and debug count
 				mGraphOffsetChange = 0; // and offset
 				mGraphShowFull = false;
 				mSelectMode = ViewMode; // and our view mode in the history view
+				mSummaryProjection = true; // Summary shows projection
+				mDebug = 0;
 			}
 
 			mPanelIndex = newIndex;
@@ -366,7 +360,7 @@ class BatteryMonitorView extends Ui.View {
 			}
 		}
 
-		/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("onUpdate for " + mViewScreen + " took " + (endTime - startTime) + "msec");
+		//DEBUG*/ var endTime = Sys.getTimer(); logMessage("onUpdate for " + mViewScreen + " took " + (endTime - startTime) + "msec");
     }
 
 	function doHeader(dc, whichView, battery) {
@@ -422,37 +416,34 @@ class BatteryMonitorView extends Ui.View {
 		return (yPos);
 	}
 
-	function showChargingPopup(dc) {
-		//! Now add the 'popup' if the device is currently charging
-		dc.setPenWidth(2);
-		dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-		var screenFormat = System.getDeviceSettings().screenShape;
-
-		dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
-		dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-		dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
-		var battery = Sys.getSystemStats().battery;
-		dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Charging) + " " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
-		var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
-		if (chargingData) {
-			var batUsage = battery - (chargingData[BATTERY]).toFloat() / 10.0;
-			var timeDiff = Time.now().value() - chargingData[TIMESTAMP];
-
-			//DEBUG*/ logMessage("Bat usage: " + batUsage);
-			//DEBUG*/ logMessage("Time diff: " + timeDiff);
-			var chargeRate;
-			if (timeDiff > 0) {
-				chargeRate = ((batUsage * 60 * 60 / timeDiff).format("%0.1f")).toString();
+	function doDownSlope() {
+		if (mDownSlopeSec == null) { // Gte what we have nothing (ie, started) and we have something stored from previous run
+			var downSlopeData = $.objectStoreGet("LAST_SLOPE_DATA", null);
+			if (downSlopeData != null) {
+				mDownSlopeSec = downSlopeData[0];
+				mHistoryLastPos = downSlopeData[1];
+				if (downSlopeData.size() == 3) {
+					mSlopesSize = downSlopeData[2];
+				}
 			}
 			else {
-				chargeRate = "0.0";
+				mSlopeNeedsCalc = true;
 			}
-			dc.drawText(mCtrX, mCtrY + mFontHeight / 8, (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Rate) + " " + chargeRate + Ui.loadResource(Rez.Strings.PercentPerHour), Gfx.TEXT_JUSTIFY_CENTER);
+		}
+
+		if (mDownSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mApp.mHistorySize) { // Only if we have change our data size or we haven't have a chance to calculate our slope yet
+			// Calculate projected usage slope
+			var downSlopeResult = $.downSlope();
+            mDownSlopeSec = downSlopeResult[0];
+            mSlopeNeedsCalc = downSlopeResult[1];
+			mSlopesSize = downSlopeResult[2];
+			mHistoryLastPos = mApp.mHistorySize;
+			var downSlopeData = [mDownSlopeSec, mHistoryLastPos, mSlopesSize];
+			$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
 		}
 	}
 
 	function showMainPage(dc, lastChargeData) {
-		// Draw and color charge gauge
 		var xPos = mCtrX * 2 * 3 / 5;
 		var width = mCtrX * 2 / 18;
 		var height = mCtrY * 2 * 17 / 20 / 5;
@@ -461,6 +452,7 @@ class BatteryMonitorView extends Ui.View {
 	    var battery = Sys.getSystemStats().battery;
 		var colorBat = $.getBatteryColor(battery);
 
+		// Draw and color charge gauge
 		dc.setPenWidth(1);
 		dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
 		for (var i = 0; i < 5; i++) {
@@ -488,17 +480,42 @@ class BatteryMonitorView extends Ui.View {
 		yPos += Gfx.getFontHeight(Gfx.FONT_NUMBER_MILD);
 		dc.drawText(xPos, yPos, mFontType, Ui.loadResource(Rez.Strings.TimeRemaining), Gfx.TEXT_JUSTIFY_RIGHT);
 		yPos += mFontHeight * 2;
-		var downSlopeStr;
-		if (mDownSlopeSec != null) {
-			var downSlopeMin = mDownSlopeSec * 60;
-			downSlopeStr = $.minToStr(battery / downSlopeMin, false);
-			dc.drawText(xPos, yPos, mFontType, "~" + downSlopeStr, Gfx.TEXT_JUSTIFY_RIGHT);
+		if (mSummaryProjection == true) {
+			var downSlopeStr;
+			if (mDownSlopeSec != null) {
+				var downSlopeMin = mDownSlopeSec * 60;
+				downSlopeStr = $.minToStr(battery / downSlopeMin, false);
+				dc.drawText(xPos, yPos, mFontType, "~" + downSlopeStr, Gfx.TEXT_JUSTIFY_RIGHT);
+			}
+			else {
+				dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+				dc.drawText(xPos, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort), Gfx.TEXT_JUSTIFY_RIGHT);
+			}
 		}
 		else {
-			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-			dc.drawText(xPos, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort), Gfx.TEXT_JUSTIFY_RIGHT);
-		}
+			var remainingStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
+            if (Sys.getSystemStats().charging == false) { // There won't be a since last charge if we're charging...
+                if (lastChargeData != null ) {
+                    var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+                    var timeDiff = now - lastChargeData[0];
+                    if (timeDiff != 0) { // Sanity check
+                        var batAtLastCharge = lastChargeData[1];
+                        if (batAtLastCharge >= 2000) {
+                            batAtLastCharge -= 2000;
+                        }
+                        batAtLastCharge /= 10.0;
 
+                        if (batAtLastCharge > battery) { // Sanity check
+                            var batDiff = batAtLastCharge - battery;
+                            var dischargePerMin = batDiff * 60.0 / timeDiff;
+                            remainingStr = $.minToStr(battery / dischargePerMin, false);
+
+						}
+					}
+				}
+			}
+			dc.drawText(xPos, yPos, mFontType, "~" + remainingStr, Gfx.TEXT_JUSTIFY_RIGHT);
+		}
 		// Now to the right of the gauge
 		xPos = mCtrX * 2 * 163 / 200;
 		yPos = mCtrY * 2 * 5 / 16;
@@ -513,21 +530,52 @@ class BatteryMonitorView extends Ui.View {
 		}
 		yPos += mFontHeight * 3 / 2;
 
-		if (mDownSlopeSec != null) { 
-			var downSlopeHours = mDownSlopeSec * 60 * 60;
-			if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
-				downSlopeStr = (downSlopeHours * 24).format("%0.1f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerDayLong);
+		if (mSummaryProjection == true) {
+			if (mDownSlopeSec != null) { 
+				var downSlopeStr;
+				var downSlopeHours = mDownSlopeSec * 60 * 60;
+				if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
+					downSlopeStr = (downSlopeHours * 24).format("%0.1f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerDayLong);
+				}
+				else {
+					downSlopeStr = (downSlopeHours).format("%0.2f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerHourLong);
+				}	
+				dc.drawText(xPos, yPos, mFontType, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
 			}
 			else {
-				downSlopeStr = (downSlopeHours).format("%0.2f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerHourLong);
-			}	
-			dc.drawText(xPos, yPos, mFontType, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
+				dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+				dc.drawText(xPos, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort), Gfx.TEXT_JUSTIFY_CENTER);
+			}
 		}
 		else {
-			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-			dc.drawText(xPos, yPos, mFontType, Ui.loadResource(Rez.Strings.NotAvailableShort), Gfx.TEXT_JUSTIFY_CENTER);
-		}
+	        var dischargeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
+            if (Sys.getSystemStats().charging == false) { // There won't be a since last charge if we're charging...
+                if (lastChargeData != null ) {
+                    var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+                    var timeDiff = now - lastChargeData[0];
+                    if (timeDiff != 0) { // Sanity check
+                        var batAtLastCharge = lastChargeData[1];
+                        if (batAtLastCharge >= 2000) {
+                            batAtLastCharge -= 2000;
+                        }
+                        batAtLastCharge /= 10.0;
 
+                        if (batAtLastCharge > battery) { // Sanity check
+                            var batDiff = batAtLastCharge - battery;
+                            var dischargePerMin = batDiff * 60.0 / timeDiff;
+							var downSlopeHours = dischargePerMin * 60;
+							if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
+								dischargeStr = (downSlopeHours * 24).format("%0.1f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerDayLong);
+							}
+							else {
+								dischargeStr = (downSlopeHours).format("%0.2f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerHourLong);
+							}	
+						}
+					}
+				}
+			}
+			dc.drawText(xPos, yPos, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_CENTER);
+		}
 	}
 
 	function showDataPage(dc, whichView, lastChargeData) {
@@ -771,7 +819,9 @@ class BatteryMonitorView extends Ui.View {
 			steps = 1;
 		}
 		/*DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, steps is " + steps);
-		/*DEBUG*/ if (whichView == SCREEN_PROJECTION) { dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 3, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + steps + "/" + gSlopesSize, Gfx.TEXT_JUSTIFY_LEFT); }
+		if (whichView == SCREEN_PROJECTION && mDebug >= 5) {
+			dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 1, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + steps + "/" + mSlopesSize, Gfx.TEXT_JUSTIFY_LEFT);
+		}
 
 		for (var i = mFullHistorySize - 1/*, lastDataTime = mFullHistory[i * mElementSize + TIMESTAMP]*/; i >= 0; i -= steps) {
 			//DEBUG*/ logMessage(i + " " + mFullHistory[i]);
@@ -886,6 +936,35 @@ class BatteryMonitorView extends Ui.View {
 		}
     }
 
+	function showChargingPopup(dc) {
+		//! Now add the 'popup' if the device is currently charging
+		dc.setPenWidth(2);
+		dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+		var screenFormat = System.getDeviceSettings().screenShape;
+
+		dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
+		dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+		dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
+		var battery = Sys.getSystemStats().battery;
+		dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Charging) + " " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
+		var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
+		if (chargingData) {
+			var batUsage = battery - (chargingData[BATTERY]).toFloat() / 10.0;
+			var timeDiff = Time.now().value() - chargingData[TIMESTAMP];
+
+			//DEBUG*/ logMessage("Bat usage: " + batUsage);
+			//DEBUG*/ logMessage("Time diff: " + timeDiff);
+			var chargeRate;
+			if (timeDiff > 0) {
+				chargeRate = ((batUsage * 60 * 60 / timeDiff).format("%0.1f")).toString();
+			}
+			else {
+				chargeRate = "0.0";
+			}
+			dc.drawText(mCtrX, mCtrY + mFontHeight / 8, (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Rate) + " " + chargeRate + Ui.loadResource(Rez.Strings.PercentPerHour), Gfx.TEXT_JUSTIFY_CENTER);
+		}
+	}
+
 	function buildFullHistory() {
 		var refreshedPrevious = false;
 
@@ -933,7 +1012,7 @@ class BatteryMonitorView extends Ui.View {
 		var bat2 = 0;
 
 		if (mFullHistory != null) {
-			for (var i = mFullHistorySize - 1; i > 0; i--) {
+			for (var i = mFullHistorySize - 1; i >= 0; i--) {
 				var bat1 = mFullHistory[i * mElementSize + BATTERY];
 				if (bat1 >= 2000) {
 					bat1 -= 2000;
@@ -941,7 +1020,9 @@ class BatteryMonitorView extends Ui.View {
 
 				if (bat2 > bat1) {
 					i++; // We won't overflow as the first pass is always false with bat2 being 0
-					return [mFullHistory[i * mElementSize + TIMESTAMP], bat2, mIsSolar ? mFullHistory[i * mElementSize + SOLAR] : null];
+					var lastCharge = [mFullHistory[i * mElementSize + TIMESTAMP], bat2, mIsSolar ? mFullHistory[i * mElementSize + SOLAR] : null];
+					$.objectStorePut("LAST_CHARGE_DATA", lastCharge);
+					return lastCharge;
 				}
 
 				bat2 = bat1;

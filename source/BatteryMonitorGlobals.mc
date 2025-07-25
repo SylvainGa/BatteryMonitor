@@ -10,7 +10,6 @@ using Toybox.Math;
 using Toybox.Lang;
 using Toybox.Application.Storage;
 
-/*DEBUG*/ var gSlopesSize;
 (:glance)
 function getData() {
     var stats = Sys.getSystemStats();
@@ -307,7 +306,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 			}
 
 			if (slopes.size() > 0) {
-				/*DEBUG*/ logMessage("Slopes=" + slopes + " start " + (size != HISTORY_MAX ? j : HISTORY_MAX) + (historyArraySize > 0 ? " for HISTORY_" + historyArray[index] : " with no historyArray"));
+				//DEBUG*/ logMessage("Slopes=" + slopes + " start " + (size != HISTORY_MAX ? j : HISTORY_MAX) + (historyArraySize > 0 ? " for HISTORY_" + historyArray[index] : " with no historyArray"));
 				var slopesName;
 				var slopesSize;
 				if (size != HISTORY_MAX || historyArraySize == 0) { // We're working on the live history file and not a stored one
@@ -335,11 +334,11 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 	// If we have no slopes, return null
 	if (totalSlopes.size() == 0) {
-		return [null, true];
+		return [null, true, null];
 	}
 
 	var sumSlopes = 0;
-	/*DEBUG*/ gSlopesSize = totalSlopes.size();
+	/*DEBUG*/ var slopesSize = totalSlopes.size();
 	for (var i = 0; i < totalSlopes.size(); i++) {
 		sumSlopes += totalSlopes[i];
 	}
@@ -347,9 +346,9 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 	var avgSlope = sumSlopes / totalSlopes.size();
 
-	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
+	//DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
-	return [avgSlope, slopeNeedsCalc];
+	return [avgSlope, slopeNeedsCalc, slopesSize];
 }
 
 // Global method for getting a key from the object store

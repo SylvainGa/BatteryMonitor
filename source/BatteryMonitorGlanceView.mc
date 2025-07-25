@@ -13,7 +13,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 	var mRefreshCount;
 	var mFontType;
     var mFontHeight;
+	var mIsSolar;
+	var mElementSize;
 	var mSummaryMode;
+    var mProjectionType;
 	var mHistoryLastPos;
     var mSlopeNeedsCalc;
 
@@ -23,6 +26,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
     function onShow() {
         onSettingsChanged();
+
+		mIsSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		mElementSize = mIsSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
 		mRefreshCount = 0;
 		mTimer = new Timer.Timer();
@@ -84,12 +90,22 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     }
 
     function onSettingsChanged() {
+        mSummaryMode = 0;
 		try {
 			mSummaryMode = Properties.getValue("SummaryMode");
 		}
 		catch (e) {
 			mSummaryMode = 0;
 		}
+
+        mProjectionType = 0;
+        try {
+			mProjectionType = Properties.getValue("GlanceProjectionType");
+
+        }
+        catch (e) {
+			mProjectionType = 0;
+        }
     }
 
     function onUpdate(dc) {
@@ -122,41 +138,109 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var dischargeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
         var remainingStrLen = 0;
 
-		// See if we can use our previously calculated slope data
-		var downSlopeData = $.objectStoreGet("LAST_SLOPE_DATA", null);
-		var downSlopeSec;
-		if (downSlopeData != null) {
-			downSlopeSec = downSlopeData[0];
-			mHistoryLastPos = downSlopeData[1];
-		}
-		if (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != App.getApp().mHistorySize) {
-			// Calculate projected usage slope
-			var downSlopeResult = $.downSlope();
-            downSlopeSec = downSlopeResult[0];
-            mSlopeNeedsCalc = downSlopeResult[1];
-			mHistoryLastPos = App.getApp().mHistorySize;
-			downSlopeData = [downSlopeSec, mHistoryLastPos];
-			$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
-		}
+        if (mProjectionType == 0) {
+            if (Sys.getSystemStats().charging == false) { // There won't be a since last charge if we're charging...
+                var lastChargeData = LastChargeData();
+                if (lastChargeData != null ) {
+                    var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+                    var timeDiff = now - lastChargeData[0];
+                    if (timeDiff != 0) { // Sanity check
+                        var batAtLastCharge = lastChargeData[1];
+                        if (batAtLastCharge >= 2000) {
+                            batAtLastCharge -= 2000;
+                        }
+                        batAtLastCharge /= 10.0;
 
-        if (downSlopeSec != null) {
-            dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-            var downSlopeMin = downSlopeSec * 60;
-            remainingStr = $.minToStr(battery / downSlopeMin, false);
-            remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", mFontType);
+                        if (batAtLastCharge > battery) { // Sanity check
+                            var batDiff = batAtLastCharge - battery;
+                            var dischargePerMin = batDiff * 60.0 / timeDiff;
+                            remainingStr = $.minToStr(battery / dischargePerMin, false);
+                            remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", mFontType);
 
-            var downSlopeHours = downSlopeSec * 60 * 60;
-            if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
-                dischargeStr = (downSlopeHours * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDay);
+                            var downSlopeHours = dischargePerMin * 60;
+                            if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
+                                dischargeStr = (downSlopeHours * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDay);
+                            }
+                            else {
+                                dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
+                            }	
+
+                            /*DEBUG*/ var lastChargeMoment = new Time.Moment(lastChargeData[0]); var lastChargeInfo = Gregorian.info(lastChargeMoment, Time.FORMAT_MEDIUM); logMessage("Last charge: " + lastChargeInfo.hour + "h" + lastChargeInfo.min.format("%02d") + "m" + lastChargeInfo.sec.format("%02d") + "s, " + secToStr(timeDiff) + " ago (" + timeDiff + " sec). Battery was " + batAtLastCharge.format("%0.1f") + "%. Now at " + battery.format("%0.1f") + "%. Discharge at " + dischargeStr + ". Remaining is " + remainingStr);
+                        }
+                        //DEBUG*/ else { logMessage("Glance:batAtLastCharge was " + batAtLastCharge + " and battery is " + battery); }
+                    }
+                    //DEBUG*/ else { logMessage("Glance:Time diff is 0"); }
+                }
+                //DEBUG*/ else { logMessage("Glance:No last charge data"); }
             }
-            else {
-                dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
-            }	
-        }            
+            //DEBUG*/ else { logMessage("Glance:Watch is charging"); }
+        }
+        else { // Use long term projection
+            // See if we can use our previously calculated slope data
+            var downSlopeData = $.objectStoreGet("LAST_SLOPE_DATA", null);
+            var downSlopeSec;
+            if (downSlopeData != null) {
+                downSlopeSec = downSlopeData[0];
+                mHistoryLastPos = downSlopeData[1]; // We don't need to bother with downSlopeData[2] here as it's not used
+            }
+            if (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != App.getApp().mHistorySize) {
+                // Calculate projected usage slope
+                var downSlopeResult = $.downSlope();
+                downSlopeSec = downSlopeResult[0];
+                mSlopeNeedsCalc = downSlopeResult[1];
+                var slopesSize = downSlopeResult[2];
+                mHistoryLastPos = App.getApp().mHistorySize;
+                downSlopeData = [downSlopeSec, mHistoryLastPos, slopesSize];
+                $.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
+            }
 
+            if (downSlopeSec != null) {
+                var downSlopeMin = downSlopeSec * 60;
+                remainingStr = $.minToStr(battery / downSlopeMin, false);
+                remainingStrLen = dc.getTextWidthInPixels(remainingStr + " ", mFontType);
+
+                var downSlopeHours = downSlopeSec * 60 * 60;
+                if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
+                    dischargeStr = (downSlopeHours * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDay);
+                }
+                else {
+                    dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
+                }	
+            } 
+        }
+
+        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
         dc.drawText(0, mFontHeight, mFontType, remainingStr, Gfx.TEXT_JUSTIFY_LEFT);
-
         var xPos = (batteryStrLen > remainingStrLen ? batteryStrLen : remainingStrLen);
         dc.drawText(xPos, mFontHeight / 2, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
     }
+
+    function LastChargeData() {
+        var history = App.getApp().mHistory;
+        var historySize = App.getApp().getHistorySize();
+
+		if (history != null) {
+    		var bat2 = 0;
+			for (var i = historySize - 1; i >= 0; i--) {
+				var bat1 = history[i * mElementSize + BATTERY];
+				if (bat1 >= 2000) {
+					bat1 -= 2000;
+				}
+
+				if (bat2 > bat1) {
+					i++; // We won't overflow as the first pass is always false with bat2 being 0
+					var lastCharge = [history[i * mElementSize + TIMESTAMP], bat2, mIsSolar ? history[i * mElementSize + SOLAR] : null];
+					$.objectStorePut("LAST_CHARGE_DATA", lastCharge);
+					return lastCharge;
+				}
+
+				bat2 = bat1;
+			}
+		}
+
+		var lastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null); // If we can't find the battery going up in the current history file, try to get it from the last time we saved the last charge (either here or in the main view)
+    	return lastChargeData;
+    }
+    
+
 }

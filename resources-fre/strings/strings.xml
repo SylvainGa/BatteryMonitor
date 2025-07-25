@@ -44,12 +44,17 @@
     <string id="Day">Jour</string>
     <string id="DayShort" scope="glance">j</string>
     <string id="PluralSuffix">s</string>
+    <string id="MediumDateFormat">$1$ $3$ $2$</string>
 
+<!-- In Settings -->
 	<string id="PanelOrder">Ordre des panneaux</string>
     <string id="SummaryMode">Unitée de la vue sommaire</string>
     <string id="Auto">Auto</string>
     <string id="PerDay">Par jour</string>
     <string id="PerHour">Par heure</string>
-
-    <string id="MediumDateFormat">$1$ $2$ $3$</string>
+    <string id="GlanceProjectionType">Quelle projection à montrer dans l'apperçue rapide</string>
+    <string id="LastCharge1">Depuis la dernière charge</string>
+    <string id="LongTermAvg">La projection long terme</string>
+    <string id="MaxArrays">Combien d'éléments à garder</string>
+    <string id="BGInterval">Interval (en minutes) du processus d'arrière plan</string>
 </strings>

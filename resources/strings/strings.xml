@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion">Battery Monitor V1.4.4.b3</string>
+    <string id="AppNameVersion">Battery Monitor V1.5.0.b7</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -45,12 +45,17 @@
     <string id="Day">Day</string>
     <string id="DayShort" scope="glance">d</string>
     <string id="PluralSuffix">s</string>
+    <string id="MediumDateFormat">$1$ $3$ $2$</string>
 
+<!-- In Settings -->
 	<string id="PanelOrder">Panel order</string>
     <string id="SummaryMode">Summary projection unit</string>
     <string id="Auto">Auto</string>
     <string id="PerDay">Per day</string>
     <string id="PerHour">Per hour</string>
-
-    <string id="MediumDateFormat">$1$ $3$ $2$</string>
+    <string id="GlanceProjectionType">Which projection to show in Glance</string>
+    <string id="LastCharge1">Since last charge</string>
+    <string id="LongTermAvg">Long term average</string>
+    <string id="MaxArrays">How many elements to store</string>
+    <string id="BGInterval">Background Interval (in minutes)</string>
 </strings>

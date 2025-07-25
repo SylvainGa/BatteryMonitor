@@ -13,8 +13,6 @@ using Toybox.Application.Storage;
 
 //! App constants
 const HISTORY_MAX = 500; // Quad the max screen size should be enough data to keep but could be too much for large screen so max at 1200 (around 32KB)
-const INTERVAL_MIN = 5; // temporal event in minutes
-const UPDATE_VERSION = 5; // What version our array structures should be at
 
 //! Object store keys (now they keys are in Storage and are texts, not numbers)
 // const HISTORY_KEY = 2;
@@ -54,15 +52,12 @@ class BatteryMonitorApp extends App.AppBase {
 	var mView;
 	var mGlance;
 	var mDelegate;
+	var mService;
 	public var mHistory;
 	public var mHistorySize;
 	public var mHistoryModified;
 	public var mHistoryNeedsReload;
 	public var mFullHistoryNeedsRefesh;
-
-	// Testing array passing by references
-	// public var mArray;
-	// public var mArraySize;
 
     function initialize() {
         AppBase.initialize();
@@ -80,11 +75,13 @@ class BatteryMonitorApp extends App.AppBase {
                 }
             }
         }
+
+		startBackgroundService(false);
     }
 
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
-		/*DEBUG*/ logMessage("onBG (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")) + " data: " + data);
+		/*DEBUG*/ logMessage("onBGData (" + (mService != null ? "SD)" : "VW or GL)") + " data: " + data);
     	//DEBUG*/ logMessage("onBG: " + data);
 
 		// Make sure we have the latest data from storage if we're empty, otherwise use what you have
@@ -92,52 +89,79 @@ class BatteryMonitorApp extends App.AppBase {
 			getLatestHistoryFromStorage();
 		}
 		else {
-	    	//DEBUG*/ logMessage("Already have " + mHistorySize);
+	    	/*DEBUG*/ logMessage("Already have " + mHistorySize);
 		}
 
 		if (data != null /* && mDelegate == null*/) {
 			var size = data.size();
 			$.analyzeAndStoreData(data, size);
 		
-			// Because onBackgroundData is called BEFORE the getGlanceView/getInitialView, we need to save our data otherwise it will be lost when we read the history in those function
-			// if (mHistoryModified == true) {
-		    // 	/*DEBUG*/ logMessage("onBG: History changed, saving " + mHistorySize);
-			// 	storeHistory(true, mHistory[0 + TIMESTAMP]);
-			// }
         	Ui.requestUpdate();
 		}
     }    
 
     // onStop() is called when your application is exiting
     function onStop(state) {
-		/*DEBUG*/ logMessage("onStop (" + (mView == null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		/*DEBUG*/ logMessage("onStop (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 
+		// If we have unsaved data, now it's the time to save them
 		if (mHistory != null && mHistoryModified == true) {
 			/*DEBUG*/ logMessage("History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
 
 			storeHistory(true, mHistory[0 + TIMESTAMP]);
 		}
-
-		if (mView != null) {
-			/*DEBUG*/ logMessage("Restarting BG process");
-			Background.registerForTemporalEvent(new Time.Duration(300));
-		}
     }
+
+    // onAppInstall() is called when your application is installed
+    function onAppInstall() {
+		/*DEBUG*/ logMessage("onAppInstall (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		startBackgroundService(false);
+    }
+
+    // onAppUpdate() is called when your application is Updated
+    function onAppUpdate() {
+		/*DEBUG*/ logMessage("onAppUpdate (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		startBackgroundService(false);
+	}
 
 	function onSettingsChanged() {
 		if (mView != null) {
 			mView.onSettingsChanged();
 		}
+
+		startBackgroundService(true);
 	}
 
-    (:glance)
+	// Start the background process if it hasn't yet
+	function startBackgroundService(redo) {
+		var regTime = Background.getTemporalEventRegisteredTime();
+		if ( regTime == null || redo == true) {
+			/*DEBUG*/ logMessage("Starting BG process");
+			var bgInterval = 5;
+			try {
+				bgInterval = Properties.getValue("BGInterval");
+			}
+			catch (e) {
+				bgInterval = 5;
+			}
+
+			if (bgInterval != 0) {
+				if (bgInterval < 5) {
+					bgInterval = 5;
+				}
+				bgInterval *= 60;
+
+				Background.registerForTemporalEvent(new Time.Duration(bgInterval));
+			}
+		}
+		else {
+			/*DEBUG*/ logMessage("Next BG " + (regTime.value() / 60) + " min");
+		}
+	}
+
     function getGlanceView() {
 		/*DEBUG*/ logMessage("getGlanceView: mHistory " + (mHistory != null ? "has data" : "is null"));
 		//DEBUG*/ logMessage("getGlanceView");
-
-		//DEBUG*/ logMessage("Stopping BG process");
-		// Terminate the background process as we'll be doing the reading while the glance view is running
-		Background.deleteTemporalEvent();
 
 		// Tell the 'Main View' that we launched from Glance
         Storage.setValue("fromGlance", true);
@@ -147,9 +171,9 @@ class BatteryMonitorApp extends App.AppBase {
 			getLatestHistoryFromStorage();
 		}
 
-		mView = new BatteryMonitorGlanceView();
-		mGlance = mView; // So we know it's specifically a Glance view
-        return [mView];
+		mGlance = new BatteryMonitorGlanceView();
+		mView = mGlance; // So onSettingsChanged can call the view or glance onSettingsChanged code without needing to check for both
+        return [mGlance];
     }
 
     // Return the initial view of your application here
@@ -157,15 +181,11 @@ class BatteryMonitorApp extends App.AppBase {
 		/*DEBUG*/ logMessage("getInitialView: mHistory " + (mHistory != null ? "has data" : "is null"));
 		//DEBUG*/ logMessage("getInitialView");
 
-		//DEBUG*/ logMessage("Stopping BG process");
-		// Terminate the background process as we'll be doing the reading while the main view is running
-		Background.deleteTemporalEvent();
-
 		// If onBackgroundData hasn't fetched it, get the history
 		if (mHistory == null) {
 			//DEBUG*/ buildCopiedHistory();
 			//DEBUG*/ buildFakeHistory();
-			// $.objectStorePut("HISTORY", mHistory); // Amnd erase the old data
+			// $.objectStorePut("HISTORY", mHistory); // And erase the old data
 			// var historyArray = $.objectStoreGet("HISTORY_ARRAY", null);
 			// if (historyArray != null) {
 			// 	for (var i = 0; i < historyArray.size(); i++) {
@@ -198,30 +218,10 @@ class BatteryMonitorApp extends App.AppBase {
     function getServiceDelegate(){
 		/*DEBUG*/ logMessage("getServiceDelegate: mHistory " + (mHistory != null ? "has data" : "is null"));
 		//DEBUG*/ logMessage("getServiceDelegate");
-        return [new BatteryMonitorServiceDelegate()];
+		mService = new BatteryMonitorServiceDelegate();
+        return [mService];
     }
 
-	function storeHistory(modified, timestamp) {
-		if (modified == true) {
-			$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory); // Store our history using the first timestamp for a key
-		}
-
-		var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
-		if (historyArray.size() == 0 || historyArray[historyArray.size() - 1] != timestamp) { // If that key isn't in the array of histories, add it
-			historyArray.add(timestamp);
-			if (historyArray.size() > 5) { // But if we already have 5 history arrays, drop the earliest one
-				/*DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
-				$.objectStoreErase("HISTORY_" + historyArray[0]);
-				$.objectStoreErase("SLOPES_" + historyArray[0]);
-				historyArray.remove(historyArray[0]);
-				mHistoryNeedsReload = true;
-			}
-			$.objectStorePut("HISTORY_ARRAY", historyArray);
-		}
-		mHistoryModified = false;
-	}
-
-    (:glance)
 	function getLatestHistoryFromStorage() {
 		var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
 		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
@@ -294,9 +294,34 @@ class BatteryMonitorApp extends App.AppBase {
 		mHistoryModified = false;
 		mHistoryNeedsReload = true;
 		mFullHistoryNeedsRefesh = true;
+	}
 
-		//DEBUG*/ for (var i = 0; i < mHistorySize; i++) { if (mHistory[i*3 + BATTERY] >= 2000) { mHistory[i*3 + BATTERY] = (mHistory[i*3 + BATTERY] - 2000) | 0x400; } } //Replace 2000 Activity flag for a bitwise operator so we can tell which activity was running
-		//DEBUG*/ Sys.print("["); for (var i = 0; i < mHistorySize; i++) { if (true || mHistory[i*3 + TIMESTAMP] < 1752135321) { Sys.print(mHistory[i*3 + TIMESTAMP] + "," + mHistory[i*3 + BATTERY] + "," + mHistory[i*3 + SOLAR]); if (i < mHistorySize - 1) { Sys.print(","); } } } Sys.println("]");
+	function storeHistory(modified, timestamp) {
+		if (modified == true) {
+			$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory); // Store our history using the first timestamp for a key
+		}
+
+		var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
+		if (historyArray.size() == 0 || historyArray[historyArray.size() - 1] != timestamp) { // If that key isn't in the array of histories, add it
+			historyArray.add(timestamp);
+
+			var maxArrays = 5;
+			try {
+				maxArrays = Properties.getValue("MaxArrays");
+			} catch (e) {
+				maxArrays = 5;
+			}
+
+			if (historyArray.size() > maxArrays) { // But if we already have the max history arrays, drop the earliest one
+				/*DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
+				$.objectStoreErase("HISTORY_" + historyArray[0]);
+				$.objectStoreErase("SLOPES_" + historyArray[0]);
+				historyArray.remove(historyArray[0]);
+				mHistoryNeedsReload = true;
+			}
+			$.objectStorePut("HISTORY_ARRAY", historyArray);
+		}
+		mHistoryModified = false;
 	}
 
 	function setHistory(history) {
@@ -332,9 +357,9 @@ class BatteryMonitorApp extends App.AppBase {
 			mHistorySize = i / elementSize;
 		}
 
-		// If our current postion is null and our previous is ALSO null, start from scratch, otherwise start from our current position to improve performance
-		if (mHistorySize == null || mHistorySize >= HISTORY_MAX * elementSize || mHistorySize == 0 || mHistory[(mHistorySize - 1) * elementSize + TIMESTAMP] == null) {
-			/*DEBUG*/ logMessage("mHistorySize was " + mHistorySize);
+		// Sanity check. If our previous position (mHistorySize - 2) is null, start from scratch, otherwise start from our current position to improve performance
+		if (mHistorySize == null || mHistorySize >= HISTORY_MAX * elementSize || (mHistorySize > 1 && mHistory[(mHistorySize - 2) * elementSize + TIMESTAMP] == null)) {
+			/*DEBUG*/ if (mHistorySize != 0) { logMessage("mHistorySize was " + mHistorySize); }
 			mHistorySize = 0;
 		}
 

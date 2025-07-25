@@ -14,4 +14,25 @@
             <listEntry value="2">@Strings.PerDay</listEntry>
         </settingConfig>
     </setting>
+
+    <setting propertyKey="@Properties.GlanceProjectionType" title="@Strings.GlanceProjectionType">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.LastCharge1</listEntry>
+            <listEntry value="1">@Strings.LongTermAvg</listEntry>
+        </settingConfig>
+    </setting>
+
+    <setting propertyKey="@Properties.MaxArrays" title="@Strings.MaxArrays">
+        <settingConfig type="list">
+            <listEntry value="1">500</listEntry>
+            <listEntry value="2">1000</listEntry>
+            <listEntry value="3">1500</listEntry>
+            <listEntry value="4">2000</listEntry>
+            <listEntry value="5">2500</listEntry>
+        </settingConfig>
+    </setting>
+
+    <setting propertyKey="@Properties.BGInterval" title="@Strings.BGInterval">
+		<settingConfig type="Numeric" required="true"/>
+    </setting>
 </settings>
