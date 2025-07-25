@@ -169,7 +169,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 			if (index == historyArraySize - 1 || historyArraySize == 0) { // Last history is from memory
 				data = App.getApp().mHistory;
 				size = App.getApp().mHistorySize;
-				/*DEBUG*/ logMessage("History: size " + size + " start " + slopesStartPos);
+				/*DEBUG*/ logMessage("History: size " + size + " start@" + slopesStartPos);
 			}
 			else {
 				data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
@@ -212,9 +212,6 @@ function downSlope() { //data is history data as array / return a slope in perce
 			}
 			var batDiff = bat2 - bat1;
 			for (; i < size; i++) {
-				// if (i == size - 2) {
-				// 	logMessage("Here!");
-				// }
 				if (batDiff < 0) { // Battery going down or staying level (or we are the last point in the dataset), build data for Correlation Coefficient and Standard Deviation calculation
 					var diffX = data[i * elementSize + TIMESTAMP] - data[j * elementSize + TIMESTAMP];
 
@@ -306,7 +303,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 			}
 
 			if (slopes.size() > 0) {
-				//DEBUG*/ logMessage("Slopes=" + slopes + " start " + (size != HISTORY_MAX ? j : HISTORY_MAX) + (historyArraySize > 0 ? " for HISTORY_" + historyArray[index] : " with no historyArray"));
+				/*DEBUG*/ logMessage("Slopes=" + slopes /*+ " start " + (size != HISTORY_MAX ? j : HISTORY_MAX) + (historyArraySize > 0 ? " for HISTORY_" + historyArray[index] : " with no historyArray")*/);
 				var slopesName;
 				var slopesSize;
 				if (size != HISTORY_MAX || historyArraySize == 0) { // We're working on the live history file and not a stored one
@@ -342,11 +339,10 @@ function downSlope() { //data is history data as array / return a slope in perce
 	for (var i = 0; i < totalSlopes.size(); i++) {
 		sumSlopes += totalSlopes[i];
 	}
-	//DEBUG*/ logMessage("sumSlopes=" + sumSlopes);
+	/*DEBUG*/ logMessage("sumSlopes=" + sumSlopes);
 
 	var avgSlope = sumSlopes / totalSlopes.size();
-
-	//DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
+	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
 	return [avgSlope, slopeNeedsCalc, slopesSize];
 }

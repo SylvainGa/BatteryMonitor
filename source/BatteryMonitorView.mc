@@ -253,7 +253,6 @@ class BatteryMonitorView extends Ui.View {
 				mGraphShowFull = false;
 				mSelectMode = ViewMode; // and our view mode in the history view
 				mSummaryProjection = true; // Summary shows projection
-				mDebug = 0;
 			}
 
 			mPanelIndex = newIndex;
@@ -717,6 +716,7 @@ class BatteryMonitorView extends Ui.View {
 	}
 
 	function drawChart(dc, xy, whichView) {
+		var startTime = Sys.getTimer();
 		doHeader(dc, whichView, Sys.getSystemStats().battery);
 
     	var X1 = xy[0], X2 = xy[1], Y1 = xy[2], Y2 = xy[3];
@@ -787,7 +787,7 @@ class BatteryMonitorView extends Ui.View {
 		xNow = (xHistoryInMin / xScaleMinPerPxl).toNumber();
 
 		//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right (unless we have no data to work with)
-		if (whichView == SCREEN_HISTORY && mDownSlopeSec != null) {
+		if (whichView == SCREEN_HISTORY && mDownSlopeSec != null && mDebug == 0) {
 			var str;
 			if (mSelectMode == ViewMode) {
 				str = Ui.loadResource(Rez.Strings.ViewMode);
@@ -819,10 +819,6 @@ class BatteryMonitorView extends Ui.View {
 			steps = 1;
 		}
 		/*DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, steps is " + steps);
-		if (whichView == SCREEN_PROJECTION && mDebug >= 5) {
-			dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 1, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + steps + "/" + mSlopesSize, Gfx.TEXT_JUSTIFY_LEFT);
-		}
-
 		for (var i = mFullHistorySize - 1/*, lastDataTime = mFullHistory[i * mElementSize + TIMESTAMP]*/; i >= 0; i -= steps) {
 			//DEBUG*/ logMessage(i + " " + mFullHistory[i]);
 			// End (closer to now)
@@ -933,6 +929,12 @@ class BatteryMonitorView extends Ui.View {
 			timeStr = $.minToStr(timeLeftMin, false);
 			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 			dc.drawText(mCtrX, mCtrY * 2 - mFontHeight - mFontHeight / 3, (mFontType > 0 ? mFontType - 1 : 0), "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
+		}
+
+		/*DEBUG*/ var runTime = Sys.getTimer() - startTime;
+
+		if ((whichView == SCREEN_HISTORY || whichView == SCREEN_PROJECTION) && mDebug >= 5) {
+			dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 1, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + steps + "/" + runTime, Gfx.TEXT_JUSTIFY_LEFT);
 		}
     }
 

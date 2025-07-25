@@ -12,6 +12,8 @@ In the Summary view, the number on the right of the batterie gauge represents th
 
 In the "per hour" and "per day" view, the "Since last view" represent the time since the widget/app was lauched (not just showing its glance). The "Since last charge" doesn't have to be a full charge.
 
+The projection in the glance and summary view can be as simple as the discharge from the last charge or calculated using the average of all the discharges that the data has accumulated over times.
+
 In the graph views, if the device supports solar charging, a dark red line will represent the solar intensity (in %) as seen by the device. Below the graphs, the left arrow represent the earliest sample time, the right arrow represent "Now' for the History view and the time the device is projected to have a depleted battery in the Projection view. The '100=' further down is how long the battery is projected to last if the device was charged to 100%. A blue line under the graph means that an activity was occuring during that time sample. Helpful to see how much the battery drained within an activity compared to a timeline without an activity running.
 
 You can zoom and pan the display in the History view (not the projection). By default, when you get to that view, you'll be in View mode. That mode is shown just above the graph. Pressing the Next and Previous button as well as swipping up and down will switch to the next/previous view. Touching the screen or pressing the Start button will switch to Zoom mode. Pressing it again will switch to the Pan mode. Pressing it again will return to the View mode. In the Zoom mode, swipe left/right or use the Next/Previous button to increase/decrease the zoom level of the graph. In the Pan mode, swipe left/right or use the Next/Previous button to pan the display left/right.
@@ -26,6 +28,11 @@ There is enough memory to store at most 1,200 data points (it's 4 times the scre
 
 Data points are calculated using a background process running every 5 minutes when inactive and every minute while the Glance or main app is active.
 
+Explanation on how the projection works:
+On the real device, the Garmin's projection until discharged is two fold but for both, it's basically how long will the device last if it stays in that state, be it simply being at the watchface or being in an activity. That's why you might see a time to empty of 3 days when the device is idle and this goes down to 8 hours when you select an activity with GPS. 
+
+In this App however, the projection until empty can be a simple ratio of the battery level at last charge over the time span since last charge or it can be a complex calculations using a linear least squares fit method to average all the recorded battery downtrends. This method gets more accurate as more data is gathered. Using the 2500 data entry and 5 minutes intervals, on my watch, it can capture up to 16 days of usage. Of course, if your activity usage is random, the accuracy of the projection will suffer.
+
 CAVEAT: Using swipe gestures in a widget is something problematic, more so on some devices. The experience in the simulator and the real device can be different, as it is for my Fenix 7S Pro. Your experience may differ. If you encounter issues, send me a email through the Contact Developper/App Support on ConnectIQ and I'll see what I can do.
 
 Like all my apps, they were done by me, for me and I'm sharing them with others for free. However, 
@@ -37,9 +44,9 @@ https://bit.ly/sylvainga
 Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Garmin-BatteryAnalyzer) and inspired by the work of dsapptech (https://apps.garmin.com/developer/b5b5e5f1-8148-42b7-9f66-f23de2625304/apps), which is missing the launch from watch face, and after asking if he could implement it and got no response, decide to build my own, hence this app :-)
 
 If you would like to translate the language file in your own language, contact me and we'll work on it.
- 
+
 ## Changelog
-V1.5.0 Added tge following
+V2.0.0 Added tge following
 - Glance mode can show projection since the last charge or using the average of all recorded discharge rate (default). Configurable in Settings
 - The summary can show projection since the last charge or using the average of all recorded discharge rate (default). Switchable by pressing the Start button or touching the screen. It resets to Projection when changing view.
 - The Graph history view defaults to showing data from the last full charge (if any) or one hour if less than that. However, zomming OUT while not zoomed toggle showing this or the whole captured data.
@@ -48,12 +55,12 @@ V1.5.0 Added tge following
 - The slope calculation is now decoupled from the graph update. It update at its own intervals. As data accumulates, calculating the slopes and drawing the graph can cause a "running for too long" crash.
 - The total amount of data captured is configurable in Settings. it's a choice between, 500, 1000, 1500, 2000 and 2500 elements. As the total amount grows, some devices might not have enough CPU power to draw the graphs with lots of elements. If the app crashes while trying to display the graph ("Watchdog Tripped Error - Code Executed Too Long" in CIQ_LOG file), try lowering this value to capture less data.
 - The interval the background process runs is configurable in Settings. It defaults to 5 minutes, which is the MINIMUM allowed by Garmin. You can increase it to gather data from a longer period of time, but at a reduced precision. If you enter 0, you'll disable the background process altogheter and data will only be gathered while the app is running (Glance or main view showing) at a rate of one sample per minute and a sample is taken only if the battery level has changed.
-- Debug stuff: At the projection screen, when there is no 'Charging' popup on screen, pressing Start or touching the screen five times within 5 seconds will show a debuging line at the top. Doing the same again or switching views will disable this line. This line will show the following data each separated by a '/'.
+- Debug stuff: At the graph views, when there is no 'Charging' popup on screen, pressing Start or touching the screen five times within 5 seconds will show a debuging line at the top. Doing the same again or switching views will disable this line. This line will show the following data each separated by a '/'.
   - Size of the HistoryArrays (each array holds 500 elements, 2500 will show 5 there). This is because Glance view can only work with limited memory compared to the main app.
   - Total number of elements recorded accross all history arrays. Once the max is reached, the earliest history array of 500 elements (and its calculated slopes) is dropped to make room for newer elements.
   - Number of elements in the current history array (from 0 to 499). Once it reaches 500, a new history array will be created. 
   - The 'steps' in the graphs. If above 1, the highest battery value of the next 'steps' number of elements is used and the other aren't plotted. This is used to reduce the load on the CPU and happens when there is more elements to draw than what the device can display.
-  - How many discharging slopes have been recorded and are used to averages the device battery usage. Only the current discharge slope is being calculated in realtime. The others are stored with the history arrays once they have finished discharging. This is to reduce the load on the CPU.
+  - The time it took to draw the graph in msec. The maximum time allowed for an app to run without relinquish control is one seconds (1000 msec). If this valur gets close to 1000, think about reducing the size of the captured data.
 
 V1.4.3 Fixed a potential crash when calculating the history array size
 
