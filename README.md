@@ -46,21 +46,22 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
-V2.0.0 Added tge following
+V1.5.0 Added tge following
 - Glance mode can show projection since the last charge or using the average of all recorded discharge rate (default). Configurable in Settings
 - The summary can show projection since the last charge or using the average of all recorded discharge rate (default). Switchable by pressing the Start button or touching the screen. It resets to Projection when changing view.
 - The Graph history view defaults to showing data from the last full charge (if any) or one hour if less than that. However, zomming OUT while not zoomed toggle showing this or the whole captured data.
 - When zooming, the zoom level is shown.
 - Optimized the search for the last full charge because if you're like me, you hardly charhe to 100% and searching the whole array wasted too much time.
 - The slope calculation is now decoupled from the graph update. It update at its own intervals. As data accumulates, calculating the slopes and drawing the graph can cause a "running for too long" crash.
+- Graphs code optimization to only ask to draw the time span we have set instead of relying on the device's clipping ability to not draw what's outside our current time span.
 - The total amount of data captured is configurable in Settings. it's a choice between, 1000, 1500, 2000 and 2500 elements. As the total amount grows, some devices might not have enough CPU power to draw the graphs with lots of elements. If the app crashes while trying to display the graph ("Watchdog Tripped Error - Code Executed Too Long" in CIQ_LOG file), try lowering this value to capture less data.
 - The interval the background process runs is configurable in Settings. It defaults to 5 minutes, which is the MINIMUM allowed by Garmin. You can increase it to gather data from a longer period of time, but at a reduced precision. If you enter 0, you'll disable the background process altogheter and data will only be gathered while the app is running (Glance or main view showing) at a rate of one sample per minute and a sample is taken only if the battery level has changed.
 - Debug stuff: At the graph views, when there is no 'Charging' popup on screen, pressing Start or touching the screen five times within 5 seconds will show a debuging line at the top. Doing the same again will disable this line. This line will show the following data each separated by a '/'.
   - Size of the HistoryArrays (each array holds 500 elements, 2500 will show 5 there). This is because Glance view can only work with limited memory compared to the main app.
   - Total number of elements recorded accross all history arrays. Once the max is reached, the earliest history array of 500 elements (and its calculated slopes) is dropped to make room for newer elements.
-  - Number of elements in the current history array (from 0 to 499). Once it reaches 500, a new history array will be created. 
+  - Number of elements in the current history array (from 0 to 499). Once it reaches 500, a new history array will be created.
   - The 'steps' in the graphs. If above 1, the highest battery value of the next 'steps' number of elements is used and the other aren't plotted. This is used to reduce the load on the CPU and happens when there is more elements to draw than what the device can display.
-  - The time it took to draw the graph in msec. The maximum time allowed for an app to run without relinquish control is one seconds (1000 msec). If this valur gets close to 1000, think about reducing the size of the captured data.
+  - The time it took to draw the graph in msec. The maximum time allowed for an app to run without relinquish control is around one second (1000 msec). If this valur gets close to 1000, think about reducing the size of the captured data.
 
 V1.4.3 Fixed a potential crash when calculating the history array size
 

@@ -96,8 +96,8 @@ class BatteryMonitorView extends Ui.View {
 		}
 		mTimer = null;
 		mLastData = $.getData();
-		$.objectStorePut("LAST_VIEWED_DATA", mLastData);
 		$.analyzeAndStoreData([mLastData], 1);
+		$.objectStorePut("LAST_VIEWED_DATA", mLastData);
 	}
 
 	function onEnterSleep() {
@@ -818,8 +818,19 @@ class BatteryMonitorView extends Ui.View {
 		if (steps < 2) {
 			steps = 1;
 		}
+
+		// First skip what's earlier than what we should show
+		var i;
+		for (i = mFullHistorySize - 1; i >= 0; i--) {
+			if (mFullHistory[i * mElementSize + TIMESTAMP] <= timeMostRecentPoint) {
+				if (i < mFullHistorySize - 1) {
+					i++; // Get the first element outside so we can start our line from there, unless we're already at the top of the list
+				}
+				break;
+			}
+		}
 		/*DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, steps is " + steps);
-		for (var i = mFullHistorySize - 1/*, lastDataTime = mFullHistory[i * mElementSize + TIMESTAMP]*/; i >= 0; i -= steps) {
+		for (; i >= 0; i -= steps) {
 			//DEBUG*/ logMessage(i + " " + mFullHistory[i]);
 			// End (closer to now)
 
@@ -887,6 +898,10 @@ class BatteryMonitorView extends Ui.View {
 				dc.setPenWidth(1);
 			}
 			lastPoint = [x, ySolar];
+
+			if (mFullHistory[i * mElementSize + TIMESTAMP] < timeLeastRecentPoint) {
+				break; // Stop if we've drawn the first point outside our graph area
+			}
 		}
 		
 		//! draw future estimation
