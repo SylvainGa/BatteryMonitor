@@ -293,7 +293,7 @@ class BatteryMonitorView extends Ui.View {
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);
 	
-		/*DEBUG*/ var startTime = Sys.getTimer();
+		//DEBUG*/ var startTime = Sys.getTimer();
 
 		//DEBUG*/ var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE]; mFontType = fonts[mDebugFont]; dc.drawText(0, mCtrY, mFontType, mDebugFont, Gfx.TEXT_JUSTIFY_LEFT);
 
