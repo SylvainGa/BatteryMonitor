@@ -760,7 +760,9 @@ class BatteryMonitorView extends Ui.View {
 
 		var halfSpan = 0;
 		var zoomLevel = [1, 2, 4, 8, 16, 32, 64, 128];
+		var minimumTime = 60.0;
 		if (whichView == SCREEN_HISTORY) {
+			minimumTime /= zoomLevel[mGraphSizeChange];
 			var span = timeMostRecentPoint - timeLeastRecentPoint;
 			//DEBUG*/ logMessage("span is " + span + " timeMostRecentPoint is " + timeMostRecentPoint + " timeLeastRecentPoint is " + timeLeastRecentPoint + " zoom is " + mGraphSizeChange + " pan is " + mGraphOffsetChange);
 
@@ -772,15 +774,10 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint).toFloat() / 60.0; // History time in minutes
-		xHistoryInMin = MIN(MAX(xHistoryInMin, 60.0), 60.0 * 24.0 * 30.0); // 30 days?
-
-		// if (whichView == SCREEN_HISTORY) {
-		// 	var zoomLevel = [1, 2, 4, 8, 16, 32];
-		// 	xHistoryInMin /= zoomLevel[mGraphSizeChange];
-		// }
+		xHistoryInMin = MIN(MAX(xHistoryInMin, minimumTime), 60.0 * 24.0 * 30.0); // 30 days?
 
 		var xFutureInMin = (timeMostFuturePoint - timeMostRecentPoint).toFloat() / 60.0; // Future time in minutes
-		xFutureInMin = MIN(MAX(xFutureInMin, 60.0), (whichView == SCREEN_PROJECTION ? 60.0 * 24.0 * 30.0 : 0)); // 30 days?
+		xFutureInMin = MIN(MAX(xFutureInMin, minimumTime), (whichView == SCREEN_PROJECTION ? 60.0 * 24.0 * 30.0 : 0)); // 30 days?
 		var xMaxInMin = xHistoryInMin + xFutureInMin; // Total time in minutes
 		var xScaleMinPerPxl = xMaxInMin / xFrame; // in minutes per pixel
 		var xNow; // position of now in the graph, equivalent to: pixels available for left part of chart, with history only (right part is future prediction)
