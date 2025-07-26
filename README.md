@@ -46,7 +46,8 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
-V1.5.0 Added tge following
+V1.5.0 Added the following
+- Compiled with CIQ 8.2.2
 - Glance mode can show projection since the last charge or using the average of all recorded discharge rate (default). Configurable in Settings
 - The summary can show projection since the last charge or using the average of all recorded discharge rate (default). Switchable by pressing the Start button or touching the screen. It resets to Projection when changing view.
 - The Graph history view defaults to showing data from the last full charge (if any) or one hour if less than that. However, zomming OUT while not zoomed toggle showing this or the whole captured data.
