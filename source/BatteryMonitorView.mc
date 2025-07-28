@@ -803,8 +803,7 @@ class BatteryMonitorView extends Ui.View {
 			var timeDiff = (mMarkerData[1][TIMESTAMP] - mMarkerData[0][TIMESTAMP]) / 60; // In minutes
 
 			var text = batDiff.format("%0.1f") + "% " + Ui.loadResource(Rez.Strings.In) + " " + $.minToStr(timeDiff, true);
-			text = "6.10% en 8 heures 52 minutes";
-			var textLenght = dc.getTextWidthInPixels(text, Gfx.TEXT_JUSTIFY_CENTER);
+			var textLenght = dc.getTextWidthInPixels(text, mFontType);
 			if (textLenght > (System.getDeviceSettings().screenShape == System.SCREEN_SHAPE_RECTANGLE ? mCtrX * 2 : mCtrX * 2 * 220 / 240)) {
 				text = batDiff.format("%0.1f") + "% " + Ui.loadResource(Rez.Strings.In) + " " + $.minToStr(timeDiff, false);
 			}
