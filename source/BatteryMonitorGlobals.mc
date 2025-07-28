@@ -316,7 +316,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 	}
 
 	var sumSlopes = 0;
-	/*DEBUG*/ var slopesSize = totalSlopes.size();
+	var slopesSize = totalSlopes.size();
 	for (var i = 0; i < totalSlopes.size(); i++) {
 		sumSlopes += totalSlopes[i];
 	}
