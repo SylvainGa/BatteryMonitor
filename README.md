@@ -53,6 +53,7 @@ If you would like to translate the language file in your own language, contact m
 V1.6.0 Added the following
 - A new view has been added. It sits between the charging page and history graph by default. You'll probably need to update your page layout in Settings. There are now 7 views. The new view is a 'Marker' view. You use it to mark the current time by either pressing 'Start' or touching the screen and come back later and mark a new time. Once two markers are set, the discharge rate between both markers is shown. Pressing 'Start' or touching the screen when both markers are set clears them. A vertical white line will be shown in the graphic views for the time where you've set a marker. These stays even when you clear the markers as they are stored in the history.
 - A visual indicator is shown on the left side of the screen to tell you which screen you are viewing. After a few seconds, it fades away and reappears when you switch view again.
+- Can zoom closure than one hour now
 
 V1.5.0 Added tge following
 - Glance mode can show projection since the last charge or using the average of all recorded discharge rate (default). Configurable in Settings
