@@ -46,7 +46,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
             var data = $.getData();
-			/*DEBUG*/ logMessage("refreshTimer Read data " + data);
+			//DEBUG*/ logMessage("refreshTimer Read data " + data);
 			$.analyzeAndStoreData([data], 1, false);
 			mRefreshCount = 0;
 		}
@@ -161,7 +161,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                                 dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
                             }	
 
-                            /*DEBUG*/ var lastChargeMoment = new Time.Moment(lastChargeData[0]); var lastChargeInfo = Gregorian.info(lastChargeMoment, Time.FORMAT_MEDIUM); logMessage("Last charge: " + lastChargeInfo.hour + "h" + lastChargeInfo.min.format("%02d") + "m" + lastChargeInfo.sec.format("%02d") + "s, " + secToStr(timeDiff) + " ago (" + timeDiff + " sec). Battery was " + batAtLastCharge.format("%0.1f") + "%. Now at " + battery.format("%0.1f") + "%. Discharge at " + dischargeStr + ". Remaining is " + remainingStr);
+                            //DEBUG*/ var lastChargeMoment = new Time.Moment(lastChargeData[0]); var lastChargeInfo = Gregorian.info(lastChargeMoment, Time.FORMAT_MEDIUM); logMessage("Last charge: " + lastChargeInfo.hour + "h" + lastChargeInfo.min.format("%02d") + "m" + lastChargeInfo.sec.format("%02d") + "s, " + secToStr(timeDiff) + " ago (" + timeDiff + " sec). Battery was " + batAtLastCharge.format("%0.1f") + "%. Now at " + battery.format("%0.1f") + "%. Discharge at " + dischargeStr + ". Remaining is " + remainingStr);
                         }
                         //DEBUG*/ else { logMessage("Glance:batAtLastCharge was " + batAtLastCharge + " and battery is " + battery); }
                     }

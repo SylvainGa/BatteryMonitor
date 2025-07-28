@@ -48,7 +48,7 @@ class BatteryMonitorView extends Ui.View {
 	var mTimeLastFullChargeTime;
 	var mTimeLastFullChargePos;
 	var mDebug;
-	/*DEBUG*/ var mHistoryArraySize;
+	var mHistoryArraySize;
 
 	var mHideChargingPopup;
 	//DEBUG*/ var mDebugFont;
@@ -245,10 +245,10 @@ class BatteryMonitorView extends Ui.View {
 					if (mSelectMode > PanMode) {
 						mSelectMode = ViewMode;
 					}
-					/*DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
+					//DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
 				}
 				else {
-					/*DEBUG*/ logMessage("No data, not changing mode");
+					//DEBUG*/ logMessage("No data, not changing mode");
 				}
 			}
 			else if (mViewScreen == SCREEN_MARKER) {
@@ -927,7 +927,7 @@ class BatteryMonitorView extends Ui.View {
 				break;
 			}
 		}
-		/*DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, steps is " + steps);
+		//DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, steps is " + steps);
 		for (; i >= 0; i -= steps) {
 			//DEBUG*/ logMessage(i + " " + mFullHistory[i]);
 			// End (closer to now)
@@ -1061,7 +1061,7 @@ class BatteryMonitorView extends Ui.View {
 			dc.drawText(mCtrX, mCtrY * 2 - mFontHeight - mFontHeight / 3, (mFontType > 0 ? mFontType - 1 : 0), "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
 		}
 
-		/*DEBUG*/ var runTime = Sys.getTimer() - startTime;
+		var runTime = Sys.getTimer() - startTime;
 
 		if ((whichView == SCREEN_HISTORY || whichView == SCREEN_PROJECTION) && mDebug >= 5) {
 			dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 1, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + steps + "/" + runTime, Gfx.TEXT_JUSTIFY_LEFT);
@@ -1103,7 +1103,7 @@ class BatteryMonitorView extends Ui.View {
 		if (mApp.getHistoryNeedsReload() == true || mFullHistory == null) { // Full refresh of the array
 			var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 			var historyArraySize = historyArray.size();
-			/*DEBUG*/ mHistoryArraySize = historyArraySize;
+			mHistoryArraySize = historyArraySize;
 
 			mFullHistory = null; // Release memory before asking for more of the same thing
 			mFullHistory = new [HISTORY_MAX * mElementSize * (historyArraySize == 0 ? 1 : historyArraySize)];
