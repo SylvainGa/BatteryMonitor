@@ -27,11 +27,13 @@ class BatteryMonitorView extends Ui.View {
 	var mPanelIndex;
 	var mGraphSizeChange;
 	var mGraphOffsetChange;
+	var mShowPageMarker;
 	var mGraphShowFull;
 	var mCtrX, mCtrY;
 	var mTimer;
 	var mLastData;
 	var mNowData;
+	var mMarkerData;
 	var mRefreshCount;
 	var mFontType;
 	var mFontHeight;
@@ -69,6 +71,8 @@ class BatteryMonitorView extends Ui.View {
 		mGraphShowFull = false;
 		mSelectMode = ViewMode;
 		mSummaryProjection = true;
+		mShowPageMarker = false; // When we first display, no point showing the page marker as we are already at the first panel
+
 
 		//DEBUG*/ mDebugFont = 0;
 		mTimer = new Timer.Timer();
@@ -78,9 +82,10 @@ class BatteryMonitorView extends Ui.View {
 		mStartedCharging = false;
 		mHideChargingPopup = false;
 		mLastData = $.objectStoreGet("LAST_VIEWED_DATA", null);
+		mMarkerData = $.objectStoreGet("MARKER_DATA", null);
 		mNowData = $.getData();
 		
-		$.analyzeAndStoreData([mNowData], 1);
+		$.analyzeAndStoreData([mNowData], 1, false);
 
 		onSettingsChanged();
     }
@@ -96,7 +101,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 		mTimer = null;
 		mLastData = $.getData();
-		$.analyzeAndStoreData([mLastData], 1);
+		$.analyzeAndStoreData([mLastData], 1, false);
 		$.objectStorePut("LAST_VIEWED_DATA", mLastData);
 	}
 
@@ -121,7 +126,7 @@ class BatteryMonitorView extends Ui.View {
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
 			mNowData = $.getData();
 			//DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
-			$.analyzeAndStoreData([mNowData], 1);
+			$.analyzeAndStoreData([mNowData], 1, false);
 			mRefreshCount = 0;
 		}
 
@@ -176,15 +181,16 @@ class BatteryMonitorView extends Ui.View {
             panelOrderStr = Properties.getValue("PanelOrder");
         }
         catch (e) {
-            Properties.setValue("PanelOrder", "1,2,3,4,5,6");
+            Properties.setValue("PanelOrder", "1,2,3,4,5,6,7");
         }
 
-		mPanelOrder = [1, 2, 3, 4, 5, 6];
-		mPanelSize = 6;
+		var defPanelOrder = [1, 2, 3, 4, 5, 6, 7];
+		mPanelOrder = defPanelOrder;
+		mPanelSize = MAX_SCREENS;
 
         if (panelOrderStr != null) {
             var array = $.to_array(panelOrderStr, ",");
-            if (array.size() > 1 && array.size() <= 6) {
+            if (array.size() >= 1 && array.size() < MAX_SCREENS) {
                 var i;
                 for (i = 0; i < array.size(); i++) {
                     var val;
@@ -192,24 +198,24 @@ class BatteryMonitorView extends Ui.View {
                         val = array[i].toNumber();
                     }
                     catch (e) {
-                        mPanelOrder = [1, 2, 3, 4, 5, 6];
-                        i = 6;
+                        mPanelOrder = defPanelOrder;
+                        i = MAX_SCREENS - 1;
                         break;
                     }
 
-                    if (val != null && val > 0 && val <= 6) {
+                    if (val != null && val > 0 && val < MAX_SCREENS) {
                         mPanelOrder[i] = val;
                     }
                     else {
-                        mPanelOrder = [1, 2, 3, 4, 5, 6];
-                        i = 6;
+                        mPanelOrder = defPanelOrder;
+                        i = MAX_SCREENS - 1;
                         break;
                     }
                 }
 
                 mPanelSize = i;
 
-                while (i < 6) {
+                while (i < MAX_SCREENS - 1) {
                     mPanelOrder[i] = null;
                     i++;
                 }
@@ -245,6 +251,26 @@ class BatteryMonitorView extends Ui.View {
 					/*DEBUG*/ logMessage("No data, not changing mode");
 				}
 			}
+			else if (mViewScreen == SCREEN_MARKER) {
+				var markerData = [$.getData()];
+				markerData[0][BATTERY] |= 0x2000; // Add the marker to the data returned so we can plot a verticla line on the graph to represent it
+
+				if (mMarkerData != null) {
+					if (mMarkerData.size() == 1) { // We already have our first marker set, now record the second one
+						mMarkerData.add(markerData[0]);
+					}
+					else { // We already have our two markers. Start over
+						markerData = null;
+						mMarkerData = null;
+					}
+				}
+				else { // Setting our first marker
+					mMarkerData = markerData;
+				}
+
+				$.analyzeAndStoreData(markerData, 1, true); // analyseAndStoreData deals with a null data so blindly call it even if we're null
+				$.objectStorePut("MARKER_DATA", mMarkerData);
+			}
 		}
 		else {
 			if (newIndex != mPanelIndex) {
@@ -253,6 +279,11 @@ class BatteryMonitorView extends Ui.View {
 				mGraphShowFull = false;
 				mSelectMode = ViewMode; // and our view mode in the history view
 				mSummaryProjection = true; // Summary shows projection
+
+				// Restart the timer so we can reshow the page markers for 5 seconds
+				mTimer.stop(); 
+				mTimer.start(method(:refreshTimer), 5000, true);
+				mShowPageMarker = true;
 			}
 
 			mPanelIndex = newIndex;
@@ -330,6 +361,10 @@ class BatteryMonitorView extends Ui.View {
 				showLastChargePage(dc, lastChargeData);
 				break;
 				
+			case SCREEN_MARKER:
+				showMarkerPage(dc);
+				break;
+				
 			case SCREEN_HISTORY:
 				drawChart(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], SCREEN_HISTORY);
 				break;
@@ -343,7 +378,7 @@ class BatteryMonitorView extends Ui.View {
 		if (System.getSystemStats().charging) {
 			if (mStartedCharging == false) {
 				mStartedCharging = true;
-				$.analyzeAndStoreData([$.getData()], 1);
+				$.analyzeAndStoreData([$.getData()], 1, false);
 			}
 			if (mHideChargingPopup == false) {
 				showChargingPopup(dc);
@@ -359,18 +394,62 @@ class BatteryMonitorView extends Ui.View {
 			}
 		}
 
+		// Show page indicator
+		if (mShowPageMarker) {
+			if (System.getDeviceSettings().screenShape == System.SCREEN_SHAPE_RECTANGLE) {
+				var steps = mCtrY / MAX_SCREENS;
+				var xPos = mCtrX / 20;
+				var yPos = mCtrY + steps * mPanelSize / 2 - steps / 2;
+
+				dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+				dc.setPenWidth(1);
+				for (var i = 0; i < mPanelSize; i++, yPos -= steps) {
+					dc.drawCircle(xPos, yPos, mCtrX / 20);
+					if (i + 1 == mViewScreen) {
+						dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+						dc.fillCircle(xPos, yPos, mCtrX / 30);
+						dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+					}
+				}
+			}
+			else {
+				var radius = mCtrX -  mCtrX / 30;
+				var inc = 60.0 / MAX_SCREENS;
+				var angle = 270.0 + inc * mPanelSize / 2.0 - inc / 2.0;
+
+				dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+				dc.setPenWidth(1);
+				for (var i = 0; i < mPanelSize; i++, angle -= inc) {
+					var xPos = mCtrX + radius * Math.sin(Math.toRadians(angle));
+					var yPos = mCtrY + radius * Math.cos(Math.toRadians(angle));
+					dc.drawCircle(xPos, yPos, mCtrX / 30);
+					if (i + 1 == mViewScreen) {
+						dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+						dc.fillCircle(xPos, yPos, mCtrX / 40);
+						dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+					}
+				}
+			}
+
+			mShowPageMarker = false; // Don't show again until we switch view
+		}
 		//DEBUG*/ var endTime = Sys.getTimer(); logMessage("onUpdate for " + mViewScreen + " took " + (endTime - startTime) + "msec");
     }
 
-	function doHeader(dc, whichView, battery) {
+	function doHeader(dc, whichView, battery, onlyBattery) {
 		//! Display current charge level with the appropriate color
-		var colorBat = $.getBatteryColor(battery);
+		var colorBat = getBatteryColor(battery);
 		dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
 		dc.drawText(mCtrX, 20 * mCtrY * 2 / 240, Gfx.FONT_NUMBER_MILD, battery.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER |  Gfx.TEXT_JUSTIFY_VCENTER);
     	dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 
 		var scale = mCtrY * 2.0 / 240.0; // 240 was the default resolution of the watch used at the time this widget was created
 		var yPos = 35 * scale;
+
+		if (onlyBattery) {
+			return yPos;
+		}
+
 		if (mDownSlopeSec != null) {
 			var downSlopeStr;
 			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
@@ -412,7 +491,7 @@ class BatteryMonitorView extends Ui.View {
 			yPos += mFontHeight;
 		}
 
-		return (yPos);
+		return yPos;
 	}
 
 	function doDownSlope() {
@@ -449,7 +528,7 @@ class BatteryMonitorView extends Ui.View {
 		var yPos = mCtrY * 2 * 2 / 20 + 4 * height;
 
 	    var battery = Sys.getSystemStats().battery;
-		var colorBat = $.getBatteryColor(battery);
+		var colorBat = getBatteryColor(battery);
 
 		// Draw and color charge gauge
 		dc.setPenWidth(1);
@@ -498,12 +577,7 @@ class BatteryMonitorView extends Ui.View {
                     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
                     var timeDiff = now - lastChargeData[0];
                     if (timeDiff != 0) { // Sanity check
-                        var batAtLastCharge = lastChargeData[1];
-                        if (batAtLastCharge >= 2000) {
-                            batAtLastCharge -= 2000;
-                        }
-                        batAtLastCharge /= 10.0;
-
+                        var batAtLastCharge = $.stripMarkers(lastChargeData[1]) / 10.0;
                         if (batAtLastCharge > battery) { // Sanity check
                             var batDiff = batAtLastCharge - battery;
                             var dischargePerMin = batDiff * 60.0 / timeDiff;
@@ -553,11 +627,7 @@ class BatteryMonitorView extends Ui.View {
                     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
                     var timeDiff = now - lastChargeData[0];
                     if (timeDiff != 0) { // Sanity check
-                        var batAtLastCharge = lastChargeData[1];
-                        if (batAtLastCharge >= 2000) {
-                            batAtLastCharge -= 2000;
-                        }
-                        batAtLastCharge /= 10.0;
+                        var batAtLastCharge = $.stripMarkers(lastChargeData[1]) / 10.0;
 
                         if (batAtLastCharge > battery) { // Sanity check
                             var batDiff = batAtLastCharge - battery;
@@ -579,7 +649,7 @@ class BatteryMonitorView extends Ui.View {
 
 	function showDataPage(dc, whichView, lastChargeData) {
 	    var battery = Sys.getSystemStats().battery;
-		var yPos = doHeader(dc, whichView, battery );
+		var yPos = doHeader(dc, whichView, battery, false);
 
 		yPos += mFontHeight / 4; // Give some room before displaying the charging stats
 
@@ -591,15 +661,9 @@ class BatteryMonitorView extends Ui.View {
 		var batUsage;
 		var timeDiff = 0;
 		if (mNowData != null && mLastData != null) {
-			var bat1 = mNowData[BATTERY];
-			if (bat1 >= 2000) {
-				bat1 -= 2000;
-			}
-			var bat2 = mLastData[BATTERY];
-			if (bat2 >= 2000) {
-				bat2 -= 2000;
-			}
-			batUsage = (bat1 - bat2).toFloat() / 10.0;
+			var bat1 = $.stripMarkers(mNowData[BATTERY]);
+			var bat2 = $.stripMarkers(mLastData[BATTERY]);
+			batUsage = (bat1 - bat2) / 10.0;
 			timeDiff = mNowData[TIMESTAMP] - mLastData[TIMESTAMP];
 		}
 
@@ -629,15 +693,9 @@ class BatteryMonitorView extends Ui.View {
 		yPos += mFontHeight;
 
 		if (mNowData != null && lastChargeData != null) {
-			var bat1 = mNowData[BATTERY];
-			if (bat1 >= 2000) {
-				bat1 -= 2000;
-			}
-			var bat2 = lastChargeData[BATTERY];
-			if (bat2 >= 2000) {
-				bat2 -= 2000;
-			}
-			batUsage = (bat1 - bat2).toFloat() / 10.0;
+			var bat1 = $.stripMarkers(mNowData[BATTERY]);
+			var bat2 = $.stripMarkers(lastChargeData[BATTERY]);
+			batUsage = (bat1 - bat2) / 10.0;
 			timeDiff = mNowData[TIMESTAMP] - lastChargeData[TIMESTAMP];
 
 			if (timeDiff != 0) {
@@ -663,41 +721,16 @@ class BatteryMonitorView extends Ui.View {
 
 	function showLastChargePage(dc, lastChargeData) {
 	    var battery = Sys.getSystemStats().battery;
-		var yPos = doHeader(dc, 2, battery); // We"ll show the same header as SCREEN_DATA_HR
+		var yPos = doHeader(dc, 2, battery, false); // We'll show the same header as SCREEN_DATA_HR
 
 		//! How long for last charge?
 		yPos += mFontHeight / 2; // Give some room before displaying the charging stats
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.LastCharge), Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 		if (lastChargeData && mStartedCharging == false) {
-			var timeMoment = new Time.Moment(lastChargeData[TIMESTAMP]);
-			var date = Time.Gregorian.info(timeMoment, Time.FORMAT_MEDIUM);
+			var timestampStr = $.timestampToStr(lastChargeData[TIMESTAMP]);
 
-			// Format time accoring to 24/12 hour format
-			var timeStr;
-			if (Sys.getDeviceSettings().is24Hour) {
-				timeStr = Lang.format("$1$h$2$", [date.hour.format("%2d"), date.min.format("%02d")]);
-			}
-			else {
-				var ampm = "am";
-				var hours12 = date.hour;
-
-				if (date.hour == 0) {
-					hours12 = 12;
-				}
-				else if (date.hour > 12) {
-					ampm = "pm";
-					hours12 -= 12;
-				}
-
-				timeStr = Lang.format("$1$:$2$$3$", [hours12.format("%2d"), date.min.format("%02d"), ampm]);
-			}
-
-			// Format the date according to the language file
-			var dateFormat = Ui.loadResource(Rez.Strings.MediumDateFormat);
-			var dateStr = Lang.format(dateFormat, [date.day_of_week, date.day, date.month]);
-
-			dc.drawText(mCtrX, yPos, mFontType,  dateStr + " " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
+			dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 
 			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + (lastChargeData[BATTERY] / 10.0).format("%0.1f") + "%" , Gfx.TEXT_JUSTIFY_CENTER);
@@ -715,9 +748,81 @@ class BatteryMonitorView extends Ui.View {
 		return yPos;
 	}
 
+	function showMarkerPage(dc) {
+	    var battery = Sys.getSystemStats().battery;
+		var yPos;
+
+		if (mMarkerData == null) {
+			yPos = doHeader(dc, 2, battery, false); // We'll show the same header as SCREEN_DATA_HR
+			yPos += mFontHeight / 2; // Give some room before displaying the charging stats
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SetFirstMarker), Gfx.TEXT_JUSTIFY_CENTER);
+			return yPos;
+		}
+		else if (mMarkerData.size() == 1) { // We only have one marker set, show it and say waiting for next marker
+			yPos = doHeader(dc, 2, battery, false); // We'll show the same header as SCREEN_DATA_HR
+			yPos += mFontHeight / 2; // Give some room before displaying the charging stats
+
+			var timestampStr = $.timestampToStr(mMarkerData[0][TIMESTAMP]);
+			var bat = $.stripMarkers(mMarkerData[0][BATTERY]) / 10.0;
+
+			dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + bat.format("%0.1f") + "%" , Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SetSecondMarker), Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+		}
+		else { // We have both marker, show them as well as the discharge rate
+			yPos = doHeader(dc, 2, battery, true); // We'll show just the battery
+			yPos += mFontHeight / 2; // Give some room before displaying the charging stats
+			var timestampStr = $.timestampToStr(mMarkerData[0][TIMESTAMP]);
+			var bat1 = $.stripMarkers(mMarkerData[0][BATTERY]) / 10.0;
+
+			dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + bat1.format("%0.1f") + "%" , Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+
+			timestampStr = $.timestampToStr(mMarkerData[1][TIMESTAMP]);
+			var bat2 = $.stripMarkers(mMarkerData[1][BATTERY]) / 10.0;
+
+			dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + bat2.format("%0.1f") + "%" , Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+
+			var batDiff = (bat1 - bat2).abs();
+			var timeDiff = (mMarkerData[1][TIMESTAMP] - mMarkerData[0][TIMESTAMP]) / 60; // In minutes
+
+			dc.drawText(mCtrX, yPos, mFontType, batDiff.format("%0.1f") + "% " + Ui.loadResource(Rez.Strings.In) + " " + $.minToStr(timeDiff, true) , Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+
+			if (timeDiff != 0) {
+				var discharge = batDiff * 60.0 / timeDiff; // Discharge rate per hour
+				var dischargeStr;
+                if ((discharge * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
+                    dischargeStr = (discharge * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDayLong);
+                }
+                else {
+                    dischargeStr = (discharge).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHourLong);
+                }
+
+		        dc.drawText(mCtrX, yPos, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_CENTER);
+				yPos += mFontHeight;
+			}
+		}
+
+		return yPos;
+	}
+
+
 	function drawChart(dc, xy, whichView) {
 		var startTime = Sys.getTimer();
-		doHeader(dc, whichView, Sys.getSystemStats().battery);
+		doHeader(dc, whichView, Sys.getSystemStats().battery, false);
 
     	var X1 = xy[0], X2 = xy[1], Y1 = xy[2], Y2 = xy[3];
 		var yFrame = Y2 - Y1;// pixels available for level
@@ -742,11 +847,7 @@ class BatteryMonitorView extends Ui.View {
 			return; // Nothing to draw
 		}
 
-		var latestBattery = mFullHistory[(mFullHistorySize - 1) * mElementSize + BATTERY];
-		if (latestBattery >= 2000) {
-			latestBattery -= 2000;
-		}
-		latestBattery = (latestBattery.toFloat() / 10.0).toNumber();
+		var latestBattery = ($.stripMarkers(mFullHistory[(mFullHistorySize - 1) * mElementSize + BATTERY]) / 10.0).toNumber();
 
 		if (mDownSlopeSec != null) {
 			var timeLeftSec = (latestBattery / mDownSlopeSec).toNumber();
@@ -773,10 +874,10 @@ class BatteryMonitorView extends Ui.View {
 			timeLeastRecentPoint -= halfSpan * mGraphOffsetChange;
 		}
 
-		var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint).toFloat() / 60.0; // History time in minutes
+		var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint) / 60.0; // History time in minutes
 		xHistoryInMin = MIN(MAX(xHistoryInMin, minimumTime), 60.0 * 24.0 * 30.0); // 30 days?
 
-		var xFutureInMin = (timeMostFuturePoint - timeMostRecentPoint).toFloat() / 60.0; // Future time in minutes
+		var xFutureInMin = (timeMostFuturePoint - timeMostRecentPoint) / 60.0; // Future time in minutes
 		xFutureInMin = MIN(MAX(xFutureInMin, minimumTime), (whichView == SCREEN_PROJECTION ? 60.0 * 24.0 * 30.0 : 0)); // 30 days?
 		var xMaxInMin = xHistoryInMin + xFutureInMin; // Total time in minutes
 		var xScaleMinPerPxl = xMaxInMin / xFrame; // in minutes per pixel
@@ -835,10 +936,23 @@ class BatteryMonitorView extends Ui.View {
 			var bat = mFullHistory[i * mElementSize + BATTERY];
 			var solar1 = mFullHistory[i * mElementSize + SOLAR];
 
+			var batActivity = (bat & 0x1000 || (bat >= 2000 && bat < 4096) ? true : false); // Activity detected (0x1000 is its new marker and 2000 was its old marker)
+			var batMarker = (bat & 0x2000 ? true : false); // Marker detected
+
+			bat = $.stripMarkers(bat);
+
 			for (var j = 1; j < steps && i - j >= 0; j++) {
-				bat = MAX(bat, mFullHistory[(i - j) * mElementSize + BATTERY]);
 				if (mIsSolar) {
 					solar1 = MAX(solar1, mFullHistory[(i - j) * mElementSize + SOLAR]);
+				}
+
+				var bat1 = mFullHistory[(i - j) * mElementSize + BATTERY];
+				bat = MAX(bat, $.stripMarkers(bat1));
+				if (bat1 & 0x1000 || (bat1 >= 2000 && bat1 < 4096)) {
+					batActivity = true;
+				}
+				if (bat1 & 0x2000) {
+					batMarker = true;
 				}
 			}
 
@@ -846,14 +960,8 @@ class BatteryMonitorView extends Ui.View {
 
 			var dataTimeDistanceInMinEnd = ((timeMostRecentPoint - timeEnd) / 60).toNumber();
 
-			var batActivity = false;
-			var battery = bat;
-			if (battery >= 2000) {
-				battery -= 2000;
-				batActivity = true;
-			}
-			battery = (battery.toFloat() / 10.0).toNumber();
-			var colorBat = $.getBatteryColor(battery);
+			var battery = (bat / 10.0).toNumber();
+			var colorBat = getBatteryColor(battery);
 
 			if (dataTimeDistanceInMinEnd > xHistoryInMin) {
 				if (firstOutside == false) {
@@ -895,6 +1003,16 @@ class BatteryMonitorView extends Ui.View {
 				dc.setPenWidth(1);
 			}
 			lastPoint = [x, ySolar];
+
+			if (batMarker == true) {
+				dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+				dc.setPenWidth(3);
+				dc.drawLine(x, Y2, x, Y1);
+				dc.setPenWidth(1);
+			}
+
+			batActivity = false; // Reset for next pass
+			batMarker = false; // Reset for next pass
 
 			if (mFullHistory[i * mElementSize + TIMESTAMP] < timeLeastRecentPoint) {
 				break; // Stop if we've drawn the first point outside our graph area
@@ -963,7 +1081,7 @@ class BatteryMonitorView extends Ui.View {
 		dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Charging) + " " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
 		var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
 		if (chargingData) {
-			var batUsage = battery - (chargingData[BATTERY]).toFloat() / 10.0;
+			var batUsage = battery - (chargingData[BATTERY]) / 10.0;
 			var timeDiff = Time.now().value() - chargingData[TIMESTAMP];
 
 			//DEBUG*/ logMessage("Bat usage: " + batUsage);
@@ -1022,16 +1140,32 @@ class BatteryMonitorView extends Ui.View {
 		return refreshedPrevious;
 	}
 
+	function getBatteryColor(battery) {
+		var colorBat;
+
+		if (battery >= 50) {
+			colorBat = COLOR_BAT_OK;
+		}
+		else if (battery >= 30) {
+			colorBat = COLOR_BAT_WARNING;
+		}
+		else if (battery >= 10) {
+			colorBat = COLOR_BAT_LOW;
+		}
+		else {
+			colorBat = COLOR_BAT_CRITICAL;
+		}
+
+		return colorBat;
+	}
+
+
     function LastChargeData() {
 		var bat2 = 0;
 
 		if (mFullHistory != null) {
 			for (var i = mFullHistorySize - 1; i >= 0; i--) {
-				var bat1 = mFullHistory[i * mElementSize + BATTERY];
-				if (bat1 >= 2000) {
-					bat1 -= 2000;
-				}
-
+				var bat1 = $.stripMarkers(mFullHistory[i * mElementSize + BATTERY]);
 				if (bat2 > bat1) {
 					i++; // We won't overflow as the first pass is always false with bat2 being 0
 					var lastCharge = [mFullHistory[i * mElementSize + TIMESTAMP], bat2, mIsSolar ? mFullHistory[i * mElementSize + SOLAR] : null];
@@ -1049,12 +1183,8 @@ class BatteryMonitorView extends Ui.View {
     function timeLastFullCharge(minTime) {
 		if (mFullHistory != null) { // Look through the full history
 			for (var i = mFullHistorySize - 1; i > mTimeLastFullChargePos; i--) { // But starting where we left off before
-				var bat = mFullHistory[i * mElementSize + BATTERY];
-				if (bat >= 2000) {
-					bat -= 2000;
-				}
-
-				if (bat == 1000) {
+				var bat = $.stripMarkers(mFullHistory[i * mElementSize + BATTERY]);
+				if (bat >= 995) { // Watch rounds 99.5 as full so 99.5 is considered 'full'.
 					if (minTime == null || mFullHistory[(mFullHistorySize - 1) * mElementSize + TIMESTAMP] - minTime >= mFullHistory[i * mElementSize + TIMESTAMP] ) { // If we ask for a minimum time to display, honor it, even if we saw a full charge already
 						mTimeLastFullChargePos = mFullHistorySize - 1;
 						mTimeLastFullChargeTime = mFullHistory[i * mElementSize + TIMESTAMP];

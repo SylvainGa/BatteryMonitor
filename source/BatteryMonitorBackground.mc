@@ -42,8 +42,8 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         }
 
         var activityStartTime = Activity.getActivityInfo().startTime;
-        if (activityStartTime != null) { // we"ll hack the battery level to flag the start and end of the activity. We'll add 2000 (which is 200 * 10) to the battery level to flag when an activity is running.
-            battery += 2000;
+        if (activityStartTime != null) { // we"ll hack the battery level to flag the start and end of the activity. We'll 'or' 4096 (0x1000) to the battery level to flag when an activity is running.
+            battery |= 0x1000;
         }
 
         // Only add if it's newer to prevent passing data that are not going to be consumed

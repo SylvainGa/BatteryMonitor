@@ -28,17 +28,21 @@ function getData() {
     }
 
 	var activityStartTime = Activity.getActivityInfo().startTime;
-	if (activityStartTime != null) { // we'll hack the battery level to flag that an activity is running by adding 2000 (which is 200 * 10) to the battery level.
-		battery += 2000;
+	if (activityStartTime != null) { // we'll hack the battery level to flag that an activity is running by 'ORing' 0x1000 (4096) to the battery level
+		battery |= 0x1000;
 	}
 
     return [now, battery, solar];
 }
 
 (:glance)
-function analyzeAndStoreData(data, dataSize) {
+function analyzeAndStoreData(data, dataSize, storeAlways) {
 	//DEBUG*/ logMessage("analyzeAndStoreData");
 
+	if (data == null) {
+		return;
+	}
+	
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
     var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 	var lastHistory = objectStoreGet("LAST_HISTORY_KEY", null);
@@ -64,10 +68,10 @@ function analyzeAndStoreData(data, dataSize) {
 		added = dataSize;
 		/*DEBUG*/ logMessage("analyze: First addition (" + added + ") " + data);
 	}
-	else { // We have a history and a last history, see if the battery value is different than the last and if so, store it
+	else { // We have a history and a last history, see if the battery value is different than the last and if so, store it but ignore this is we ask to always store
 		var dataIndex;
-		for (dataIndex = 0; dataIndex < dataSize; dataIndex++) {
-			if (lastHistory[BATTERY] != data[dataIndex][BATTERY]) { // Look for the first new battery level since last time
+		for (dataIndex = 0; dataIndex < dataSize && storeAlways == false; dataIndex++) {
+			if ($.stripMarkers(lastHistory[BATTERY]) != $.stripMarkers(data[dataIndex][BATTERY])) { // Look for the first new battery level since last time
 				break; // Found it!
 			}
 			else {
@@ -88,7 +92,7 @@ function analyzeAndStoreData(data, dataSize) {
 				App.getApp().setHistoryNeedsReload(true);
 			}
 
-			if (historySize == 0 || history[((historySize - 1) * elementSize) + BATTERY] != data[dataIndex][BATTERY]) {
+			if (historySize == 0 || storeAlways || history[((historySize - 1) * elementSize) + BATTERY] != data[dataIndex][BATTERY]) {
 				history[historySize * elementSize + TIMESTAMP] = data[dataIndex][TIMESTAMP];
 				history[historySize * elementSize + BATTERY] = data[dataIndex][BATTERY];
 				if (isSolar) {
@@ -201,25 +205,14 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 			var i = slopesStartPos, j = slopesStartPos;
 
-			var bat1 = data[slopesStartPos * elementSize + BATTERY];
-			if (bat1 >= 2000) {
-				bat1 -= 2000;
-			}
-
-			var bat2 = data[(slopesStartPos + (slopesStartPos < size - 1 ? 1 : 0)) * elementSize + BATTERY]; // Make sure we don't go over the max size of the array with that +1
-			if (bat2 >= 2000) {
-				bat2 -= 2000;
-			}
+			var bat1 = $.stripMarkers(data[slopesStartPos * elementSize + BATTERY]);
+			var bat2 = $.stripMarkers(data[(slopesStartPos + (slopesStartPos < size - 1 ? 1 : 0)) * elementSize + BATTERY]); // Make sure we don't go over the max size of the array with that +1
 			var batDiff = bat2 - bat1;
+
 			for (; i < size; i++) {
 				if (batDiff < 0) { // Battery going down or staying level (or we are the last point in the dataset), build data for Correlation Coefficient and Standard Deviation calculation
 					var diffX = data[i * elementSize + TIMESTAMP] - data[j * elementSize + TIMESTAMP];
-
-					var battery = data[i * elementSize + BATTERY];
-					if (battery >= 2000) {
-						battery -= 2000;
-					}
-					battery = battery.toFloat() / 10.0;
+					var battery = $.stripMarkers(data[i * elementSize + BATTERY]) / 10.0;
 
 					//DEBUG*/ logMessage("i=" + i + " batDiff=" + batDiff + " diffX=" + secToStr(diffX) + " battery=" + battery + " count=" + count);
 					sumXY += diffX * battery;
@@ -237,14 +230,8 @@ function downSlope() { //data is history data as array / return a slope in perce
 						keepGoing = false; // We reached the end of the array, calc the last slope if we have more than one data
 					}
 					else if (i < size - 2) {
-						bat1 = data[(i + 1) * elementSize + BATTERY];
-						if (bat1 >= 2000) {
-							bat1 -= 2000;
-						}
-						bat2 = data[(i + 2) * elementSize + BATTERY];
-						if (bat2 >= 2000) {
-							bat2 -= 2000;
-						}
+						bat1 = $.stripMarkers(data[(i + 1) * elementSize + BATTERY]);
+						bat2 = $.stripMarkers(data[(i + 2) * elementSize + BATTERY]);
 						batDiff = bat2 - bat1; // Get direction of the next battery level for next pass
 					}
 					else {
@@ -289,14 +276,8 @@ function downSlope() { //data is history data as array / return a slope in perce
 				keepGoing = true;
 
 				if (j < size - 1) {
-					bat1 = data[j * elementSize + BATTERY];
-					if (bat1 >= 2000) {
-						bat1 -= 2000;
-					}
-					bat2 = data[(j + 1) * elementSize + BATTERY];
-					if (bat2 >= 2000) {
-						bat2 -= 2000;
-					}
+					bat1 = $.stripMarkers(data[j * elementSize + BATTERY]);
+					bat2 = $.stripMarkers(data[(j + 1) * elementSize + BATTERY]);
 					batDiff = bat2 - bat1; // Get direction of the next battery level for next pass
 					//DEBUG*/ logMessage("i=" + j + " batDiff=" + batDiff);
 				}
@@ -374,26 +355,35 @@ function objectStoreErase(key) {
     Storage.deleteValue(key);
 }
 
-function getBatteryColor(battery) {
-    var colorBat;
+function timestampToStr(timestamp) {
+	var timeMoment = new Time.Moment(timestamp);
+	var date = Time.Gregorian.info(timeMoment, Time.FORMAT_MEDIUM);
 
-	if (battery >= 2000) {
-		battery -= 2000;
+	// Format time accoring to 24/12 hour format
+	var timeStr;
+	if (Sys.getDeviceSettings().is24Hour) {
+		timeStr = Lang.format("$1$h$2$", [date.hour.format("%2d"), date.min.format("%02d")]);
 	}
-    if (battery >= 50) {
-        colorBat = COLOR_BAT_OK;
-    }
-    else if (battery >= 30) {
-        colorBat = COLOR_BAT_WARNING;
-    }
-    else if (battery >= 10) {
-        colorBat = COLOR_BAT_LOW;
-    }
-    else {
-        colorBat = COLOR_BAT_CRITICAL;
-    }
+	else {
+		var ampm = "am";
+		var hours12 = date.hour;
 
-    return colorBat;
+		if (date.hour == 0) {
+			hours12 = 12;
+		}
+		else if (date.hour > 12) {
+			ampm = "pm";
+			hours12 -= 12;
+		}
+
+		timeStr = Lang.format("$1$:$2$$3$", [hours12.format("%2d"), date.min.format("%02d"), ampm]);
+	}
+
+	// Format the date according to the language file
+	var dateFormat = Ui.loadResource(Rez.Strings.MediumDateFormat);
+	var dateStr = Lang.format(dateFormat, [date.day_of_week, date.day, date.month]);
+
+	return [dateStr, timeStr];
 }
 
 (:glance)
@@ -416,6 +406,14 @@ function minToStr(min, fullText) {
 		str = days.toNumber() + (fullText ? (" " + Ui.loadResource(Rez.Strings.Day) + (days >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "") + (hours > 0 ? (" " + hours.format("%d") + " " + Ui.loadResource(Rez.Strings.Hour) + (hours >= 2 ? Ui.loadResource(Rez.Strings.PluralSuffix) : "")) : "")) : (Ui.loadResource(Rez.Strings.DayShort) + (hours > 0 ? (" " + hours.format("%d") + Ui.loadResource(Rez.Strings.HourShort)) : "")));
 	}
 	return str;
+}
+
+(:glance)
+function stripMarkers(battery) {
+	if (battery >= 2000 && battery < 4096) { // Old format
+		return battery - 2000;
+	}
+	return battery & 0xfff; // Markers are bitwise operators. We need to be over 3000 (100% full plus activity) to not interfere with the old format so 0x1000 (4096) is activity marker and 0x2000 is time marker therefore 0xfff strips them.
 }
 
 function to_array(string, splitter) {

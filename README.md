@@ -4,13 +4,17 @@ BatteryMonitor is a widget/app that displays statistics about a Garmin's device 
 
 It uses a linear least squares fit method to average all the recorded downtrends to find the most accurate projection until depleted.
 
-There are 6 main views that can be viewed by swiping up or down or using the Previous/Next buttons. The first view, as well as the order and which ones to show are configurable in the app Settings (see below for details). Outside of the glance view, there is a 'Summary' view (default), a 'Usage details per hours' view, a 'Usage details per day' view, a 'Last charge' view, a 'Graphical historical' view and a 'Projection' view where the future usage trend is tagged at the end of the historical view.
+There are 7 main views that can be viewed by swiping up or down or using the Previous/Next buttons. The first view, as well as the order and which ones to show are configurable in the app Settings (see below for details). Outside of the glance view, there is a 'Summary' view (default), a 'Usage details per hours' view, a 'Usage details per day' view, a 'Last charge' view, a 'Marker' view, a 'Graphical historical' view and a 'Projection' view where the future usage trend is tagged at the end of the historical view.
 
 In the Glance and Summary view, you can choose (in Settings) to let the app determine if it's best to view 'per hour' or 'per day' (Auto) or statically use 'Per hour' or 'Per day'.
 
 In the Summary view, the number on the right of the batterie gauge represents the time since the device was last charged (doesn't have to be a complete charge) and below it is the trending discharge (per hour or day). The gauge itself is color coded. 100-50% is green, 49-30% is yellow, 29-10% is orange and below 10% is red. That same color convention is replicated in the battery level displayed in the other views as well as the graph's color.
 
 In the "per hour" and "per day" view, the "Since last view" represent the time since the widget/app was lauched (not just showing its glance). The "Since last charge" doesn't have to be a full charge.
+
+In the "Last Charge" view, it tells you when did the last charge occured and to what level did it charge to.
+
+In the Marker view, you can set two markers using the Start button or touching the screen. Once two markes are set, the time between both as well as the discharge rate between these two times will be displayed. They will also appear as white vertical lines in the graphical views. Even when you clear the makers, the lines remain in graphical views so you can use that to highlight things.
 
 The projection in the glance and summary view can be as simple as the discharge from the last charge or calculated using the average of all the discharges that the data has accumulated over times.
 
@@ -22,11 +26,11 @@ When charging, a popup will show up showing the battery level and the rate of in
 
 Use the Menu button to erase the history and start fresh.
  
-The default order of the panels is 1,2,3,4,5,6 which are respectively Summary, by hour view, by day view, last charge, History and a Projection view. Changing the order and removing a number will affect was is shown and their order.
+The default order of the panels is 1,2,3,4,5,6,7 which are respectively Summary, by hour view, by day view, last charge, Marker, History and a Projection view. Changing the order and removing a number will affect was is shown and their order.
 
-There is enough memory to store at most 1,200 data points (it's 4 times the screen size, maxing at 1,200), Since only changed battery level are recorded, depending on how fast your device is draining, and the app's ability to average older data to make room for newer ones, you'll have data for several days if not weeks.
+Depending on the device, there could be enough memory to store 2,500 data elements (settable in Settings, depends on how much memory your device has). Since only changed battery level are recorded, depending on how fast your device is draining, you'll have data for several days if not weeks.
 
-Data points are calculated using a background process running every 5 minutes when inactive and every minute while the Glance or main app is active.
+Data points are calculated using a background process running every 5 minutes (configurable in Settings) when inactive and every minute while the Glance or main app is active.
 
 Explanation on how the projection works:
 On the real device, the Garmin's projection until discharged is two fold but for both, it's basically how long will the device last if it stays in that state, be it simply being at the watchface or being in an activity. That's why you might see a time to empty of 3 days when the device is idle and this goes down to 8 hours when you select an activity with GPS. 
@@ -46,6 +50,10 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+V1.6.0 Added the following
+- A new view has been added. It sits between the charging page and history graph by default. You'll probably need to update your page layout in Settings. There are now 7 views. The new view is a 'Marker' view. You use it to mark the current time by either pressing 'Start' or touching the screen and come back later and mark a new time. Once two markers are set, the discharge rate between both markers is shown. Pressing 'Start' or touching the screen when both markers are set clears them. A vertical white line will be shown in the graphic views for the time where you've set a marker. These stays even when you clear the markers as they are stored in the history.
+- A visual indicator is shown on the left side of the screen to tell you which screen you are viewing. After a few seconds, it fades away and reappears when you switch view again.
+
 V1.5.0 Added tge following
 - Glance mode can show projection since the last charge or using the average of all recorded discharge rate (default). Configurable in Settings
 - The summary can show projection since the last charge or using the average of all recorded discharge rate (default). Switchable by pressing the Start button or touching the screen. It resets to Projection when changing view.

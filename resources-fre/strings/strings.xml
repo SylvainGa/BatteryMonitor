@@ -31,6 +31,12 @@
     <string id="LastCharge">Dernière recharge</string>
     <string id="At">à</string>
 
+    <string id="SetFirstMarker">En attente du\npremier jalon</string>
+    <string id="SetSecondMarker">En attente du\nsecond jalon</string>
+    <string id="FirstMarker">Premier jalon @</string>
+    <string id="SecondMarker">Second jalon @</string>
+    <string id="In">en</string>
+
     <string id="ViewMode">Vue</string>
     <string id="ZoomMode">Zoomer</string>
     <string id="PanMode">Déplacer</string>
@@ -44,7 +50,7 @@
     <string id="Day">Jour</string>
     <string id="DayShort" scope="glance">j</string>
     <string id="PluralSuffix">s</string>
-    <string id="MediumDateFormat">$1$ $3$ $2$</string>
+    <string id="MediumDateFormat">$1$ $2$ $3$</string>
 
 <!-- In Settings -->
 	<string id="PanelOrder">Ordre des panneaux</string>

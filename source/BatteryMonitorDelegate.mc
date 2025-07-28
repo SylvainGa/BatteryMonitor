@@ -29,7 +29,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
     function onSelect() {
 		//DEBUG*/ logMessage("onSelect");
-		//DEBUG*/ $.analyzeAndStoreData([$.getData()], 1);
+		//DEBUG*/ $.analyzeAndStoreData([$.getData()], 1, false);
 
 		if (System.getSystemStats().charging) {
 	        mHandler.invoke(-1, 0);
@@ -233,8 +233,7 @@ class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
             $.objectStoreErase("LAST_HISTORY_KEY");
             $.objectStoreErase("LAST_VIEWED_DATA");
             $.objectStoreErase("LAST_CHARGED_DATA");
-            $.objectStoreErase("LAST_SLOPE_CALC");
-            $.objectStoreErase("LAST_SLOPE_VALUE");
+			$.objectStoreErase("MARKER_DATA");
         }
 		return true;
     }

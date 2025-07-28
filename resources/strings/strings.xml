@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion">Battery Monitor V1.5.0.b11</string>
+    <string id="AppNameVersion">Battery Monitor V1.6.0.b5</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -31,6 +31,12 @@
 
     <string id="LastCharge">Last Charge</string>
     <string id="At">at</string>
+
+    <string id="SetFirstMarker">Waiting for first\nmarker</string>
+    <string id="SetSecondMarker">Waiting for second\nmarker</string>
+    <string id="FirstMarker">First marker @</string>
+    <string id="SecondMarker">Second marker @</string>
+    <string id="In">in</string>
 
     <string id="ViewMode">View</string>
     <string id="ZoomMode">Zoom</string>

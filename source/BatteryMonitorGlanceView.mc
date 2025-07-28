@@ -7,7 +7,7 @@ using Toybox.Application.Properties;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 
-(:glance)
+(:glance, :can_glance)
 class BatteryMonitorGlanceView extends Ui.GlanceView {
 	var mTimer;
 	var mRefreshCount;
@@ -47,7 +47,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
             var data = $.getData();
 			/*DEBUG*/ logMessage("refreshTimer Read data " + data);
-			$.analyzeAndStoreData([data], 1);
+			$.analyzeAndStoreData([data], 1, false);
 			mRefreshCount = 0;
 		}
 
@@ -143,13 +143,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 var lastChargeData = LastChargeData();
                 if (lastChargeData != null ) {
                     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
-                    var timeDiff = now - lastChargeData[0];
+                    var timeDiff = now - lastChargeData[TIMESTAMP];
                     if (timeDiff != 0) { // Sanity check
-                        var batAtLastCharge = lastChargeData[1];
-                        if (batAtLastCharge >= 2000) {
-                            batAtLastCharge -= 2000;
-                        }
-                        batAtLastCharge /= 10.0;
+                        var batAtLastCharge = $.stripMarkers(lastChargeData[BATTERY]) /  10.0;
 
                         if (batAtLastCharge > battery) { // Sanity check
                             var batDiff = batAtLastCharge - battery;
@@ -222,11 +218,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		if (history != null) {
     		var bat2 = 0;
 			for (var i = historySize - 1; i >= 0; i--) {
-				var bat1 = history[i * mElementSize + BATTERY];
-				if (bat1 >= 2000) {
-					bat1 -= 2000;
-				}
-
+				var bat1 = $.stripMarkers(history[i * mElementSize + BATTERY]);
 				if (bat2 > bat1) {
 					i++; // We won't overflow as the first pass is always false with bat2 being 0
 					var lastCharge = [history[i * mElementSize + TIMESTAMP], bat2, mIsSolar ? history[i * mElementSize + SOLAR] : null];
