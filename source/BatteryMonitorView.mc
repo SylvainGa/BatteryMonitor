@@ -725,6 +725,7 @@ class BatteryMonitorView extends Ui.View {
 
 		//! How long for last charge?
 		yPos += mFontHeight / 2; // Give some room before displaying the charging stats
+		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.LastCharge), Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 		if (lastChargeData && mStartedCharging == false) {
@@ -755,6 +756,7 @@ class BatteryMonitorView extends Ui.View {
 		if (mMarkerData == null) {
 			yPos = doHeader(dc, 2, battery, false); // We'll show the same header as SCREEN_DATA_HR
 			yPos += mFontHeight / 2; // Give some room before displaying the charging stats
+			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SetFirstMarker), Gfx.TEXT_JUSTIFY_CENTER);
 			return yPos;
 		}
@@ -765,6 +767,7 @@ class BatteryMonitorView extends Ui.View {
 			var timestampStr = $.timestampToStr(mMarkerData[0][TIMESTAMP]);
 			var bat = $.stripMarkers(mMarkerData[0][BATTERY]) / 10.0;
 
+			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 			dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 
@@ -780,6 +783,7 @@ class BatteryMonitorView extends Ui.View {
 			var timestampStr = $.timestampToStr(mMarkerData[0][TIMESTAMP]);
 			var bat1 = $.stripMarkers(mMarkerData[0][BATTERY]) / 10.0;
 
+			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 			dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 
