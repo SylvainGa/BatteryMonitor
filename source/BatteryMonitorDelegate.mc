@@ -9,8 +9,8 @@ using Toybox.Graphics as Gfx;
 class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	var mView;
 	var mHandler;
-    var mDragStartX;
-    var mDragStartY;
+	var mDragStartX;
+	var mDragStartY;
 	var mSkipNextEvent;
 	var mDebounceTimer;
 	var mIsViewLoop;
