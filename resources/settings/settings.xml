@@ -22,6 +22,10 @@
         </settingConfig>
     </setting>
 
+    <setting propertyKey="@Properties.BuiltinPageIndicator" title="@Strings.BuiltinPageIndicator">
+        <settingConfig type="boolean" required="true"/>
+    </setting>
+
     <setting propertyKey="@Properties.MaxArrays" title="@Strings.MaxArrays">
         <settingConfig type="list">
             <listEntry value="2">1000</listEntry>

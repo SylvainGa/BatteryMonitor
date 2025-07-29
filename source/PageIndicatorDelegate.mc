@@ -9,6 +9,7 @@ import Toybox.WatchUi;
 
 //! ViewLoop Delegate for handling the main primate views
 //! and indicates the current page
+(:can_viewloop)
 class PageIndicatorDelegate extends WatchUi.ViewLoopDelegate {
 
     private var mViewLoop as ViewLoop;
@@ -23,14 +24,18 @@ class PageIndicatorDelegate extends WatchUi.ViewLoopDelegate {
     //! Handle going to the next view
     //! @return true if handled, false otherwise
     function onNextView() {
-        mViewLoop.changeView(WatchUi.ViewLoop.DIRECTION_PREVIOUS);
+        mViewLoop.changeView(WatchUi.ViewLoop.DIRECTION_NEXT);
         return true;
     }
 
     //! Handle going to the previous view
     //! @return true if handled, false otherwise
     function onPreviousView() {
-        mViewLoop.changeView(WatchUi.ViewLoop.DIRECTION_NEXT);
+        mViewLoop.changeView(WatchUi.ViewLoop.DIRECTION_PREVIOUS);
         return true;
     }
+}
+
+(:cant_viewloop)
+class PageIndicatorDelegate extends WatchUi.ViewLoopDelegate {
 }

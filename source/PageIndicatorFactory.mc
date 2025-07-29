@@ -9,6 +9,7 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 
 //! ViewLoop Factory which manages the main view/delegate paires
+(:can_viewloop)
 class PageIndicatorFactory extends WatchUi.ViewLoopFactory {
     var mView;
     var mDelegate;
@@ -26,7 +27,7 @@ class PageIndicatorFactory extends WatchUi.ViewLoopFactory {
 
     //! Retrieve a view/delegate pair for the page at the given index
     function getView(page as Number) as [ViewLoopFactory.Views] or [ViewLoopFactory.Views, ViewLoopFactory.Delegates] {
-        mView.setPage(page);
+        mView.setPage((App.getApp().mView.getPanelSize() - 1) - page);
         return [mView, mDelegate];
     }
 
@@ -34,4 +35,8 @@ class PageIndicatorFactory extends WatchUi.ViewLoopFactory {
     function getSize() {
         return mView.getPanelSize();
     }
+}
+
+(:cant_viewloop)
+class PageIndicatorFactory extends WatchUi.ViewLoopFactory {
 }
