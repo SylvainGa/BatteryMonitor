@@ -52,6 +52,8 @@
     <string id="PluralSuffix">s</string>
     <string id="MediumDateFormat">$1$ $2$ $3$</string>
 
+    <string id="EraseHistory">Effacer l'historique?</string>
+
 <!-- In Settings -->
 	<string id="PanelOrder">Ordre des panneaux</string>
     <string id="SummaryMode">Unitée de la vue sommaire</string>

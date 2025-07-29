@@ -161,6 +161,11 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			if (xMovement > yMovement) { // We 'swiped' left or right predominantly
 				if (mDragStartX > coord[0]) { // Like WatchUi.SWIPE_LEFT
 					/*DEBUG*/ logMessage(("Drag left"));
+					var width = System.getDeviceSettings().screenWidth;
+					if (mDragStartX - coord[0] > width * 90 / 100) { // If we swipe left accross most of the screen, assume it's a request to open the menu
+						onMenu();
+						return true;
+					}
 					var panelIndex = mView.getPanelIndex();
 					mHandler.invoke(panelIndex, 1);
 				}
@@ -237,7 +242,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 	function onMenu() {
 		/*DEBUG*/ logMessage("onMenu");
-		var dialog = new Ui.Confirmation("Erase history");
+		var dialog = new Ui.Confirmation(Ui.loadResource(Rez.Strings.EraseHistory));
 		Ui.pushView(dialog, new ConfirmationDialogDelegate(), Ui.SLIDE_IMMEDIATE);
 		return true;
 	}

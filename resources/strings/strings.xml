@@ -53,6 +53,8 @@
     <string id="PluralSuffix">s</string>
     <string id="MediumDateFormat">$1$ $3$ $2$</string>
 
+    <string id="EraseHistory">Erase history?</string>
+
 <!-- In Settings -->
 	<string id="PanelOrder">Panel order</string>
     <string id="SummaryMode">Summary projection unit</string>

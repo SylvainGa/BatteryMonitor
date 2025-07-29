@@ -53,6 +53,7 @@ If you would like to translate the language file in your own language, contact m
 V1.7.0 Added the following
 - Now uses the builtin page indicators for devices with CIQ 3.4 and above.
 - Added a Settings to either use the builtin page indicator (if available) or the custom one this apps has. If this setting is changed, the app needs to be restarted
+- To open the menu to clear the history on a touch screen device, swipe left across the whole screen starting from the most left edge to the most right edge. This will simulate a onMenu event.
 - Bug fix in the selection of pages to view
 - Bug fix when swiping left to zoom but not in the history view
 
