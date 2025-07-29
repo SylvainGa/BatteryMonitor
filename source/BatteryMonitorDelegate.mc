@@ -21,33 +21,33 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		mSkipNextEvent = false;
 		mIsViewLoop = isViewLoop;
 
-        BehaviorDelegate.initialize();
+		BehaviorDelegate.initialize();
 	}
-	
+
 	function onBack() {
 		/*DEBUG*/ logMessage("onBack");
 		return false;
 	}
 
-    function onSelect() {
+	function onSelect() {
 		/*DEBUG*/ logMessage("onSelect");
 
 		if (System.getSystemStats().charging) {
-	        mHandler.invoke(-1, 0);
+			mHandler.invoke(-1, 0);
 		}
 		else {
-	        mHandler.invoke(-2, 0);
+			mHandler.invoke(-2, 0);
 		}
-        return true;    
-    }
-	
-    function onTap(evt) {
+		return true;    
+	}
+
+	function onTap(evt) {
 		/*DEBUG*/ logMessage("onTap");
 		onSelect();
 		return true;
-    }
+	}
 
-    function onNextPage() {
+	function onNextPage() {
 		if (mSkipNextEvent == false) {
 			/*DEBUG*/ logMessage("onNextPage");
 			var viewMode = mView.getVSelectMode();
@@ -73,7 +73,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		return true;
 	}
 
-    function onPreviousPage() {
+	function onPreviousPage() {
 		if (mSkipNextEvent == false) {
 			/*DEBUG*/ logMessage("onPreviousPage");
 			var viewMode = mView.getVSelectMode();
@@ -101,18 +101,18 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 	function onKey(keyEvent) {
 		var key = keyEvent.getKey();
-    	if (key == Ui.KEY_ENTER) {
+		if (key == Ui.KEY_ENTER) {
 			/*DEBUG*/ logMessage("onKey/Enter");
 			onSelect();
 			return true;
-    	}
-    	
-    	else if (key == Ui.KEY_MENU) {
+		}
+		
+		else if (key == Ui.KEY_MENU) {
 			/*DEBUG*/ logMessage("onKey/Menu");
-    		return onMenu();
-    	}
-    	
-    	else if (key == Ui.KEY_UP) { // Needed for GPS devices
+			return onMenu();
+		}
+		
+		else if (key == Ui.KEY_UP) { // Needed for GPS devices
 			/*DEBUG*/ logMessage("onKey/Up");
 			var viewMode = mView.getVSelectMode();
 			var viewScreen = mView.getViewScreen();
@@ -122,10 +122,10 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			}
 			mHandler.invoke(panelIndex, 1);
 			return true;
-    	}
-    	
-    	
-    	else if (key == Ui.KEY_DOWN) { // Needed for GPS devices
+		}
+		
+		
+		else if (key == Ui.KEY_DOWN) { // Needed for GPS devices
 			/*DEBUG*/ logMessage("onKey/Down");
 			var viewMode = mView.getVSelectMode();
 			var viewScreen = mView.getViewScreen();
@@ -135,8 +135,8 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			}
 			mHandler.invoke(panelIndex, -1);
 			return true;
-    	}
-    	
+		}
+		
 		/*DEBUG*/ logMessage("onKey with " + key);
 
 		return false;
@@ -147,14 +147,14 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		mDebounceTimer = null;
 	}
 
-    function onDrag(dragEvent ) {
-        var coord = dragEvent.getCoordinates();
-	
+	function onDrag(dragEvent ) {
+		var coord = dragEvent.getCoordinates();
+
 		if (dragEvent.getType() == WatchUi.DRAG_TYPE_START) {
-            mDragStartX = coord[0];
-            mDragStartY = coord[1];
-        }
-        else if (dragEvent.getType() == WatchUi.DRAG_TYPE_STOP && mDragStartX != null && mDragStartY != null) { //I've got an unhandled exception on the next line. Was mDragStartX null? Check just in case
+			mDragStartX = coord[0];
+			mDragStartY = coord[1];
+		}
+		else if (dragEvent.getType() == WatchUi.DRAG_TYPE_STOP && mDragStartX != null && mDragStartY != null) { //I've got an unhandled exception on the next line. Was mDragStartX null? Check just in case
 			var xMovement = (mDragStartX - coord[0]).abs();
 			var yMovement = (mDragStartY - coord[1]).abs();
 
@@ -235,28 +235,28 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		return true;
 	}
 
-    function onMenu() {
+	function onMenu() {
 		/*DEBUG*/ logMessage("onMenu");
-        var dialog = new Ui.Confirmation("Erase history");
-        Ui.pushView(dialog, new ConfirmationDialogDelegate(), Ui.SLIDE_IMMEDIATE);
-        return true;
-    }
-}    
+		var dialog = new Ui.Confirmation("Erase history");
+		Ui.pushView(dialog, new ConfirmationDialogDelegate(), Ui.SLIDE_IMMEDIATE);
+		return true;
+	}
+	}    
 
-class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
-    function initialize() {
-        ConfirmationDelegate.initialize();
-    }
+	class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
+	function initialize() {
+		ConfirmationDelegate.initialize();
+	}
 
-    function onResponse(value) {
-        if (value == 0) {
+	function onResponse(value) {
+		if (value == 0) {
 			//Keep
-        }
-        else {
+		}
+		else {
 			var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
 			var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
-            //Erase
+			//Erase
 			App.getApp().setHistoryNeedsReload(true);
 			App.getApp().setHistoryModified(true);
 			App.getApp().setHistory(new [HISTORY_MAX * elementSize]);
@@ -267,14 +267,14 @@ class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 				$.objectStoreErase("HISTORY_" + historyArray[index]);
 				$.objectStoreErase("SLOPES_" + historyArray[index]);
 			}
-            $.objectStoreErase("HISTORY_ARRAY");
-            $.objectStoreErase("HISTORY");
-            $.objectStoreErase("HISTORY_KEY");
-            $.objectStoreErase("LAST_HISTORY_KEY");
-            $.objectStoreErase("LAST_VIEWED_DATA");
-            $.objectStoreErase("LAST_CHARGED_DATA");
+			$.objectStoreErase("HISTORY_ARRAY");
+			$.objectStoreErase("HISTORY");
+			$.objectStoreErase("HISTORY_KEY");
+			$.objectStoreErase("LAST_HISTORY_KEY");
+			$.objectStoreErase("LAST_VIEWED_DATA");
+			$.objectStoreErase("LAST_CHARGED_DATA");
 			$.objectStoreErase("MARKER_DATA");
-        }
+		}
 		return true;
-    }
+	}
 }
