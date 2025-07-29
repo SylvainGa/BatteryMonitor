@@ -103,6 +103,13 @@ class BatteryMonitorApp extends App.AppBase {
     function onStop(state) {
 		/*DEBUG*/ logMessage("onStop (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 
+		// Was in onHide
+		if (mService == null && mGlance == null) { // This is JUST for the main view process
+			var lastData = $.getData();
+			$.analyzeAndStoreData([lastData], 1, false);
+			$.objectStorePut("LAST_VIEWED_DATA", lastData);
+		}
+
 		// If we have unsaved data, now it's the time to save them
 		if (mHistory != null && mHistoryModified == true) {
 			/*DEBUG*/ logMessage("History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
@@ -201,17 +208,29 @@ class BatteryMonitorApp extends App.AppBase {
             $.objectStorePut("fromGlance", false); // In case we change our watch setting later on that we want to start from the widget and not the glance
 
             /*DEBUG*/ logMessage(("Launching main view"));
-			mView = new BatteryMonitorView();
-			mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive));
-			return [mView , mDelegate];
+			if (WatchUi has :ViewLoop) {
+				var factory = new PageIndicatorFactory();
+				var viewLoop = new WatchUi.ViewLoop(factory, {:page => 0, :wrap => true, :color => Graphics.COLOR_GREEN});
+				return [viewLoop, new PageIndicatorDelegate(viewLoop)];
+			} else {
+				mView = new BatteryMonitorView(false);
+				mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive), false);
+				return [mView , mDelegate];
+			}
         }
         else { // Sucks, but we have to have an extra view so the Up/Down button work in our main view
             $.objectStorePut("fromGlance", false); // In case we change our watch setting later on that we want to start from the widget and not the glance
 
-            /*DEBUG*/ logMessage(("Launching no glance view"));
-			mView = new NoGlanceView();
-			mDelegate = new NoGlanceDelegate();
-			return [mView , mDelegate];
+			if (WatchUi has :ViewLoop) {
+				var factory = new PageIndicatorFactory();
+				var viewLoop = new WatchUi.ViewLoop(factory, {:page => 0, :wrap => true /*, :color => Graphics.COLOR_BLACK */});
+				return [viewLoop, new PageIndicatorDelegate(viewLoop)];
+			} else {
+				/*DEBUG*/ logMessage(("Launching no glance view"));
+				mView = new NoGlanceView();
+				mDelegate = new NoGlanceDelegate();
+				return [mView , mDelegate];
+			}
         }
     }
 

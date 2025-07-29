@@ -16,6 +16,7 @@ enum {
 
 class BatteryMonitorView extends Ui.View {
     var mApp;
+	var mIsViewLoop;
 	var mFullHistory;
 	var mFullHistorySize;
 	var mHistoryStartPos;
@@ -53,17 +54,24 @@ class BatteryMonitorView extends Ui.View {
 	var mHideChargingPopup;
 	//DEBUG*/ var mDebugFont;
 
-    function initialize() {
+    function initialize(isViewLoop) {
         View.initialize();
+		mIsViewLoop = isViewLoop;
+
         mApp = App.getApp();
-    }
+		
+		// Was in onLayout
+		// Used throughout the code to know the size of each element and if we should deal with solar data
+		mIsSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		mElementSize = mIsSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
-    // Called when this View is brought to the foreground. Restore
-    // the state of this View and prepare it to be shown. This includes
-    // loading resources into memory.
-    function onShow() {
-		$.objectStorePut("VIEW_RUNNING", true);
+		// Build our history array
+		buildFullHistory();
 
+		mSlopeNeedsCalc = false;
+		doDownSlope();
+
+		// Was in onShow
 		mDebug = 0;
 		mRefreshCount = 0;
 		mGraphSizeChange = 0;
@@ -72,7 +80,6 @@ class BatteryMonitorView extends Ui.View {
 		mSelectMode = ViewMode;
 		mSummaryProjection = true;
 		mShowPageMarker = false; // When we first display, no point showing the page marker as we are already at the first panel
-
 
 		//DEBUG*/ mDebugFont = 0;
 		mTimer = new Timer.Timer();
@@ -90,19 +97,16 @@ class BatteryMonitorView extends Ui.View {
 		onSettingsChanged();
     }
 
+    // Called when this View is brought to the foreground. Restore
+    // the state of this View and prepare it to be shown. This includes
+    // loading resources into memory.
+    function onShow() {
+    }
+
     // Called when this View is removed from the screen. Save the
     // state of this View here. This includes freeing resources from
     // memory.
     function onHide() {
-		$.objectStorePut("VIEW_RUNNING", false);
-
-		if (mTimer) {
-			mTimer.stop();
-		}
-		mTimer = null;
-		mLastData = $.getData();
-		$.analyzeAndStoreData([mLastData], 1, false);
-		$.objectStorePut("LAST_VIEWED_DATA", mLastData);
 	}
 
 	function onEnterSleep() {
@@ -156,16 +160,6 @@ class BatteryMonitorView extends Ui.View {
 
     	mCtrX = dc.getWidth() / 2;
     	mCtrY = height / 2;
-
-		// Used throughout the code to know the size of each element and if we should deal with solar data
-		mIsSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
-		mElementSize = mIsSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
-
-		// Build our history array
-		buildFullHistory();
-
-		mSlopeNeedsCalc = false;
-		doDownSlope();
     }
 
     function onSettingsChanged() {
@@ -190,7 +184,7 @@ class BatteryMonitorView extends Ui.View {
 
         if (panelOrderStr != null) {
             var array = $.to_array(panelOrderStr, ",");
-            if (array.size() >= 1 && array.size() < MAX_SCREENS) {
+            if (array.size() >= 1 && array.size() <= MAX_SCREENS) {
                 var i;
                 for (i = 0; i < array.size(); i++) {
                     var val;
@@ -203,19 +197,19 @@ class BatteryMonitorView extends Ui.View {
                         break;
                     }
 
-                    if (val != null && val > 0 && val < MAX_SCREENS) {
+                    if (val != null && val > 0 && val <= MAX_SCREENS) {
                         mPanelOrder[i] = val;
                     }
                     else {
                         mPanelOrder = defPanelOrder;
-                        i = MAX_SCREENS - 1;
+                        i = MAX_SCREENS;
                         break;
                     }
                 }
 
                 mPanelSize = i;
 
-                while (i < MAX_SCREENS - 1) {
+                while (i < MAX_SCREENS) {
                     mPanelOrder[i] = null;
                     i++;
                 }
@@ -290,28 +284,30 @@ class BatteryMonitorView extends Ui.View {
 			mViewScreen = mPanelOrder[mPanelIndex];
 		}
 
-		if (mSelectMode == ViewMode && graphSizeChange != 0) {
-			mSelectMode = ZoomMode;
-		}
-
-		if (mSelectMode == PanMode) {
-			mGraphOffsetChange += graphSizeChange;
-			if (mGraphOffsetChange < 0) {
-				mGraphOffsetChange = 0;
-			}
-		}
-		else {
-			mGraphSizeChange += graphSizeChange;
-			if (mGraphSizeChange < 0) {
-				mGraphSizeChange = 0;
-				mGraphShowFull = !mGraphShowFull;
-			}
-			else if (mGraphSizeChange > 7) {
-				mGraphSizeChange = 7;
+		if (mViewScreen == SCREEN_HISTORY) {
+			if (mSelectMode == ViewMode && graphSizeChange != 0) {
+				mSelectMode = ZoomMode;
 			}
 
-			if (graphSizeChange < 0) {
-				mGraphOffsetChange /= 4; // Pan to the right if we zoomed out
+			if (mSelectMode == PanMode) {
+				mGraphOffsetChange += graphSizeChange;
+				if (mGraphOffsetChange < 0) {
+					mGraphOffsetChange = 0;
+				}
+			}
+			else {
+				mGraphSizeChange += graphSizeChange;
+				if (mGraphSizeChange < 0) {
+					mGraphSizeChange = 0;
+					mGraphShowFull = !mGraphShowFull;
+				}
+				else if (mGraphSizeChange > 7) {
+					mGraphSizeChange = 7;
+				}
+
+				if (graphSizeChange < 0) {
+					mGraphOffsetChange /= 4; // Pan to the right if we zoomed out
+				}
 			}
 		}
 		//DEBUG*/ logMessage("mGraphSizeChange is " + mGraphSizeChange);
@@ -327,7 +323,6 @@ class BatteryMonitorView extends Ui.View {
 		//DEBUG*/ var startTime = Sys.getTimer();
 
 		//DEBUG*/ var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE]; mFontType = fonts[mDebugFont]; dc.drawText(0, mCtrY, mFontType, mDebugFont, Gfx.TEXT_JUSTIFY_LEFT);
-
 		if (buildFullHistory() == true) {
 			Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
 			return;
@@ -395,7 +390,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		// Show page indicator
-		if (mShowPageMarker) {
+		if (mShowPageMarker && !mIsViewLoop) {
 			if (System.getDeviceSettings().screenShape == System.SCREEN_SHAPE_RECTANGLE) {
 				var steps = mCtrY / MAX_SCREENS;
 				var xPos = mCtrX / 20;
@@ -1224,6 +1219,10 @@ class BatteryMonitorView extends Ui.View {
 		}
 	}
 
+	public function getViewScreen() {
+		return(mViewScreen);
+	}
+
 	public function getVSelectMode() {
 		return(mSelectMode);
 	}
@@ -1234,5 +1233,11 @@ class BatteryMonitorView extends Ui.View {
 
 	public function getPanelSize() {
 		return(mPanelSize);
+	}
+
+	public function setPage(index) {
+		mPanelIndex = index;
+		mViewScreen = mPanelOrder[mPanelIndex];
+		/*DEBUG*/ logMessage("setPage: mPanelIndex is " + mPanelIndex + " mViewScreen is " + mViewScreen);
 	}
 }

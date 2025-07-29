@@ -12,8 +12,8 @@ class NoGlanceView extends Ui.View {
         if (mLaunched == null) {
             mLaunched = true;
 
-			var view = new BatteryMonitorView();
-            var delegate = new BatteryMonitorDelegate(view, view.method(:onReceive));
+			var view = new BatteryMonitorView(false);
+            var delegate = new BatteryMonitorDelegate(view, view.method(:onReceive), false);
 
             App.getApp().mView = view;
             App.getApp().mDelegate = delegate;
