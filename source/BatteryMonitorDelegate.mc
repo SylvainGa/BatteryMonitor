@@ -56,7 +56,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
-			if (viewMode == ViewMode) {
+			if (viewScreen != SCREEN_HISTORY || viewMode == ViewMode) {
 				panelIndex++;
 				if (panelIndex >= mView.getPanelSize()) {
 					panelIndex = 0;
@@ -82,7 +82,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
-			if (viewMode == ViewMode) {
+			if (viewScreen != SCREEN_HISTORY || viewMode == ViewMode) {
 				panelIndex--;
 				if (panelIndex < 0) {
 					panelIndex = mView.getPanelSize() - 1;
