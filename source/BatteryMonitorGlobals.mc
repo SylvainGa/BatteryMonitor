@@ -86,6 +86,7 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 				App.getApp().storeHistory(added > 0 || App.getApp().getHistoryModified() == true, data[dataIndex][TIMESTAMP]); // Store the current history if modified and create a new one based on the latest time stamp
 
 				// Now start fresh
+				history = null; // Clean up before asking for more space
 				history = new [HISTORY_MAX * elementSize];
 				historySize = 0;
 				historyRefresh = true;
@@ -140,7 +141,7 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 }
 
 (:glance)
-function downSlope() { //data is history data as array / return a slope in percentage point per second
+function downSlope(fromInit) { //data is history data as array / return a slope in percentage point per second
 	/*DEBUG*/ var startTime = Sys.getTimer();
 	/*DEBUG*/ logMessage("Calculating slope");
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
@@ -167,7 +168,7 @@ function downSlope() { //data is history data as array / return a slope in perce
 				slopesStartPos = slopesData[1];
 			} 
 		}
-		if (slopes == null || slopesStartPos != HISTORY_MAX) { // Slopes not calculated yet for that array or the array isn't fully calculated
+		if (slopes == null || (slopesStartPos != HISTORY_MAX && (fromInit == false || historyArraySize <= 1 ))) { // Slopes not calculated yet for that array or the array isn't fully calculated (if from init, only use the prebuilt array if they are available otherwise calc for only one slope)
 			var data;
 			var size;
 			if (index == historyArraySize - 1 || historyArraySize == 0) { // Last history is from memory
@@ -177,11 +178,17 @@ function downSlope() { //data is history data as array / return a slope in perce
 			}
 			else {
 				data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
-				var i;
-				for (i = 0; i < HISTORY_MAX && data[i * elementSize] != null; i++) {
-					// Find first null, which will indicate where our array ends
+				/*DEBUG*/ logMessage("Calculating slope for HISTORY_" + historyArray[index]);
+				if (data[HISTORY_MAX * elementSize - 1] == null) { // Array isn't full, find first null spot
+					var i;
+					for (i = 0; i < HISTORY_MAX && data[i * elementSize] != null; i++) {
+						// Find first null, which will indicate where our array ends
+					}
+					size = i;
 				}
-				size = i;
+				else { // Array is full, its size is therefore HISTORY_MAX
+					size = HISTORY_MAX;
+				}
 
 				slopesStartPos = 0;
 			}
@@ -257,6 +264,12 @@ function downSlope() { //data is history data as array / return a slope in perce
 
 					slopes.add(slope);
 					totalSlopes.add(slope);
+
+					if (fromInit) { // If running from the Initialisation function, stop after going through one downslope. We'll let the timer handle the others
+						j = i + 1;
+						slopeNeedsCalc = true; // Flag that we'll need to go in next time to finish up
+						break;
+					}
 				}
 
 				// Reset of variables for next pass if we had something in them from last pass
@@ -286,16 +299,16 @@ function downSlope() { //data is history data as array / return a slope in perce
 			if (slopes.size() > 0) {
 				/*DEBUG*/ logMessage("Slopes=" + slopes /*+ " start " + (size != HISTORY_MAX ? j : HISTORY_MAX) + (historyArraySize > 0 ? " for HISTORY_" + historyArray[index] : " with no historyArray")*/);
 				var slopesName;
-				var slopesSize;
+				var posInHistory;
 				if (size != HISTORY_MAX || historyArraySize == 0) { // We're working on the live history file and not a stored one
 					slopesName = data[0 + TIMESTAMP];
-					slopesSize = j; // j is the starting position of the last known serie of down movement in the array
+					posInHistory = j; // j is the starting position of the last known serie of down movement in the array
 				}
 				else {
 					slopesName = historyArray[index];
-					slopesSize = HISTORY_MAX;
+					posInHistory = HISTORY_MAX;
 				}
-				$.objectStorePut("SLOPES_" + slopesName, [slopes, slopesSize]);
+				$.objectStorePut("SLOPES_" + slopesName, [slopes, posInHistory]);
 			}
 
 			if (index < historyArraySize - 1) {
@@ -304,28 +317,42 @@ function downSlope() { //data is history data as array / return a slope in perce
 			break;
 		}
 		else {
-			for (var i = 0; i < slopes.size(); i++) {
-				totalSlopes.add(slopes[i]);
-			}
+			totalSlopes.addAll(slopes);
 		}
 	}
 
 	// If we have no slopes, return null
-	if (totalSlopes.size() == 0) {
-		return [null, true, null];
+	var slopesSize = totalSlopes.size();
+	if (slopesSize == 0) {
+		return [null, true];
 	}
 
 	var sumSlopes = 0;
-	var slopesSize = totalSlopes.size();
-	for (var i = 0; i < totalSlopes.size(); i++) {
+	for (var i = 0; i < slopesSize; i++) {
 		sumSlopes += totalSlopes[i];
 	}
-	/*DEBUG*/ logMessage("sumSlopes=" + sumSlopes);
-
-	var avgSlope = sumSlopes / totalSlopes.size();
+	var avgSlope = sumSlopes / slopesSize;
+	/*DEBUG*/ logMessage("avgSlope=" + avgSlope);
 	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
-	return [avgSlope, slopeNeedsCalc, slopesSize];
+	return [avgSlope, slopeNeedsCalc];
+}
+
+(:glance)
+function initDownSlope() {
+	var downSlopeSec;
+	var historyLastPos;
+
+	var downSlopeData = $.objectStoreGet("LAST_SLOPE_DATA", null);
+	if (downSlopeData != null) {
+		downSlopeSec = downSlopeData[0];
+		historyLastPos = downSlopeData[1];
+	}
+	if (downSlopeSec == null || historyLastPos != App.getApp().mHistorySize) { // onBackgroundData added data since we last ran our slope calc last time we ran the app
+		var downSlopeResult = $.downSlope(true);
+		downSlopeData = [downSlopeResult[0], App.getApp().mHistorySize];
+		$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
+	}
 }
 
 // Global method for getting a key from the object store
@@ -414,6 +441,26 @@ function stripMarkers(battery) {
 		return battery - 2000;
 	}
 	return battery & 0xfff; // Markers are bitwise operators. We need to be over 3000 (100% full plus activity) to not interfere with the old format so 0x1000 (4096) is activity marker and 0x2000 is time marker therefore 0xfff strips them.
+}
+
+(:glance)
+function MAX (val1, val2) {
+	if (val1 > val2){
+		return val1;
+	}
+	else {
+		return val2;
+	}
+}
+
+(:glance)
+function MIN (val1, val2) {
+	if (val1 < val2){
+		return val1;
+	}
+	else {
+		return val2;
+	}
 }
 
 function to_array(string, splitter) {

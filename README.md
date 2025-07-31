@@ -52,8 +52,12 @@ If you would like to translate the language file in your own language, contact m
 ## Changelog
 V1.7.0 Added the following
 - Now uses the builtin page indicators for devices with CIQ 3.4 and above.
-- Added a Settings to either use the builtin page indicator (if available) or the custom one this apps has. If this setting is changed, the app needs to be restarted
+- Added a Settings to either use the builtin page indicator (if available) or the custom one this apps has. If this setting is changed, the app needs to be restarted.
+- Added a Settings to either drop the earliest 500 entries when the history array is full (default) or to average every second entries of the earliest 500 and the 500 after that. This way, you don't loose the earliest 1000 data points, just its granularity is reduced by two.
 - To open the menu to clear the history on a touch screen device, swipe left across the whole screen starting from the most left edge to the most right edge. This will simulate a onMenu event.
+- Optimized the graph view and slope calculation codes. Even at 2496 data elements, it doesn't crash on my Fenix 7S Pro. Devices with bigger display (more to draw) might not have the same experience. I suggest for now you reduce the data entry to 2000 elements instead of 2500.
+- Crash fix for under certain conditions in a non solar devices when drawing the graphs
+- Crash fix when switching to projection view while the history view was zoomed and history array was big
 - Bug fix in the selection of pages to view
 - Bug fix when swiping left to zoom but not in the history view
 

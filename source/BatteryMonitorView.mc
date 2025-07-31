@@ -45,9 +45,8 @@ class BatteryMonitorView extends Ui.View {
 	var mSummaryProjection;
 	var mDownSlopeSec;
 	var mSlopeNeedsCalc;
-	var mSlopesSize;
-	var mTimeLastFullChargeTime;
-	var mTimeLastFullChargePos;
+	var mLastFullChargeTimeIndex;
+	var mTimeLastFullChargeStartPos;
 	var mDebug;
 	var mHistoryArraySize;
 
@@ -68,8 +67,12 @@ class BatteryMonitorView extends Ui.View {
 		// Build our history array
 		buildFullHistory();
 
-		mSlopeNeedsCalc = false;
-		doDownSlope();
+		var downSlopeData = $.objectStoreGet("LAST_SLOPE_DATA", null);
+		if (downSlopeData != null) {
+			mDownSlopeSec = downSlopeData[0];
+			mHistoryLastPos = downSlopeData[1];
+		}
+		mSlopeNeedsCalc = true;
 
 		// Was in onShow
 		mDebug = 0;
@@ -320,7 +323,7 @@ class BatteryMonitorView extends Ui.View {
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);
 	
-		//DEBUG*/ var startTime = Sys.getTimer();
+		/*DEBUG*/ var startTime = Sys.getTimer();
 
 		//DEBUG*/ var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE]; mFontType = fonts[mDebugFont]; dc.drawText(0, mCtrY, mFontType, mDebugFont, Gfx.TEXT_JUSTIFY_LEFT);
 		if (buildFullHistory() == true) {
@@ -328,9 +331,9 @@ class BatteryMonitorView extends Ui.View {
 			return;
 		}
 
-		if (mTimeLastFullChargeTime == null && mFullHistory != null) {
-			mTimeLastFullChargeTime = mFullHistory[0 + TIMESTAMP];
-			mTimeLastFullChargePos = 0;
+		if (mLastFullChargeTimeIndex == null && mFullHistory != null) {
+			mLastFullChargeTimeIndex = 0;
+			mTimeLastFullChargeStartPos = 0;
 		}
 
 		// Start with an empty screen 
@@ -428,7 +431,7 @@ class BatteryMonitorView extends Ui.View {
 
 			mShowPageMarker = false; // Don't show again until we switch view
 		}
-		//DEBUG*/ var endTime = Sys.getTimer(); logMessage("onUpdate for " + mViewScreen + " took " + (endTime - startTime) + "msec");
+		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - startTime) + " msec for " + mFullHistorySize + " elements");
     }
 
 	function doHeader(dc, whichView, battery, onlyBattery) {
@@ -495,9 +498,6 @@ class BatteryMonitorView extends Ui.View {
 			if (downSlopeData != null) {
 				mDownSlopeSec = downSlopeData[0];
 				mHistoryLastPos = downSlopeData[1];
-				if (downSlopeData.size() == 3) {
-					mSlopesSize = downSlopeData[2];
-				}
 			}
 			else {
 				mSlopeNeedsCalc = true;
@@ -506,12 +506,11 @@ class BatteryMonitorView extends Ui.View {
 
 		if (mDownSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mApp.mHistorySize) { // Only if we have change our data size or we haven't have a chance to calculate our slope yet
 			// Calculate projected usage slope
-			var downSlopeResult = $.downSlope();
+			var downSlopeResult = $.downSlope(false);
             mDownSlopeSec = downSlopeResult[0];
             mSlopeNeedsCalc = downSlopeResult[1];
-			mSlopesSize = downSlopeResult[2];
 			mHistoryLastPos = mApp.mHistorySize;
-			var downSlopeData = [mDownSlopeSec, mHistoryLastPos, mSlopesSize];
+			var downSlopeData = [mDownSlopeSec, mHistoryLastPos];
 			$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
 		}
 	}
@@ -823,7 +822,6 @@ class BatteryMonitorView extends Ui.View {
 		return yPos;
 	}
 
-
 	function drawChart(dc, xy, whichView) {
 		var startTime = Sys.getTimer();
 		doHeader(dc, whichView, Sys.getSystemStats().battery, false);
@@ -836,32 +834,33 @@ class BatteryMonitorView extends Ui.View {
 
 		//! draw y gridlines
 		dc.setPenWidth(1);
-		var yGridSteps = 0.1;
-		for (var i = 0; i <= 1.05; i += yGridSteps) {
-			if (i == 0 or i == 0.5 or i.toNumber() == 1) {
+		var yGridSteps = 10;
+		for (var i = 0; i <= 100; i += yGridSteps) {
+			if (i == 0 || i == 50 || i == 100) {
 				dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
 			}
 			else {
 				dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
 			}
-			dc.drawLine(X1 - 10, Y2 - i * yFrame, X2 + 10, Y2 - i * yFrame);
+			dc.drawLine(X1 - 10, Y2 - i * yFrame / 100, X2 + 10, Y2 - i * yFrame / 100);
 		}
 
 		if (mFullHistorySize == 0) {
 			return; // Nothing to draw
 		}
 
-		var latestBattery = ($.stripMarkers(mFullHistory[(mFullHistorySize - 1) * mElementSize + BATTERY]) / 10.0).toNumber();
+		var lastElement = (mFullHistorySize - 1) * mElementSize;
+		var latestBattery = $.stripMarkers(mFullHistory[lastElement + BATTERY]) / 10.0;
 
 		if (mDownSlopeSec != null) {
 			var timeLeftSec = (latestBattery / mDownSlopeSec).toNumber();
-			timeLeftSecUNIX = timeLeftSec + mFullHistory[(mFullHistorySize - 1) * mElementSize + TIMESTAMP];
+			timeLeftSecUNIX = timeLeftSec + mFullHistory[lastElement + TIMESTAMP];
 		}
 
 		//! Graphical views
-		var timeMostRecentPoint = mFullHistory[(mFullHistorySize - 1) * mElementSize + TIMESTAMP];
+		var timeMostRecentPoint = mFullHistory[lastElement + TIMESTAMP];
 		var timeMostFuturePoint = (timeLeftSecUNIX != null && whichView == SCREEN_PROJECTION) ? timeLeftSecUNIX : timeMostRecentPoint;
-		var timeLeastRecentPoint = (mGraphShowFull == true ? mFullHistory[0 + TIMESTAMP] : timeLastFullCharge(60 * 60 * 24)); // Try to show at least a day's worth of data if we're not showing full data
+		var timeLeastRecentPoint = (mGraphShowFull == true && whichView == SCREEN_HISTORY ? mFullHistory[0 + TIMESTAMP] : mFullHistory[lastFullChargeIndex(60 * 60 * 24) * mElementSize + TIMESTAMP]); // Try to show at least a day's worth of data if we're not showing full data
 
 		var halfSpan = 0;
 		var zoomLevel = [1, 2, 4, 8, 16, 32, 64, 128];
@@ -879,14 +878,15 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		var xHistoryInMin = (timeMostRecentPoint - timeLeastRecentPoint) / 60.0; // History time in minutes
-		xHistoryInMin = MIN(MAX(xHistoryInMin, minimumTime), 60.0 * 24.0 * 30.0); // 30 days?
+		xHistoryInMin = $.MIN($.MAX(xHistoryInMin, minimumTime), 60.0 * 24.0 * 30.0); // 30 days?
 
 		var xFutureInMin = (timeMostFuturePoint - timeMostRecentPoint) / 60.0; // Future time in minutes
-		xFutureInMin = MIN(MAX(xFutureInMin, minimumTime), (whichView == SCREEN_PROJECTION ? 60.0 * 24.0 * 30.0 : 0)); // 30 days?
+		xFutureInMin = $.MIN($.MAX(xFutureInMin, minimumTime), (whichView == SCREEN_PROJECTION ? 60.0 * 24.0 * 30.0 : 0)); // 30 days?
 		var xMaxInMin = xHistoryInMin + xFutureInMin; // Total time in minutes
 		var xScaleMinPerPxl = xMaxInMin / xFrame; // in minutes per pixel
 		var xNow; // position of now in the graph, equivalent to: pixels available for left part of chart, with history only (right part is future prediction)
 		xNow = (xHistoryInMin / xScaleMinPerPxl).toNumber();
+		xHistoryInMin = xHistoryInMin.toNumber(); // We don't need it as a float anymore
 
 		//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right (unless we have no data to work with)
 		if (whichView == SCREEN_HISTORY && mDownSlopeSec != null && mDebug == 0) {
@@ -915,59 +915,66 @@ class BatteryMonitorView extends Ui.View {
 
 		//! draw history data
 		var firstOutside = true;
-
-		var steps = mFullHistorySize / xFrame / (mGraphSizeChange + 1);
+		var steps = (mGraphShowFull == true && whichView == SCREEN_HISTORY ? mFullHistorySize : mLastFullChargeTimeIndex) / xFrame / (whichView == SCREEN_HISTORY ? mGraphSizeChange + 1 : 1);
 		if (steps < 2) {
 			steps = 1;
 		}
 
-		// First skip what's earlier than what we should show
-		var i;
-		for (i = mFullHistorySize - 1; i >= 0; i--) {
-			if (mFullHistory[i * mElementSize + TIMESTAMP] <= timeMostRecentPoint) {
-				if (i < mFullHistorySize - 1) {
-					i++; // Get the first element outside so we can start our line from there, unless we're already at the top of the list
+		/*DEBUG*****/ var nowTime = Sys.getTimer(); Sys.println("After grid draw: " + (nowTime - startTime) + " msec"); startTime = nowTime;
+
+		// First skip what's earlier than what we should show (unless we're asked to show the full graph)
+		var i = mFullHistorySize - 1;
+		if (!mGraphShowFull && whichView == SCREEN_HISTORY) {
+			for (var j = i * mElementSize; i >= 0; i--, j -= mElementSize) {
+				if (mFullHistory[j + TIMESTAMP] <= timeMostRecentPoint) {
+					if (i < mFullHistorySize - 1) {
+						i++; // Get the first element outside so we can start our line from there, unless we're already at the top of the list
+					}
+					break;
 				}
-				break;
 			}
 		}
-		/*DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, steps is " + steps);
-		for (; i >= 0; i -= steps) {
+		//DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, steps is " + steps);
+
+		/*DEBUG*****/ nowTime = Sys.getTimer(); Sys.println("After skip to start: " + (nowTime - startTime) + " msec skip:" + (mFullHistorySize - i + 1) + " steps: " + steps); startTime = nowTime;
+
+		for (var l = i * mElementSize; i >= 0; i -= steps, l -= steps * mElementSize) {
 			//DEBUG*/ logMessage(i + " " + mFullHistory[i]);
 			// End (closer to now)
 
-			var timestamp = mFullHistory[i * mElementSize + TIMESTAMP];
-			var bat = mFullHistory[i * mElementSize + BATTERY];
-			var solar1 = mFullHistory[i * mElementSize + SOLAR];
+			var timestamp = mFullHistory[l + TIMESTAMP];
+			var bat = mFullHistory[l + BATTERY];
+			var solar = (mIsSolar ? mFullHistory[l + SOLAR] : 0);
 
 			var batActivity = (bat & 0x1000 || (bat >= 2000 && bat < 4096) ? true : false); // Activity detected (0x1000 is its new marker and 2000 was its old marker)
 			var batMarker = (bat & 0x2000 ? true : false); // Marker detected
-
 			bat = $.stripMarkers(bat);
 
-			for (var j = 1; j < steps && i - j >= 0; j++) {
+			// Average what we skip showing because we have too much data compared to screen size
+			var j, k;
+			for (j = 1, k = (i - j) * mElementSize; j < steps && i - j >= 0; j++, k -= mElementSize) {
 				if (mIsSolar) {
-					solar1 = MAX(solar1, mFullHistory[(i - j) * mElementSize + SOLAR]);
+					solar += mFullHistory[k + SOLAR];
 				}
 
-				var bat1 = mFullHistory[(i - j) * mElementSize + BATTERY];
-				bat = MAX(bat, $.stripMarkers(bat1));
+				var bat1 = mFullHistory[k + BATTERY];
 				if (bat1 & 0x1000 || (bat1 >= 2000 && bat1 < 4096)) {
 					batActivity = true;
 				}
 				if (bat1 & 0x2000) {
 					batMarker = true;
 				}
+				bat += $.stripMarkers(bat1);
 			}
+			solar /= j;
+			bat /= j;
 
-			var timeEnd = timestamp;
+			var dataTimeDistanceInMin = ((timeMostRecentPoint - timestamp) / 60).toNumber();
 
-			var dataTimeDistanceInMinEnd = ((timeMostRecentPoint - timeEnd) / 60).toNumber();
+			var battery = bat / 10.0;
+			var colorBat = getBatteryColor(battery.toNumber());
 
-			var battery = (bat / 10.0).toNumber();
-			var colorBat = getBatteryColor(battery);
-
-			if (dataTimeDistanceInMinEnd > xHistoryInMin) {
+			if (dataTimeDistanceInMin > xHistoryInMin) {
 				if (firstOutside == false) {
 					continue; // This data point is outside of the graph view and it's not the first one being outside, ignore it
 				}
@@ -976,36 +983,42 @@ class BatteryMonitorView extends Ui.View {
 				}
 			}
 
+			// Calculating (x, yBat)
+			var dataHeightBat = ((battery * yFrame) / Ymax).toNumber();
+			var yBat = Y2 - dataHeightBat;
+			var dataTimeDistanceInPxl = dataTimeDistanceInMin / xScaleMinPerPxl;
+			var x = (X1 + xNow - dataTimeDistanceInPxl).toNumber();
+			dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
+
+			// Calculating ySolar (at x)
 			var ySolar = null;
 			if (mIsSolar) {
-				var solar, dataHeightSolar;
-				solar = solar1; //mFullHistory[i * mElementSize + SOLAR];
-				if (solar != null) {
-					dataHeightSolar = (solar * yFrame) / Ymax;
-					ySolar = Y2 - dataHeightSolar;
+				var dataHeightSolar;
+				dataHeightSolar = (solar * yFrame) / Ymax;
+				ySolar = Y2 - dataHeightSolar;
+			}
+
+			if (lastPoint[0] != null) {
+				if (x != lastPoint[0]) {
+					dc.fillRectangle(x, yBat, lastPoint[0] - x + 1, Y2 - yBat);
+				}
+				else { // If we have so much data that each rectangle is actually a line, just draw a line...
+					dc.drawLine(x, yBat, x, Y2 - yBat);
+				}
+
+				if (ySolar != null) {
+					dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
+					dc.drawLine(x, ySolar, lastPoint[0], lastPoint[1]);
+				}
+
+				if (batActivity == true) { // We had an activity during that time span, draw the X axis in blue to say so
+					dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
+					dc.setPenWidth(5);
+					dc.drawLine(x, Y2, lastPoint[0], Y2);
+					dc.setPenWidth(1);
 				}
 			}
 
-			var dataHeightBat = (battery * yFrame) / Ymax;
-			var yBat = Y2 - dataHeightBat;
-			var dataTimeDistanceInPxl = dataTimeDistanceInMinEnd / xScaleMinPerPxl;
-			var x = X1 + xNow - dataTimeDistanceInPxl;
-			dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
-
-			if (lastPoint[0] != null) {
-				dc.fillRectangle(x, yBat, lastPoint[0] - x + 1, Y2 - yBat);
-			}
-			if (ySolar && lastPoint[0] != null) {
-				dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
-				dc.drawLine(x, ySolar, lastPoint[0], lastPoint[1]);
-			}
-
-			if (batActivity == true && lastPoint[0] != null) { // We had an activity during that time span, draw the X axis in blue to say so
-				dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
-				dc.setPenWidth(5);
-				dc.drawLine(x, Y2, lastPoint[0], Y2);
-				dc.setPenWidth(1);
-			}
 			lastPoint = [x, ySolar];
 
 			if (batMarker == true) {
@@ -1018,11 +1031,13 @@ class BatteryMonitorView extends Ui.View {
 			batActivity = false; // Reset for next pass
 			batMarker = false; // Reset for next pass
 
-			if (mFullHistory[i * mElementSize + TIMESTAMP] < timeLeastRecentPoint) {
+			if (mFullHistory[l + TIMESTAMP] < timeLeastRecentPoint) {
 				break; // Stop if we've drawn the first point outside our graph area
 			}
 		}
-		
+
+		/*DEBUG*****/ nowTime = Sys.getTimer(); Sys.println("After graph draw: " + (nowTime - startTime) + " msec"); startTime = nowTime;
+
 		//! draw future estimation
 		if (whichView == SCREEN_PROJECTION) {
 			dc.setPenWidth(1);
@@ -1113,7 +1128,7 @@ class BatteryMonitorView extends Ui.View {
 			mFullHistory = new [HISTORY_MAX * mElementSize * (historyArraySize == 0 ? 1 : historyArraySize)];
 			mHistoryStartPos = 0;
 			var j = 0;
-			for (var index = 0; index < historyArraySize - 1; index++) {
+			for (var index = 0; index < historyArraySize - 1; index++) { // Skipping the last one as it's our current history and will be dealt with below
 				var previousHistory = $.objectStoreGet("HISTORY_" + historyArray[index], null);
 				if (previousHistory != null) {
 					for (var i = 0; i < HISTORY_MAX * mElementSize; i++, j++) {
@@ -1123,11 +1138,11 @@ class BatteryMonitorView extends Ui.View {
 			}
 
 			mFullHistorySize = j / mElementSize;
-
+			mApp.setFullHistoryNeedsRefesh(true); // Flag to do the current history to
 			refreshedPrevious = true;
 		}
 		
-		if (mApp.getFullHistoryNeedsRefesh() == true || mApp.getFullHistoryNeedsRefesh() == true) { // Only new data was added to mHistory, read them
+		if (mApp.getFullHistoryNeedsRefesh() == true) { 
 			var i = mHistoryStartPos * mElementSize;
 			var j = mFullHistorySize * mElementSize;
 			for (; i < HISTORY_MAX * mElementSize && mApp.mHistory[i] != null; i++, j++) {
@@ -1184,41 +1199,21 @@ class BatteryMonitorView extends Ui.View {
     	return null;
     }
     
-    function timeLastFullCharge(minTime) {
-		if (mFullHistory != null) { // Look through the full history
-			for (var i = mFullHistorySize - 1; i > mTimeLastFullChargePos; i--) { // But starting where we left off before
-				var bat = $.stripMarkers(mFullHistory[i * mElementSize + BATTERY]);
-				if (bat >= 995) { // Watch rounds 99.5 as full so 99.5 is considered 'full'.
-					if (minTime == null || mFullHistory[(mFullHistorySize - 1) * mElementSize + TIMESTAMP] - minTime >= mFullHistory[i * mElementSize + TIMESTAMP] ) { // If we ask for a minimum time to display, honor it, even if we saw a full charge already
-						mTimeLastFullChargePos = mFullHistorySize - 1;
-						mTimeLastFullChargeTime = mFullHistory[i * mElementSize + TIMESTAMP];
-						return mTimeLastFullChargeTime;
-					}
+    function lastFullChargeIndex(minTime) {
+		var lastTimestamp = mFullHistory[(mFullHistorySize - 1) * mElementSize + TIMESTAMP];
+		for (var i = mFullHistorySize - 1; i > mTimeLastFullChargeStartPos; i--) { // But starting where we left off before
+			var bat = $.stripMarkers(mFullHistory[i * mElementSize + BATTERY]);
+			if (bat >= 995) { // Watch rounds 99.5 as full so 99.5 is considered 'full'.
+				if (minTime == null || lastTimestamp - minTime >= mFullHistory[i * mElementSize + TIMESTAMP] ) { // If we ask for a minimum time to display, honor it, even if we saw a full charge already
+					mTimeLastFullChargeStartPos = mFullHistorySize - 1;
+					mLastFullChargeTimeIndex = i;
+					return mLastFullChargeTimeIndex;
 				}
 			}
 		}
-
-    	return (mFullHistory != null ? mTimeLastFullChargeTime : mApp.mHistory[0 + TIMESTAMP]);
+    	return (mLastFullChargeTimeIndex);
     }
     
-	function MAX (val1, val2) {
-		if (val1 > val2){
-			return val1;
-		}
-		else {
-			return val2;
-		}
-	}
-
-	function MIN (val1, val2) {
-		if (val1 < val2){
-			return val1;
-		}
-		else {
-			return val2;
-		}
-	}
-
 	public function getViewScreen() {
 		return(mViewScreen);
 	}

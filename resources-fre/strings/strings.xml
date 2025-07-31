@@ -66,4 +66,7 @@
     <string id="BuiltinPageIndicator">Utilisez les indicateurs de page interne (appareils avec CIQ 3.4 et plus)</string>
     <string id="MaxArrays">Combien d'éléments à garder</string>
     <string id="BGInterval">Interval (en minutes) du processus d'arrière plan</string>
+    <string id="HowHandleFullArray">Quoi faire quand l'historique est plein</string>
+    <string id="HowHandleFullArrayDiscard">Retiré les plus vieilles données</string>
+    <string id="HowHandleFullArrayAverage">Faire la moyenne des plus vieiles données</string>
 </strings>

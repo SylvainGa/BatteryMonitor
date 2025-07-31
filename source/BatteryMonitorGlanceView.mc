@@ -86,7 +86,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		}
 
 		mFontHeight = Gfx.getFontHeight(mFontType);
-        mSlopeNeedsCalc = false;
+        mSlopeNeedsCalc = true;
     }
 
     function onSettingsChanged() {
@@ -161,7 +161,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                                 dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
                             }	
 
-                            /*DEBUG*/ var lastChargeMoment = new Time.Moment(lastChargeData[0]); var lastChargeInfo = Gregorian.info(lastChargeMoment, Time.FORMAT_MEDIUM); logMessage("Last charge: " + lastChargeInfo.hour + "h" + lastChargeInfo.min.format("%02d") + "m" + lastChargeInfo.sec.format("%02d") + "s, " + secToStr(timeDiff) + " ago (" + timeDiff + " sec). Battery was " + batAtLastCharge.format("%0.1f") + "%. Now at " + battery.format("%0.1f") + "%. Discharge at " + dischargeStr + ". Remaining is " + remainingStr);
+                            //DEBUG*/ var lastChargeMoment = new Time.Moment(lastChargeData[0]); var lastChargeInfo = Gregorian.info(lastChargeMoment, Time.FORMAT_MEDIUM); logMessage("Last charge: " + lastChargeInfo.hour + "h" + lastChargeInfo.min.format("%02d") + "m" + lastChargeInfo.sec.format("%02d") + "s, " + secToStr(timeDiff) + " ago (" + timeDiff + " sec). Battery was " + batAtLastCharge.format("%0.1f") + "%. Now at " + battery.format("%0.1f") + "%. Discharge at " + dischargeStr + ". Remaining is " + remainingStr);
                         }
                         //DEBUG*/ else { logMessage("Glance:batAtLastCharge was " + batAtLastCharge + " and battery is " + battery); }
                     }
@@ -177,16 +177,15 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             var downSlopeSec;
             if (downSlopeData != null) {
                 downSlopeSec = downSlopeData[0];
-                mHistoryLastPos = downSlopeData[1]; // We don't need to bother with downSlopeData[2] here as it's not used
+                mHistoryLastPos = downSlopeData[1];
             }
             if (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != App.getApp().mHistorySize) {
                 // Calculate projected usage slope
-                var downSlopeResult = $.downSlope();
+                var downSlopeResult = $.downSlope(false);
                 downSlopeSec = downSlopeResult[0];
                 mSlopeNeedsCalc = downSlopeResult[1];
-                var slopesSize = downSlopeResult[2];
                 mHistoryLastPos = App.getApp().mHistorySize;
-                downSlopeData = [downSlopeSec, mHistoryLastPos, slopesSize];
+                downSlopeData = [downSlopeSec, mHistoryLastPos];
                 $.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
             }
 
