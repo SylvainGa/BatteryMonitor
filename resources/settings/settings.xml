@@ -33,6 +33,10 @@
         <settingConfig type="boolean" required="true"/>
     </setting>
 
+    <setting propertyKey="@Properties.MaxRuntime" title="@Strings.MaxRuntime">
+		<settingConfig type="Numeric" required="true" min="250" max="900"/>
+    </setting>
+
     <setting propertyKey="@Properties.MaxArrays" title="@Strings.MaxArrays">
         <settingConfig type="list">
             <listEntry value="2">1000</listEntry>

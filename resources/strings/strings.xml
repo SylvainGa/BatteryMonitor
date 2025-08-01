@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion">Battery Monitor V1.7.0.b23</string>
+    <string id="AppNameVersion">Battery Monitor V1.7.0.b28</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -65,6 +65,7 @@
     <string id="LastCharge1">Since last charge</string>
     <string id="LongTermAvg">Long term average</string>
     <string id="BuiltinPageIndicator">Use built-in page indicator (devices with CIQ 3.4 and above)</string>
+    <string id="MaxRuntime">Maximum time in msec before having to relinquish control when drawing (from 250 to 900)</string>
     <string id="MaxArrays">How many elements to store</string>
     <string id="BGInterval">Background Interval (in minutes)</string>
     <string id="HowHandleFullArray">What to do when history is full</string>

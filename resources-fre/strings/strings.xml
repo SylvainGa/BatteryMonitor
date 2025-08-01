@@ -64,6 +64,7 @@
     <string id="LastCharge1">Depuis la dernière charge</string>
     <string id="LongTermAvg">La projection long terme</string>
     <string id="BuiltinPageIndicator">Utilisez les indicateurs de page interne (appareils avec CIQ 3.4 et plus)</string>
+    <string id="MaxRuntime">Temps maximum en msec avant de retourner le contrôle lors du dessin du graphique (de 250 à 900)</string>
     <string id="MaxArrays">Combien d'éléments à garder</string>
     <string id="BGInterval">Interval (en minutes) du processus d'arrière plan</string>
     <string id="HowHandleFullArray">Quoi faire quand l'historique est plein</string>

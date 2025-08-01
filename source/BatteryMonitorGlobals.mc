@@ -40,7 +40,7 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 	//DEBUG*/ logMessage("analyzeAndStoreData");
 
 	if (data == null) {
-		return;
+		return 0;
 	}
 	
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
@@ -138,6 +138,8 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 		App.getApp().setHistoryModified(true);
 		App.getApp().setFullHistoryNeedsRefesh(true);
 	}
+
+	return added;
 }
 
 (:glance)
@@ -179,17 +181,7 @@ function downSlope(fromInit) { //data is history data as array / return a slope 
 			else {
 				data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
 				/*DEBUG*/ logMessage("Calculating slope for HISTORY_" + historyArray[index]);
-				if (data[HISTORY_MAX * elementSize - 1] == null) { // Array isn't full, find first null spot
-					var i;
-					for (i = 0; i < HISTORY_MAX && data[i * elementSize] != null; i++) {
-						// Find first null, which will indicate where our array ends
-					}
-					size = i;
-				}
-				else { // Array is full, its size is therefore HISTORY_MAX
-					size = HISTORY_MAX;
-				}
-
+				size = $.findPositionInArray(data, 0, elementSize);
 				slopesStartPos = 0;
 			}
 
@@ -353,6 +345,55 @@ function initDownSlope() {
 		downSlopeData = [downSlopeResult[0], App.getApp().mHistorySize];
 		$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
 	}
+}
+
+function findPositionInArray(array, index, elementSize) {
+	// Are we empty?
+	if (array[0 + TIMESTAMP] == null) {
+		index = 0;
+		/*DEBUG*/ logMessage("index " + index + " because is empty");
+	}
+
+	// Are we full already?
+	else if (array[(HISTORY_MAX - 1) * elementSize + TIMESTAMP] != null) {
+		index = HISTORY_MAX;
+		/*DEBUG*/ logMessage("index " + index + " found at 500");
+	}
+
+	// Have just moved by one?
+	else if (array[index * elementSize + TIMESTAMP] != null && array[(index + 1) * elementSize + TIMESTAMP] == null) {
+		index++;
+		/*DEBUG*/ logMessage("index " + index + " found at next");
+	}
+
+	// Hunt for the first null from where we are
+	else {
+		/*DEBUG*/ var oldHistorySize = index;
+		var nextTest = ((HISTORY_MAX - index) * 10 / 2 + 5) / 10;
+		var count = 0;
+		index += nextTest;
+		while (nextTest > 0) {
+			count++;
+			nextTest = (nextTest * 10 / 2 + 5) / 10; // We're going to look in half the data so prepare that variable
+			if (array[index * elementSize + TIMESTAMP] == null) { // If we're null, look down
+				if (array[(index - 1) * elementSize + TIMESTAMP] != null) {
+					break; 
+				}
+				index -= nextTest;
+			}
+			else { // We have data, look up
+				if (array[(index + 1) * elementSize + TIMESTAMP] == null) {
+					index++;
+					break; 
+				}
+				index += nextTest;
+			}
+		}
+
+		/*DEBUG*/ logMessage("index " + index + " found in " + count + " tries, started at " + oldHistorySize);
+	}
+
+	return index;
 }
 
 // Global method for getting a key from the object store

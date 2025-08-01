@@ -4,6 +4,7 @@
 	<property id="SummaryMode" type="number">0</property>
 	<property id="GlanceProjectionType" type="number">1</property>
 	<property id="BuiltinPageIndicator" type="boolean">true</property>
+	<property id="MaxRuntime" type="number">700</property>
 	<property id="MaxArrays" type="number">5</property>
 	<property id="BGInterval" type="number">5</property>
 	<property id="HowHandleFullArray" type="number">0</property>
