@@ -96,7 +96,7 @@ class BatteryMonitorApp extends App.AppBase {
 			var size = data.size();
 			if ($.analyzeAndStoreData(data, size, false) > 1) {
 				/*DEBUG*/ logMessage("Saving history");
-				$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP]);
+				$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory);
 				mHistoryModified = false;
 			}
 		
