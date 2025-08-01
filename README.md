@@ -22,12 +22,11 @@ In the graph views, if the device supports solar charging, a dark red line will 
 
 You can zoom and pan the display in the History view (not the projection). By default, when you get to that view, you'll be in View mode. That mode is shown just above the graph. Pressing the Next and Previous button as well as swipping up and down will switch to the next/previous view. Touching the screen or pressing the Start button will switch to Zoom mode. Pressing it again will switch to the Pan mode. Pressing it again will return to the View mode. In the Zoom mode, swipe left/right or use the Next/Previous button to increase/decrease the zoom level of the graph. In the Pan mode, swipe left/right or use the Next/Previous button to pan the display left/right.
 
+In either View, Zoom or Pan mode, touching and holding the screen in the history view will show a pop up with that position's battery usage, how far ago from the right edge is that point and its date/time. Touching the screen again (no need to hold) or switching screen will make the popup disappear. 
 When charging, a popup will show up showing the battery level and the rate of increase per hour. Touching the screen or pressing the Start button will toggle this display on and off, except in the History where that button hasis used to select the view, zoom and pan mode.
 
 Use the Menu button to erase the history and start fresh.
  
-The default order of the panels is 1,2,3,4,5,6,7 which are respectively Summary, by hour view, by day view, last charge, Marker, History and a Projection view. Changing the order and removing a number will affect was is shown and their order.
-
 Depending on the device, there could be enough memory to store 2,500 data elements (settable in Settings, depends on how much memory your device has). Since only changed battery level are recorded, depending on how fast your device is draining, you'll have data for several days if not weeks.
 
 Data points are calculated using a background process running every 5 minutes (configurable in Settings) when inactive and every minute while the Glance or main app is active.
@@ -35,9 +34,39 @@ Data points are calculated using a background process running every 5 minutes (c
 Explanation on how the projection works:
 On the real device, the Garmin's projection until discharged is two fold but for both, it's basically how long will the device last if it stays in that state, be it simply being at the watchface or being in an activity. That's why you might see a time to empty of 3 days when the device is idle and this goes down to 8 hours when you select an activity with GPS. 
 
-In this App however, the projection until empty can be a simple ratio of the battery level at last charge over the time span since last charge or it can be a complex calculations using a linear least squares fit method to average all the recorded battery downtrends. This method gets more accurate as more data is gathered. Using the 2500 data entry and 5 minutes intervals, on my watch, it can capture up to 16 days of usage. Of course, if your activity usage is random, the accuracy of the projection will suffer.
+In this App however, the projection until empty can be a simple ratio of the battery level at last charge over the time span since last charge or it can be a complex calculations using a linear least squares fit method to average all the recorded battery downtrends. This method gets more accurate as more data is gathered. Using the 2500 data entry and 5 minutes intervals, on my watch, it can capture up to 16 days of usage. Of course, if your activity usage is random, the accuracy of the projection will suffer. 
+
+YOU MUST LET THE APP GATHER DATA FOR SEVERAL DAYS BEFORE A MEANINGFULL PROJECTION CAN BE DISPLAYED.
 
 CAVEAT: Using swipe gestures in a widget is something problematic, more so on some devices. The experience in the simulator and the real device can be different, as it is for my Fenix 7S Pro. Your experience may differ. If you encounter issues, send me a email through the Contact Developper/App Support on ConnectIQ and I'll see what I can do.
+
+I beleive this app is now feature complete. Yes, I've said that many times in the few weeks since this app was first released but I can't think of something else to add to it anymore!
+
+**Explanation of the Settings:**
+*Panel Order:*
+The default order of the panels is 1,2,3,4,5,6,7 which are respectively Summary, by hour view, by day view, last charge, Marker, History and a Projection view. Changing the order and removing a number will affect was is shown and their order.
+
+*Summary projection unit:*
+The app can auto select between %/hour and %/day depending on which one makes more sense or you can say to always use a specific one.
+
+*Which projection to show in Glance:*
+On the bottom line of the Glance view, it shows the projection. This projection can either be either a simple battery usage/time since last charge or calculated using the data history it has gathered.
+
+*Use built-in page indicator (devices with CIQ 3.4 and above)*
+Newer devices have a built-in page indicator, which I find quite intrusive on my watch, but quite usable on my Edge, so you have a choice of using the built-in one or the one I added. On older device, it only uses the one I added.
+
+*What to do when history is full:*
+The app can store up to 2,500 data points, at 5 minutes per data point, that's enough data for about 3.5 days, but since the battery doesn't usually drain 0.1% (resolution of the app) per 5 minutes, this can extend for quite some time. On my 7S Pro, I had 14 days of data before reaching 2,500!
+However, once that limit is reached, the app can either drop the earliest 500 data points to make room for 500 more, or down sample the last 1,000 data points (ie, average two consecutive data points into one) to again, make room for 500 new data points. Using this method, you don't loose your previous data, just its granularity.
+
+*How many elements to store:*
+This app can be quite CPU intensive, especially when showing the graphs with lots of data. It's intensive enought that on some devices, at the max stored elements (2500, configurable in Settings), the app might crash with the line "Watchdog Tripped Error - Code Executed Too Long" in CIQ_LOG file. Lowering this value should help.
+
+*Maximum time in msec before having to relinquish control when drawing (from 250 to 900):*
+Like mentionned above, the app might crash because it took too long to do its work. This is more prevalent while drawing the graph with lots of data points. This field tells it to stop drawing and relinquish control and continue drawing when we have the control back. You'll notice when that time is reached by a small pause while drawing the graph. 
+
+*Background Interval (in minutes):*
+Like mentioned, the background process by defaults runs every 5 minutes. Although the app takes very little power when doing it's background process, even less power will be used by increasing this value. However, the accuracy of the activity detection will be impacted. Entering 0 in this fields will DISABLE the background process and data will be gathered every minute while the app is running only (in glance or main view)
 
 Like all my apps, they were done by me, for me and I'm sharing them with others for free. However, 
 
@@ -50,7 +79,10 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
-V1.7.0 Added the following
+**V1.8.0 Added the following**
+- Holding your finger on the screen will show a popup about that specific point. Works better if you zoom in to get a more precise location under your finger, espcially on small screen like my Fenix 7S Pro. Touch the screen to make disappear.
+
+**V1.7.0 Added the following**
 - Now uses the builtin page indicators for devices with CIQ 3.4 and above.
 - Added a Settings to either use the builtin page indicator (if available) or the custom one this apps has. If this setting is changed, the app needs to be restarted.
 - Added a Settings to either drop the earliest 500 entries when the history array is full (default) or to average every second entries of the earliest 500 and the 500 after that. This way, you don't loose the earliest 1000 data points, just its granularity is reduced by two.
@@ -63,12 +95,12 @@ V1.7.0 Added the following
 - Bug fix in the selection of pages to view
 - Bug fix when swiping left to zoom but not in the history view
 
-V1.6.0 Added the following
+**V1.6.0 Added the following**
 - A new view has been added. It sits between the charging page and history graph by default. You'll probably need to update your page layout in Settings. There are now 7 views. The new view is a 'Marker' view. You use it to mark the current time by either pressing 'Start' or touching the screen and come back later and mark a new time. Once two markers are set, the discharge rate between both markers is shown. Pressing 'Start' or touching the screen when both markers are set clears them. A vertical white line will be shown in the graphic views for the time where you've set a marker. These stays even when you clear the markers as they are stored in the history.
 - A page indicator is shown on the left side of the screen to tell you which page you are viewing. After a few seconds, it fades away and reappears when you switch view again.
 - Can zoom closure than one hour now
 
-V1.5.0 Added tge following
+**V1.5.0 Added tge following**
 - Glance mode can show projection since the last charge or using the average of all recorded discharge rate (default). Configurable in Settings
 - The summary can show projection since the last charge or using the average of all recorded discharge rate (default). Switchable by pressing the Start button or touching the screen. It resets to Projection when changing view.
 - The Graph history view defaults to showing data from the last full charge (if any) or one hour if less than that. However, zomming OUT while not zoomed toggle showing this or the whole captured data.
@@ -85,30 +117,30 @@ V1.5.0 Added tge following
   - The 'steps' in the graphs. If above 1, the highest battery value of the next 'steps' number of elements is used and the other aren't plotted. This is used to reduce the load on the CPU and happens when there is more elements to draw than what the device can display.
   - The time it took to draw the graph in msec. The maximum time allowed for an app to run without relinquish control is around one second (1000 msec). If this valur gets close to 1000, think about reducing the size of the captured data.
 
-V1.4.3 Fixed a potential crash when calculating the history array size
+**V1.4.3 Fixed a potential crash when calculating the history array size**
 
-V1.4.2 Added tge following
+**V1.4.2 Added the following**
 - Improves the efficiency of the app by limiting when to save data history and when to recalculate the slopes.
 - Added two more zoom level, so from one to seven instead of one to five.
 - Bug fix in the finding of the last charge.
 
-V1.4.1 Bug fixes
+**V1.4.1 Bug fixes**
 - Where when not launched from Glance would not relaunch the background process when leaving the app.
 - Calculation of the slopes could crash under very specific circumstances.
 
-V1.4.0 Added the following
+**V1.4.0 Added the following**
 - A blue line was added under the graph to show when an activity was occuring. Helpful to see how much the battery drained within an activity compared to a timeline without an activity running.
 - Redid completely how the history is stored because Glance mode can work with far less data than the app can work with and will crash once over 700 elements are stored. Now it has room for 5 arrays of 500 elements each. Only the last array is dealt with in Glance and once an array is filled, its slopes becomes static and don't need to be recalculated. This also improves efficiencies.
 
-V1.3.0 Added the following
+**V1.3.0 Added the following**
 - You can now pan the history windows using a left and right swipe for a touch enabled device. For button device, press the Start button first to move into 'Pan' mode where the Next and Previous button are then used to pan the history. Press the Start button again to return to view scroll mode. When swipping right, DON'T swipe all the way from the left of the screen as this is interpreted as pushing the Back button and will close the app.
 
-V1.2.0 Added the following
+**V1.2.0 Added the following**
 - History graph can be zoomed in (towards now) by touching the screen or pressing Start.
 - Bug fix in the auto font selection code. Turns out 'one size fits all' doesn't work here.
 - Fixed up a few field positions
 
-V1.1.0 The following were added
+**V1.1.0 The following were added**
 - Added Solar data on the graph views for watch that are solar capable. 
 - A new "Last Charge when" page was added and the corresponding field in the Data views has been removed to increase the size of the text on screen. That page displays the date and time the last charge ended and at what batterie level did it charge to.
 - Battery field in the history array has been reduced from three digits precision to one digit. Three was overkill. This will reduce the size of the history array by a lot.

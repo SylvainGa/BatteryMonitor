@@ -298,12 +298,14 @@ class BatteryMonitorView extends Ui.View {
 				}
 			}
 		}
-		else if (newIndex == -3) {
-			mCoord = graphSizeChange;
-			mNoChange = false; // So we go in and draw the popup
+		else if (newIndex == -3) { // We're touching and holding the screen
+			if (mViewScreen == SCREEN_HISTORY) {
+				mCoord = graphSizeChange;
+				mNoChange = false; // So we go in and draw the popup
 
-			Ui.requestUpdate();
-			return;
+				Ui.requestUpdate();
+				return;
+			}
 		}
 		else {
 			if (newIndex != mPanelIndex) {
@@ -354,6 +356,7 @@ class BatteryMonitorView extends Ui.View {
 		mLastFullHistoryPos = mFullHistorySize; // We'll start a graph draw from the start
 		mTimeOffset = 0; // Drop the time offset (ie, pan) that we had set
 		mTimeSpan = 0; // The width of the displayed graph in seconds
+		mCoord = null; // Will make the popup disappear
 		mNoChange = false; // We'll need to redraw the graph on next pass
 	}
 
