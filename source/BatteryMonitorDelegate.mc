@@ -240,6 +240,12 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		return true;
 	}
 
+	function onHold(clickEvent) {
+		/*DEBUG*/ logMessage("onHold clickEvent is" + clickEvent);
+		mHandler.invoke(-3, clickEvent.getCoordinates());
+		return false;
+	}
+
 	function onMenu() {
 		/*DEBUG*/ logMessage("onMenu");
 		var dialog = new Ui.Confirmation(Ui.loadResource(Rez.Strings.EraseHistory));

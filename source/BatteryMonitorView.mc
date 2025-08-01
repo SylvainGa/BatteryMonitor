@@ -58,6 +58,7 @@ class BatteryMonitorView extends Ui.View {
 	var mNoChange;
 	var mTimeOffset;
 	var mTimeSpan;
+	var mCoord;
 
 	//DEBUG*/ var mDebugFont;
 
@@ -252,45 +253,57 @@ class BatteryMonitorView extends Ui.View {
 			mHideChargingPopup = !mHideChargingPopup;
 		}
 		else if (newIndex == -2) {
-			if (mViewScreen == SCREEN_DATA_MAIN) {
-				mSummaryProjection = !mSummaryProjection;
+			if (mCoord != null) {
+				mCoord = null;
 			}
-			else if (mViewScreen == SCREEN_PROJECTION) {
-				mDebug++;
-			}
-			else if (mViewScreen == SCREEN_HISTORY) {
-				if (mDownSlopeSec != null) {
-					mSelectMode += 1;
-					if (mSelectMode > PanMode) {
-						mSelectMode = ViewMode;
+			else {
+				if (mViewScreen == SCREEN_DATA_MAIN) {
+					mSummaryProjection = !mSummaryProjection;
+				}
+				else if (mViewScreen == SCREEN_PROJECTION) {
+					mDebug++;
+				}
+				else if (mViewScreen == SCREEN_HISTORY) {
+					if (mDownSlopeSec != null) {
+						mSelectMode += 1;
+						if (mSelectMode > PanMode) {
+							mSelectMode = ViewMode;
+						}
+						/*DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
 					}
-					/*DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
+					else {
+						/*DEBUG*/ logMessage("No data, not changing mode");
+					}
 				}
-				else {
-					/*DEBUG*/ logMessage("No data, not changing mode");
-				}
-			}
-			else if (mViewScreen == SCREEN_MARKER) {
-				var markerData = [$.getData()];
-				markerData[0][BATTERY] |= 0x2000; // Add the marker to the data returned so we can plot a verticla line on the graph to represent it
+				else if (mViewScreen == SCREEN_MARKER) {
+					var markerData = [$.getData()];
+					markerData[0][BATTERY] |= 0x2000; // Add the marker to the data returned so we can plot a verticla line on the graph to represent it
 
-				if (mMarkerData != null) {
-					if (mMarkerData.size() == 1) { // We already have our first marker set, now record the second one
-						mMarkerData.add(markerData[0]);
+					if (mMarkerData != null) {
+						if (mMarkerData.size() == 1) { // We already have our first marker set, now record the second one
+							mMarkerData.add(markerData[0]);
+						}
+						else { // We already have our two markers. Start over
+							markerData = null;
+							mMarkerData = null;
+						}
 					}
-					else { // We already have our two markers. Start over
-						markerData = null;
-						mMarkerData = null;
+					else { // Setting our first marker
+						mMarkerData = markerData;
 					}
-				}
-				else { // Setting our first marker
-					mMarkerData = markerData;
-				}
 
-				$.analyzeAndStoreData(markerData, 1, true); // analyseAndStoreData deals with a null data so blindly call it even if we're null
-				mNoChange = false;
-				$.objectStorePut("MARKER_DATA", mMarkerData);
+					$.analyzeAndStoreData(markerData, 1, true); // analyseAndStoreData deals with a null data so blindly call it even if we're null
+					mNoChange = false;
+					$.objectStorePut("MARKER_DATA", mMarkerData);
+				}
 			}
+		}
+		else if (newIndex == -3) {
+			mCoord = graphSizeChange;
+			mNoChange = false; // So we go in and draw the popup
+
+			Ui.requestUpdate();
+			return;
 		}
 		else {
 			if (newIndex != mPanelIndex) {
@@ -998,6 +1011,18 @@ class BatteryMonitorView extends Ui.View {
 
 
 		dc.setClip(X1, Y1, xFrame, yFrame);
+		var coordTime;
+		var coordBat;
+		if (mCoord != null) {
+			if (mCoord[0] >= X1 && mCoord[0] <= X2) {
+				var x = mCoord[0]; // Only X is important for us
+				coordTime = timeMostRecentPoint - mTimeSpan * (X2 - x) / (xFrame);
+			}
+			else {
+				mCoord = null; // We're outside our graph area
+			}
+		}
+
 		for (var l = i * mElementSize, count = 0; i >= 0; i -= mSteps, l -= mSteps * mElementSize, count++) {
 			//DEBUG*/ logMessage(i + " " + mFullHistory[i]);
 			// End (closer to now)
@@ -1030,6 +1055,11 @@ class BatteryMonitorView extends Ui.View {
 			solar /= j;
 			bat /= j;
 
+			if (mCoord != null) {
+				if (coordTime <= timestamp && coordTime >= mFullHistory[k + TIMESTAMP]) {
+					coordBat = bat;
+				}
+			}
 			var dataTimeDistanceInMin = ((timeMostRecentPoint - timestamp) / 60).toNumber();
 
 			var battery = bat / 10.0;
@@ -1161,6 +1191,37 @@ class BatteryMonitorView extends Ui.View {
 		if ((whichView == SCREEN_HISTORY || whichView == SCREEN_PROJECTION) && mDebug >= 5) {
 			dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 1, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + mSteps + "/" + runTime, Gfx.TEXT_JUSTIFY_LEFT);
 		}
+
+		if (coordBat != null) {
+			dc.setPenWidth(2);
+			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+
+			var xSize = mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240);
+			dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (2 * mFontHeight), xSize, 4 * mFontHeight, 5);
+			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+			dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (2 * mFontHeight), xSize, 4 * mFontHeight, 5);
+
+			var batStr = (coordBat / 10.0).format("%0.1f") + "%";
+			timeStr = $.minToStr((timeMostRecentPoint - coordTime) / 60, true);
+			var textLenght = dc.getTextWidthInPixels(timeStr, mFontType);
+			if (textLenght >= xSize - 2) {
+				timeStr = $.minToStr((timeMostRecentPoint - coordTime) / 60, false);
+			}			
+			var dateArray = $.timestampToStr(coordTime);
+
+			var yPos = mCtrY - (2 * mFontHeight);
+			dc.drawText(mCtrX, yPos, mFontType, batStr, Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+			dc.drawText(mCtrX, yPos, mFontType, timeStr, Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+			dc.drawText(mCtrX, yPos, mFontType, dateArray[0], Gfx.TEXT_JUSTIFY_CENTER);
+			yPos += mFontHeight;
+			dc.drawText(mCtrX, yPos, mFontType, dateArray[1], Gfx.TEXT_JUSTIFY_CENTER);
+
+			logMessage("Coord time is " + timeStr + " Coord bat is " + batStr);
+		}
+
+
 
 		mNoChange = true; // Assume we'll get no changes before last redraw
     }
