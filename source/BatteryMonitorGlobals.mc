@@ -347,6 +347,7 @@ function initDownSlope() {
 	}
 }
 
+(:glance)
 function findPositionInArray(array, index, elementSize) {
 	// Are we empty?
 	if (array[0 + TIMESTAMP] == null) {
