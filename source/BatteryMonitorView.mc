@@ -1059,7 +1059,7 @@ class BatteryMonitorView extends Ui.View {
 			bat /= j;
 
 			if (mCoord != null) {
-				if (coordTime <= timestamp && coordTime >= mFullHistory[k + TIMESTAMP]) {
+				if (timestamp <= coordTime && coordBat == null) { // Once the current data to plot is earlier than the point we're looking for, we got our point 
 					coordBat = bat;
 				}
 			}
@@ -1196,13 +1196,13 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (coordBat != null) {
+			var xSize = mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240);
 			dc.setPenWidth(2);
 			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-
-			var xSize = mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240);
 			dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (2 * mFontHeight), xSize, 4 * mFontHeight, 5);
 			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
 			dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (2 * mFontHeight), xSize, 4 * mFontHeight, 5);
+			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 
 			var batStr = (coordBat / 10.0).format("%0.1f") + "%";
 			timeStr = $.minToStr((timeMostRecentPoint - coordTime) / 60, true);
