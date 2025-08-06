@@ -1339,8 +1339,8 @@ class BatteryMonitorView extends Ui.View {
 
 	function buildFullHistory() {
 		var refreshedPrevious = false;
-
 		if (mApp.getHistoryNeedsReload() == true || mFullHistory == null) { // Full refresh of the array
+			/*DEBUG*/ logMessage("buildFullHistory: (Re)loading full history array");
 			var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 			var historyArraySize = historyArray.size();
 			mHistoryArraySize = historyArraySize;
@@ -1362,8 +1362,9 @@ class BatteryMonitorView extends Ui.View {
 			mApp.setFullHistoryNeedsRefesh(true); // Flag to do the current history to
 			refreshedPrevious = true;
 		}
-		
-		if (mApp.getFullHistoryNeedsRefesh() == true) { 
+
+		if (mApp.getFullHistoryNeedsRefesh() == true) {
+			/*DEBUG*/ logMessage("buildFullHistory: refreshing full history array, mHistoryStartPos is " + mHistoryStartPos + " mFullHistorySize is " + mFullHistorySize);
 			var i = mHistoryStartPos * mElementSize;
 			var j = mFullHistorySize * mElementSize;
 			for (; i < HISTORY_MAX * mElementSize && mApp.mHistory[i] != null; i++, j++) {
@@ -1372,6 +1373,9 @@ class BatteryMonitorView extends Ui.View {
 
 			mFullHistorySize = j / mElementSize;
 			mHistoryStartPos = i / mElementSize;
+		}
+		else if (refreshedPrevious == true) {
+			/*DEBUG*/ logMessage("buildFullHistory: Skipping full history refresh because flag is false?");
 		}
 
 		mApp.setHistoryNeedsReload(false);

@@ -90,7 +90,7 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 				history = new [HISTORY_MAX * elementSize];
 				historySize = 0;
 				historyRefresh = true;
-				App.getApp().setHistoryNeedsReload(true);
+				App.getApp().setHistoryNeedsReload(true); // Flag so we can rebuild our full history based on the new history arrays
 			}
 
 			if (historySize == 0 || storeAlways || history[((historySize - 1) * elementSize) + BATTERY] != data[dataIndex][BATTERY]) {
@@ -181,6 +181,10 @@ function downSlope(fromInit) { //data is history data as array / return a slope 
 			else {
 				data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
 				/*DEBUG*/ logMessage("Calculating slope for HISTORY_" + historyArray[index]);
+				if (data == null) {
+					/*DEBUG*/ logMessage("Skipping because it can't be found");
+					continue; // Skip this one if we can't read it. Can happen when arrays have been merged but not accounting for yet
+				}
 				size = $.findPositionInArray(data, 0, elementSize);
 				slopesStartPos = 0;
 			}
