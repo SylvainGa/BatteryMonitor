@@ -66,7 +66,7 @@ This app can be quite CPU intensive, especially when showing the graphs with lot
 Like mentionned above, the app might crash because it took too long to do its work. This is more prevalent while drawing the graph with lots of data points. This field tells it to stop drawing and relinquish control and continue drawing when we have the control back. You'll notice when that time is reached by a small pause while drawing the graph. 
 
 *Background Interval (in minutes):*
-Like mentioned, the background process by defaults runs every 5 minutes. Although the app takes very little power when doing it's background process, even less power will be used by increasing this value. However, the accuracy of the activity detection will be impacted. Entering 0 in this fields will DISABLE the background process and data will be gathered every minute while the app is running only (in glance or main view)
+Like mentioned, the background process by defaults runs every 5 minutes. Although the app takes very little power when doing its background process, even less power will be used by increasing this value. However, the accuracy of the activity detection will be impacted. Entering 0 in this fields will DISABLE the background process and data will be gathered every minute while the app is running only (in glance or main view)
 
 Like all my apps, they were done by me, for me and I'm sharing them with others for free. However, 
 
