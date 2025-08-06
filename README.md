@@ -14,7 +14,7 @@ In the "per hour" and "per day" view, the "Since last view" represent the time s
 
 In the "Last Charge" view, it tells you when did the last charge occured and to what level did it charge to.
 
-In the Marker view, you can set two markers using the Start button or touching the screen. Once two markes are set, the time between both as well as the discharge rate between these two times will be displayed. They will also appear as white vertical lines in the graphical views. Even when you clear the makers, the lines remain in graphical views so you can use that to highlight things.
+In the Marker view, you can set two markers using the Start button or touching the screen. Once two markes are set, the time between both as well as the discharge rate between these two times will be displayed. They will also appear as white vertical lines in the graphical views.
 
 The projection in the glance and summary view can be as simple as the discharge from the last charge or calculated using the average of all the discharges that the data has accumulated over times.
 
@@ -31,7 +31,7 @@ Depending on the device, there could be enough memory to store 2,500 data elemen
 
 Data points are calculated using a background process running every 5 minutes (configurable in Settings) when inactive and every minute while the Glance or main app is active.
 
-Explanation on how the projection works:
+**Explanation on how the projection works**:
 On the real device, the Garmin's projection until discharged is two fold but for both, it's basically how long will the device last if it stays in that state, be it simply being at the watchface or being in an activity. That's why you might see a time to empty of 3 days when the device is idle and this goes down to 8 hours when you select an activity with GPS. 
 
 In this App however, the projection until empty can be a simple ratio of the battery level at last charge over the time span since last charge or it can be a complex calculations using a linear least squares fit method to average all the recorded battery downtrends. This method gets more accurate as more data is gathered. Using the 2500 data entry and 5 minutes intervals, on my watch, it can capture up to 16 days of usage. Of course, if your activity usage is random, the accuracy of the projection will suffer. 
