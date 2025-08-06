@@ -25,12 +25,12 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	}
 
 	function onBack() {
-		/*DEBUG*/ logMessage("onBack");
+		//DEBUG*/ logMessage("onBack");
 		return false;
 	}
 
 	function onSelect() {
-		/*DEBUG*/ logMessage("onSelect");
+		//DEBUG*/ logMessage("onSelect");
 
 		if (System.getSystemStats().charging) {
 			mHandler.invoke(-1, 0);
@@ -42,14 +42,14 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	}
 
 	function onTap(evt) {
-		/*DEBUG*/ logMessage("onTap");
+		//DEBUG*/ logMessage("onTap");
 		onSelect();
 		return true;
 	}
 
 	function onNextPage() {
 		if (mSkipNextEvent == false) {
-			/*DEBUG*/ logMessage("onNextPage");
+			//DEBUG*/ logMessage("onNextPage");
 			var viewMode = mView.getVSelectMode();
 			var viewScreen = mView.getViewScreen();
 			var panelIndex = mView.getPanelIndex();
@@ -68,14 +68,14 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			}
 		}
 		else {
-			/*DEBUG*/ logMessage("Skipping this onNextPage");
+			//DEBUG*/ logMessage("Skipping this onNextPage");
 		}
 		return true;
 	}
 
 	function onPreviousPage() {
 		if (mSkipNextEvent == false) {
-			/*DEBUG*/ logMessage("onPreviousPage");
+			//DEBUG*/ logMessage("onPreviousPage");
 			var viewMode = mView.getVSelectMode();
 			var viewScreen = mView.getViewScreen();
 			var panelIndex = mView.getPanelIndex();
@@ -94,7 +94,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			}
 		}
 		else {
-			/*DEBUG*/ logMessage("Skipping this onPreviousPage");
+			//DEBUG*/ logMessage("Skipping this onPreviousPage");
 		}
 		return true;
 	}
@@ -102,18 +102,18 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	function onKey(keyEvent) {
 		var key = keyEvent.getKey();
 		if (key == Ui.KEY_ENTER) {
-			/*DEBUG*/ logMessage("onKey/Enter");
+			//DEBUG*/ logMessage("onKey/Enter");
 			onSelect();
 			return true;
 		}
 		
 		else if (key == Ui.KEY_MENU) {
-			/*DEBUG*/ logMessage("onKey/Menu");
+			//DEBUG*/ logMessage("onKey/Menu");
 			return onMenu();
 		}
 		
 		else if (key == Ui.KEY_UP) { // Needed for GPS devices
-			/*DEBUG*/ logMessage("onKey/Up");
+			//DEBUG*/ logMessage("onKey/Up");
 			var viewMode = mView.getVSelectMode();
 			var viewScreen = mView.getViewScreen();
 			var panelIndex = mView.getPanelIndex();
@@ -126,7 +126,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		
 		
 		else if (key == Ui.KEY_DOWN) { // Needed for GPS devices
-			/*DEBUG*/ logMessage("onKey/Down");
+			//DEBUG*/ logMessage("onKey/Down");
 			var viewMode = mView.getVSelectMode();
 			var viewScreen = mView.getViewScreen();
 			var panelIndex = mView.getPanelIndex();
@@ -137,7 +137,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			return true;
 		}
 		
-		/*DEBUG*/ logMessage("onKey with " + key);
+		//DEBUG*/ logMessage("onKey with " + key);
 
 		return false;
 	}
@@ -160,7 +160,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 			if (xMovement > yMovement) { // We 'swiped' left or right predominantly
 				if (mDragStartX > coord[0]) { // Like WatchUi.SWIPE_LEFT
-					/*DEBUG*/ logMessage(("Drag left"));
+					//DEBUG*/ logMessage(("Drag left"));
 					var width = System.getDeviceSettings().screenWidth;
 					if (mDragStartX - coord[0] > width * 90 / 100) { // If we swipe left accross most of the screen, assume it's a request to open the menu
 						onMenu();
@@ -170,14 +170,14 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 					mHandler.invoke(panelIndex, 1);
 				}
 				else { // Like  WatchUi.SWIPE_RIGHT
-					/*DEBUG*/ logMessage(("Drag right"));
+					//DEBUG*/ logMessage(("Drag right"));
 					var panelIndex = mView.getPanelIndex();
 					mHandler.invoke(panelIndex, -1);
 				}
 			}
 			else { // We 'swiped' up or down predominantly
 				if (mDragStartY > coord[1]) { // Like WatchUi.SWIPE_UP
-					/*DEBUG*/ logMessage(("Drag up"));
+					//DEBUG*/ logMessage(("Drag up"));
 					var viewMode = mView.getVSelectMode();
 					var viewScreen = mView.getViewScreen();
 					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
@@ -186,7 +186,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 					onNextPage();
 				}
 				else { // Like  WatchUi.SWIPE_DOWN
-					/*DEBUG*/ logMessage(("Drag down"));
+					//DEBUG*/ logMessage(("Drag down"));
 					var viewMode = mView.getVSelectMode();
 					var viewScreen = mView.getViewScreen();
 					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
@@ -206,7 +206,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 	function onSwipe(swipeEvent) {
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_DOWN) {
-			/*DEBUG*/ logMessage(("Swipe down"));
+			//DEBUG*/ logMessage(("Swipe down"));
 			var viewMode = mView.getVSelectMode();
 			var viewScreen = mView.getViewScreen();
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
@@ -216,7 +216,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		}
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_UP) {
-			/*DEBUG*/ logMessage(("Swipe up"));
+			//DEBUG*/ logMessage(("Swipe up"));
 			var viewMode = mView.getVSelectMode();
 			var viewScreen = mView.getViewScreen();
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
@@ -226,13 +226,13 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		}
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_LEFT) {
-			/*DEBUG*/ logMessage(("Swipe left"));
+			//DEBUG*/ logMessage(("Swipe left"));
 			// var panelIndex = mView.getPanelIndex();
 			// mHandler.invoke(panelIndex, 1);
 		}
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_RIGHT) {
-			/*DEBUG*/ logMessage(("Swipe right"));
+			//DEBUG*/ logMessage(("Swipe right"));
 			// var panelIndex = mView.getPanelIndex();
 			// mHandler.invoke(panelIndex, -1);
 		}
@@ -241,13 +241,13 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	}
 
 	function onHold(clickEvent) {
-		/*DEBUG*/ logMessage("onHold clickEvent is" + clickEvent);
+		//DEBUG*/ logMessage("onHold clickEvent is" + clickEvent);
 		mHandler.invoke(-3, clickEvent.getCoordinates());
 		return false;
 	}
 
 	function onMenu() {
-		/*DEBUG*/ logMessage("onMenu");
+		//DEBUG*/ logMessage("onMenu");
 		var dialog = new Ui.Confirmation(Ui.loadResource(Rez.Strings.EraseHistory));
 		Ui.pushView(dialog, new ConfirmationDialogDelegate(), Ui.SLIDE_IMMEDIATE);
 		return true;
