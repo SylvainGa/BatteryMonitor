@@ -382,6 +382,7 @@ class BatteryMonitorApp extends App.AppBase {
 				mHistoryNeedsReload = true;
 			}
 			else { // Average earliest one with the one before (but do that in its own timer thread and yes, we'll have an extra array until this merge is completed)
+				/*DEBUG*/ logMessage("Too many history arrays, spawning averageHistoryTimer in 100 msec");
 				var timer = new Timer.Timer();
 				timer.start(method(:averageHistoryTimer), 100, false);
 			}
