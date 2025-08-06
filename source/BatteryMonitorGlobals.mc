@@ -361,29 +361,35 @@ function findPositionInArray(array, index, elementSize) {
 		/*DEBUG*/ logMessage("index " + index + " found at 500");
 	}
 
+	// Are we already at the right location?
+	else if (index > 0 && array[(index - 1) * elementSize + TIMESTAMP] != null && array[(index) * elementSize + TIMESTAMP] == null) {
+		index = index;
+		/*DEBUG*/ logMessage("index " + index + " is already at the right place");
+	}
+
 	// Have just moved by one?
-	else if (array[index * elementSize + TIMESTAMP] != null && array[(index + 1) * elementSize + TIMESTAMP] == null) {
+	else if (index < HISTORY_MAX - 1 && array[index * elementSize + TIMESTAMP] != null && array[(index + 1) * elementSize + TIMESTAMP] == null) {
 		index++;
 		/*DEBUG*/ logMessage("index " + index + " found at next");
 	}
 
-	// Hunt for the first null from where we are
+	// Use a variation of a binary search to find the size. Worst case will be 8 iterations
 	else {
 		/*DEBUG*/ var oldHistorySize = index;
-		var nextTest = ((HISTORY_MAX - index) * 10 / 2 + 5) / 10;
-		var count = 0;
+		var nextTest = ((HISTORY_MAX - index) * 10 / 2 + 5) / 10; // This is the same as x / 2.0 + 0.5 but without the floating performance point penalty
+		var count = 0; 
 		index += nextTest;
-		while (nextTest > 0) {
+		while (nextTest > 0 && count < 16) { // Sanity check so we don't get stuck in an infinity loop. We should find out spot in 8 tries max so if we're taking double, assume the current index is now correct
 			count++;
 			nextTest = (nextTest * 10 / 2 + 5) / 10; // We're going to look in half the data so prepare that variable
 			if (array[index * elementSize + TIMESTAMP] == null) { // If we're null, look down
-				if (array[(index - 1) * elementSize + TIMESTAMP] != null) {
-					break; 
+				if (index > 0 && array[(index - 1) * elementSize + TIMESTAMP] != null) { // The one below us isn't null, we found our first none empty before null, index is our size
+					break;
 				}
 				index -= nextTest;
 			}
 			else { // We have data, look up
-				if (array[(index + 1) * elementSize + TIMESTAMP] == null) {
+				if (index < HISTORY_MAX - 1 && array[(index + 1) * elementSize + TIMESTAMP] == null) {  // The one above us is null, we found our first none empty before null, index + 1 is our size
 					index++;
 					break; 
 				}

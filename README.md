@@ -81,6 +81,8 @@ If you would like to translate the language file in your own language, contact m
 ## Changelog
 **V1.8.0 Added the following**
 - Holding your finger on the screen will show a popup about that specific point. Works better if you zoom in to get a more precise location under your finger, espcially on small screen like my Fenix 7S Pro. Touch the screen to make disappear.
+- While the popup is shown, holding your finger on the screen again will set a marker at that point. This uses the two marker points introduced in 1.6.0. Unlikes the Marker screen though, when both markers are set, although it will also clear both original markers, a new marker will also be set.
+- The marker bars are now only shown for the active markers.  
 
 **V1.7.0 Added the following**
 - Now uses the builtin page indicators for devices with CIQ 3.4 and above.

@@ -35,6 +35,7 @@
     <string id="SetSecondMarker">En attente du\nsecond jalon</string>
     <string id="FirstMarker">Premier jalon @</string>
     <string id="SecondMarker">Second jalon @</string>
+    <string id="MarkerSet">Jalon posé</string>
     <string id="In">en</string>
 
     <string id="ViewMode">Vue</string>

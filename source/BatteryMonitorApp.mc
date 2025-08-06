@@ -509,7 +509,7 @@ class BatteryMonitorApp extends App.AppBase {
 		}
 
 		// Sanity check. If our previous position (mHistorySize - 1) is null, start from scratch, otherwise start from our current position to improve performance
-		if (mHistorySize == null || mHistorySize >= HISTORY_MAX || (mHistorySize > 0 && mHistory[(mHistorySize - 1) * elementSize + TIMESTAMP] == null)) {
+		if (mHistorySize == null || mHistorySize > HISTORY_MAX || (mHistorySize > 0 && mHistory[(mHistorySize - 1) * elementSize + TIMESTAMP] == null)) {
 			/*DEBUG*/ if (mHistorySize != 0) { logMessage("mHistorySize was " + mHistorySize); }
 			mHistorySize = 0;
 		}
