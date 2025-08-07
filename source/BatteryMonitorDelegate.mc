@@ -162,7 +162,8 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 				if (mDragStartX > coord[0]) { // Like WatchUi.SWIPE_LEFT
 					/*DEBUG*/ logMessage(("Drag left"));
 					var width = System.getDeviceSettings().screenWidth;
-					if (mDragStartX - coord[0] > width * 90 / 100) { // If we swipe left accross most of the screen, assume it's a request to open the menu
+					/*DEBUG*/ logMessage("Start:" + mDragStartX + " end:" + coord[0] + " travel:" + (mDragStartX - coord[0]));
+					if (mDragStartX - coord[0] > width * 75 / 100) { // If we swipe left accross most of the screen, assume it's a request to open the menu
 						onMenu();
 						return true;
 					}
