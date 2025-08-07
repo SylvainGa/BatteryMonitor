@@ -184,7 +184,7 @@ class BatteryMonitorApp extends App.AppBase {
 		}
 
 		// Run the initial slope calc here as it seems to not time out, unlike the view code
-		initDownSlope();
+		$.initDownSlope();
 
 		mGlance = new BatteryMonitorGlanceView();
 		mView = mGlance; // So onSettingsChanged can call the view or glance onSettingsChanged code without needing to check for both
@@ -207,7 +207,7 @@ class BatteryMonitorApp extends App.AppBase {
 		}
 
 		// Run the initial slope calc here as it seems to not time out, unlike the view code
-		initDownSlope();
+		$.initDownSlope();
 
 		var useBuiltinPageIndicator = true;
 		try {
@@ -444,9 +444,12 @@ class BatteryMonitorApp extends App.AppBase {
 				// Now add the slopes
 				var slopes0 = $.objectStoreGet("SLOPES_" + historyArray[0], []);
 				var slopes1 = $.objectStoreGet("SLOPES_" + historyArray[1], []);
-
-				if (slopes0.size() != 0 && slopes1.size() != 0) {
+				if (slopes0.size() != 0 && slopes1.size() != 0) { /*TODO TEST!*/
 					slopes0[0].addAll(slopes1[0]);
+					for (var i = 0; i < slopes0[0].size() - 1 && slopes0[0].size() > 10 ; i++) { // Average the earliest slopes until we have have a max of 10 slopes (size is going down by one because of the .remove within)
+						slopes0[0][i] = (slopes0[0][i] + slopes0[0][i + 1]) / 2; // Average the two adjacent slopes
+						slopes0[0].remove(slopes0[0][i + 1]); // And delete the second one now that it's averaged into the first one
+					}
 					$.objectStorePut("SLOPES_" + historyArray[0], slopes0);
 				}
 

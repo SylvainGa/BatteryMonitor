@@ -79,6 +79,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.8.1 Added the following**
+- Average the slopes when averaging the earliest two 500 array elements if we end up with over 10 slopes, otherwise at one point, there will be so many slopes that we'll take too long to calculate the average slopes and crash.
+
 **V1.8.0 Added the following**
 - Holding your finger on the screen will show a popup about that specific point. Works better if you zoom in to get a more precise location under your finger, espcially on small screen like my Fenix 7S Pro. Touch the screen to make disappear.
 - While the popup is shown, holding your finger on the screen again will set a marker at that point. This uses the two marker points introduced in 1.6.0. Unlikes the Marker screen though, when both markers are set, although it will also clear both original markers, a new marker will also be set.

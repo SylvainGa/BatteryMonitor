@@ -328,7 +328,7 @@ function downSlope(fromInit) { //data is history data as array / return a slope 
 		sumSlopes += totalSlopes[i];
 	}
 	var avgSlope = sumSlopes / slopesSize;
-	/*DEBUG*/ logMessage("avgSlope=" + avgSlope);
+	/*DEBUG*/ logMessage("avgSlope=" + avgSlope + " for " + slopesSize + " slopes");
 	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
 	return [avgSlope, slopeNeedsCalc];
