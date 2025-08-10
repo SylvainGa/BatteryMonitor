@@ -80,8 +80,9 @@ If you would like to translate the language file in your own language, contact m
 
 ## Changelog
 **V1.8.1 Added the following**
+- Fixed the blank screen when viewing graphs on some devices by decoupling the graph building from the screen refresh. Now a 'Please wait' pop up will appear while the graph is being built in the background. There shouldn't be any partly drawn graph either. A graph will only be displayed once it's fully built. It's working fine on my Fenix 7S Pro and Edge 840. If you're still experiencing problem, let me know.
 - Average the slopes when averaging the earliest two 500 array elements if we end up with over 10 slopes, otherwise at one point, there will be so many slopes that we'll take too long to calculate the average slopes and crash.
-- Reduced the distance you must swipe left to activate the menu from  90% of the screen to 75%. Fingers are wider than the cursor in the simulator.
+- Reduced the distance you must swipe left to activate the menu from  90% of the screen to 75%. Fingers on screen are wider than a cursor in the simulator...
 
 **V1.8.0 Added the following**
 - Holding your finger on the screen will show a popup about that specific point. Works better if you zoom in to get a more precise location under your finger, espcially on small screen like my Fenix 7S Pro. Touch the screen to make disappear.

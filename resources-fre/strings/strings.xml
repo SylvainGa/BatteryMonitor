@@ -43,6 +43,8 @@
     <string id="PanMode">Déplacer</string>
     <string id="ZoomFull">Entier</string>
 
+    <string id="PleaseWait">Un instant</string>
+
     <string id="Now" scope="glance">Présent</string>
     <string id="Minute">Minute</string>
     <string id="MinuteShort" scope="glance">m</string>

@@ -30,7 +30,8 @@ class BatteryMonitorView extends Ui.View {
 	var mShowPageIndicator;
 	var mGraphShowFull;
 	var mCtrX, mCtrY;
-	var mTimer;
+	var mRefreshTimer;
+	var mDrawChartTimer;
 	var mLastData;
 	var mNowData;
 	var mMarkerData;
@@ -51,16 +52,17 @@ class BatteryMonitorView extends Ui.View {
 	var mHistoryArraySize;
 	var mLastFullHistoryPos;
 	var mLastPoint;
-	var mUpdateStartTime;
 	var mSteps;
 	var mMaxRuntime;
-	var mLastBatteryValue;
 	var mNoChange;
 	var mTimeOffset;
 	var mTimeSpan;
 	var mCoord;
 	var mShowMarkerSet;
 	var mMarkerDataXPos;
+	var mOffScreenBuffer;
+	var mOnScreenBuffer;
+	var mDrawLive;
 
 	//DEBUG*/ var mDebugFont;
 
@@ -72,7 +74,8 @@ class BatteryMonitorView extends Ui.View {
 		
 		// Was in onLayout
 		// Used throughout the code to know the size of each element and if we should deal with solar data
-		mIsSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		var systemStats = Sys.getSystemStats();
+		mIsSolar = systemStats.solarIntensity != null ? true : false;
 		mElementSize = mIsSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
 		// Build our history array
@@ -95,10 +98,14 @@ class BatteryMonitorView extends Ui.View {
 		mShowPageIndicator = false; // When we first display, no point showing the page indicator as we are already at the first panel
 		mShowMarkerSet = false;
 		mMarkerDataXPos = [];
+		mDrawLive = false; // Assume we can draw to a bitmap. It will be set to true in drawChart if we can't
 
 		//DEBUG*/ mDebugFont = 0;
-		mTimer = new Timer.Timer();
-		mTimer.start(method(:refreshTimer), 5000, true); // Check every 5 seconds
+		mRefreshTimer = new Timer.Timer();
+		mRefreshTimer.start(method(:onRefreshTimer), 5000, true); // Check every 5 seconds
+
+		mDrawChartTimer = new Timer.Timer();
+		mDrawChartTimer.start(method(:onDrawChartTimer), 100, true); // When drawing graph, do it fast
 
     	// add data to ensure most recent data is shown and no time delay on the graph.
 		mStartedCharging = false;
@@ -154,7 +161,7 @@ class BatteryMonitorView extends Ui.View {
 		// Code to run when the app resumes
 	}
 
-	function refreshTimer() as Void {
+	function onRefreshTimer() as Void {
 		if (System.getSystemStats().charging) {
 			// Update UI, log charging status, etc.
 		}
@@ -175,12 +182,19 @@ class BatteryMonitorView extends Ui.View {
 
 		doDownSlope();
 
-		Ui.requestUpdate();
+		if (mNoChange == false) {
+			Ui.requestUpdate();
+		}
 	}
 
-    // Load your resources here
-    function onLayout(dc) {
-    }
+	function onDrawChartTimer() {
+		if (mNoChange == false && mDrawLive == false && (mViewScreen == SCREEN_HISTORY || mViewScreen == SCREEN_PROJECTION)) { // If we have work to do, do it
+			mDrawLive = drawChart(null, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], mViewScreen, false);
+			if (mNoChange == true) { // We're done, now request a new screen update
+				Ui.requestUpdate();
+			}
+		}
+	}
 
     function onSettingsChanged() {
 		try {
@@ -307,8 +321,8 @@ class BatteryMonitorView extends Ui.View {
 				resetViewVariables();
 
 				// Restart the timer so we can reshow the page indicators for 5 seconds
-				mTimer.stop(); 
-				mTimer.start(method(:refreshTimer), 5000, true);
+				mRefreshTimer.stop(); 
+				mRefreshTimer.start(method(:onRefreshTimer), 5000, true);
 				mShowPageIndicator = true;
 			}
 
@@ -385,7 +399,8 @@ class BatteryMonitorView extends Ui.View {
 		mTimeSpan = 0; // The width of the displayed graph in seconds
 		mCoord = null; // Will make the popup disappear
 		mNoChange = false; // We'll need to redraw the graph on next pass
-		mShowMarkerSet = false;
+		mShowMarkerSet = false; // Marker popup disappears when we switch view
+		mOnScreenBuffer = null; // Graph on screen disappears when we switch view
 	}
 
     // Update the view
@@ -393,7 +408,7 @@ class BatteryMonitorView extends Ui.View {
         // DON'T redraw the layout as it clears the screen. We handle the screen cleaning ourself
         //View.onUpdate(dc);
 	
-		mUpdateStartTime = Sys.getTimer();
+		var updateStartTime = Sys.getTimer();
 
 		//DEBUG*/ var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE]; mFontType = fonts[mDebugFont]; dc.drawText(0, mCtrY, mFontType, mDebugFont, Gfx.TEXT_JUSTIFY_LEFT);
 		if (buildFullHistory() == true) {
@@ -407,6 +422,8 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		var lastChargeData = LastChargeData();
+		var screenFormat = System.getDeviceSettings().screenShape;
+
 		switch (mViewScreen) {
 			case SCREEN_DATA_MAIN:
 				showMainPage(dc, lastChargeData);
@@ -429,11 +446,33 @@ class BatteryMonitorView extends Ui.View {
 				break;
 				
 			case SCREEN_HISTORY:
-				drawChart(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], SCREEN_HISTORY);
+				if (mDrawLive == true) {
+					drawChart(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], SCREEN_HISTORY, true);
+				}
+				else {
+					if (mOnScreenBuffer != null) {
+			            dc.drawBitmap(0, 0, mOnScreenBuffer);
+					}
+					else {
+						drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
+						dc.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+					}
+				}
 				break;
 
 			case SCREEN_PROJECTION:
-				drawChart(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], SCREEN_PROJECTION);
+				if (mDrawLive == true) {
+					drawChart(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], SCREEN_PROJECTION, true);
+				}
+				else {
+					if (mOnScreenBuffer != null) {
+			            dc.drawBitmap(0, 0, mOnScreenBuffer);
+					}
+					else {
+						drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
+						dc.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+					}
+				}
 				break;
 		}
 
@@ -498,7 +537,7 @@ class BatteryMonitorView extends Ui.View {
 
 			mShowPageIndicator = false; // Don't show again until we switch view
 		}
-		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - mUpdateStartTime) + " msec for " + mFullHistorySize + " elements");
+		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - updateStartTime) + " msec for " + mFullHistorySize + " elements");
     }
 
 	function doHeader(dc, whichView, battery, onlyBattery) {
@@ -895,21 +934,46 @@ class BatteryMonitorView extends Ui.View {
 		return yPos;
 	}
 
-	function drawChart(dc, xy, whichView) {
+	function drawChart(dc, xy, whichView, drawLive) {
 		var startTime = Sys.getTimer();
-
-		if (mLastFullHistoryPos == mFullHistorySize) { // Only when we're starting drawing a new graph
-			var battery = Sys.getSystemStats().battery;
-			if (battery != mLastBatteryValue || mNoChange == false) {
-				mLastBatteryValue = battery;
-				doHeader(dc, whichView, battery, false);
-				mNoChange = false; // We cleared the screen to draw the battery level, now tell to redraw the graph
-			}
-		}
+		var targetDC;
 
 		if (mNoChange == true) {
 			/*DEBUG*/ logMessage("No change");
-			return;
+			return drawLive; // Return what we came in from
+		}
+
+		if (drawLive == false) { // We're drawing to a bitmap buffer and not directly to the screen
+			// get a buffer if we don't have one already
+			if (mOffScreenBuffer == null) {
+				var deviceSettings = Toybox.System.getDeviceSettings();
+
+				if (Toybox.Graphics has :createBufferedBitmap) {        // check to see if device has BufferedBitmap enabled
+					mOffScreenBuffer = Graphics.createBufferedBitmap({ :width => deviceSettings.screenWidth, :height => deviceSettings.screenHeight }).get();
+				}
+				else {
+					mOffScreenBuffer = new Graphics.BufferedBitmap({ :width => deviceSettings.screenWidth, :height => deviceSettings.screenHeight });
+				}
+			}
+
+			if (mOffScreenBuffer != null) {
+				targetDC = mOffScreenBuffer.getDc();
+			}
+			else {
+				mDrawChartTimer.stop(); // Since we can't use bitmaps, no point keeping or timer going
+				mDrawChartTimer = null;
+				return true; // return and we'll draw from onUpdate
+			}
+		}
+		else {
+			targetDC = dc;
+		}
+
+		if (mLastFullHistoryPos == mFullHistorySize) { // Only when we're starting drawing a new graph
+			mNoChange = false; // We need to redraw from fresh
+
+			var battery = Sys.getSystemStats().battery;
+			doHeader(targetDC, whichView, battery, false);
 		}
 
     	var X1 = xy[0], X2 = xy[1], Y1 = xy[2], Y2 = xy[3];
@@ -922,21 +986,21 @@ class BatteryMonitorView extends Ui.View {
 
 		//! draw y gridlines
 		if (mLastFullHistoryPos == mFullHistorySize) {
-			dc.setPenWidth(1);
+			targetDC.setPenWidth(1);
 			var yGridSteps = 10;
 			for (var i = 0; i <= 100; i += yGridSteps) {
 				if (i == 0 || i == 50 || i == 100) {
-					dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+					targetDC.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
 				}
 				else {
-					dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
+					targetDC.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
 				}
-				dc.drawLine(X1 - 10, Y2 - i * yFrame / 100, X2 + 10, Y2 - i * yFrame / 100);
+				targetDC.drawLine(X1 - 10, Y2 - i * yFrame / 100, X2 + 10, Y2 - i * yFrame / 100);
 			}
 		}
 
 		if (mFullHistorySize == 0) {
-			return; // Nothing to draw
+			return false; // Nothing to draw
 		}
 
 		var lastElement = (mFullHistorySize - 1) * mElementSize;
@@ -995,7 +1059,7 @@ class BatteryMonitorView extends Ui.View {
 					str = Ui.loadResource(Rez.Strings.PanMode);
 				}
 
-				dc.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (30 * mCtrX * 2 / 240)), Y1 - mFontHeight - 1, mFontType, str, Gfx.TEXT_JUSTIFY_LEFT);
+				targetDC.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (30 * mCtrX * 2 / 240)), Y1 - mFontHeight - 1, mFontType, str, Gfx.TEXT_JUSTIFY_LEFT);
 			}
 
 			mLastPoint = [null, null];
@@ -1031,7 +1095,7 @@ class BatteryMonitorView extends Ui.View {
 		//DEBUG*****/ nowTime = Sys.getTimer(); Sys.println("After skip to start: " + (nowTime - startTime) + " msec skip:" + (mFullHistorySize - i + 1) + " mSteps: " + mSteps); startTime = nowTime;
 
 
-		dc.setClip(X1, Y1, xFrame, yFrame + 5); // So we don't have some data overflowing the screen on the left and right some times (ie, rectangle going over the width of the screen. And add some room for the thick line used for activity showing is not clipped
+		targetDC.setClip(X1, Y1, xFrame, yFrame + 5); // So we don't have some data overflowing the screen on the left and right some times (ie, rectangle going over the width of the screen. And add some room for the thick line used for activity showing is not clipped
 		if (mCoord != null) {
 			if (mCoord[0] >= X1 && mCoord[0] <= X2) {
 				var x = mCoord[0]; // Only X is important for us
@@ -1132,7 +1196,7 @@ class BatteryMonitorView extends Ui.View {
 			var dataTimeDistanceInPxl = dataTimeDistanceInMin / xScaleMinPerPxl;
 			var x = (X1 + xNow - dataTimeDistanceInPxl).toNumber();
 			//DEBUG*/ if (x == oldX) { logMessage("X is seen again at " + x); } oldX = x;
-			dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
+			targetDC.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
 
 			// Calculating ySolar (at x)
 			var ySolar = null;
@@ -1144,22 +1208,22 @@ class BatteryMonitorView extends Ui.View {
 
 			if (mLastPoint[0] != null) {
 				if (mLastPoint[0] - x > 1) {
-					dc.fillRectangle(x, yBat, mLastPoint[0] - x + 1, Y2 - yBat);
+					targetDC.fillRectangle(x, yBat, mLastPoint[0] - x + 1, Y2 - yBat);
 				}
 				else { // If we have so much data that each rectangle is actually a line, just draw a line...
-					dc.drawLine(x, yBat, x, Y2);
+					targetDC.drawLine(x, yBat, x, Y2);
 				}
 
 				if (ySolar != null) {
-					dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
-					dc.drawLine(x, ySolar, mLastPoint[0], mLastPoint[1]);
+					targetDC.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
+					targetDC.drawLine(x, ySolar, mLastPoint[0], mLastPoint[1]);
 				}
 
 				if (batActivity == true) { // We had an activity during that time span, draw the X axis in blue to say so
-					dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
-					dc.setPenWidth(5);
-					dc.drawLine(x, Y2, mLastPoint[0], Y2);
-					dc.setPenWidth(1);
+					targetDC.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
+					targetDC.setPenWidth(5);
+					targetDC.drawLine(x, Y2, mLastPoint[0], Y2);
+					targetDC.setPenWidth(1);
 				}
 			}
 
@@ -1178,12 +1242,11 @@ class BatteryMonitorView extends Ui.View {
 
 			nowTime = Sys.getTimer();
 			var runTime = adjustRuntime(mMaxRuntime);
-			if (nowTime - mUpdateStartTime > runTime) { // If we've overstated our welcome, store were we left off and request to draw again (we won't clear the screen next pass)
-				/*DEBUG*/ logMessage("Stopping after " + (nowTime - mUpdateStartTime) + " msec at index " + i);
+			if (nowTime - startTime > runTime) { // If we've overstated our welcome, store were we left off and wait for the next timer event to continue
+				/*DEBUG*/ logMessage("Stopping after " + (nowTime - startTime) + " msec at index " + i);
 				mLastFullHistoryPos = i - 1;
-				dc.clearClip();
-				Ui.requestUpdate();
-				return;
+				targetDC.clearClip();
+				return false;
 			}
 
 			/*DEBUG*/ if (count %50 == 0) { nowTime = Sys.getTimer(); Sys.println(count + " passes in " + (nowTime - startTime) + " msec"); }
@@ -1194,7 +1257,7 @@ class BatteryMonitorView extends Ui.View {
 
 		//! draw future estimation
 		if (whichView == SCREEN_PROJECTION) {
-			dc.setPenWidth(1);
+			targetDC.setPenWidth(1);
 			if (mDownSlopeSec != null){
 				
 				var pixelsAvail = xFrame - xNow;
@@ -1211,102 +1274,103 @@ class BatteryMonitorView extends Ui.View {
 				var yStart = Y2 - (valueStart * yFrame) / Ymax;
 				var yEnd = Y2 - (valueEnd * yFrame) / Ymax;
 			
-				dc.setColor(COLOR_PROJECTION, Gfx.COLOR_TRANSPARENT);
+				targetDC.setColor(COLOR_PROJECTION, Gfx.COLOR_TRANSPARENT);
 				var triangle = [[xStart, yStart], [xEnd, yEnd], [xStart, yEnd], [xStart, yStart]];
-				dc.fillPolygon(triangle);
+				targetDC.fillPolygon(triangle);
 			}
 		}
 
-		dc.clearClip();
-		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-		dc.setPenWidth(2);
+		targetDC.clearClip();
+		targetDC.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+		targetDC.setPenWidth(2);
 
 		//! draw now position on axis
 		if (xFutureInMin >= 0 && mTimeOffset == 0) {
-			dc.drawLine(X1 + xNow, Y1 - mCtrY * 2 / 50, X1 + xNow, Y2);
+			targetDC.drawLine(X1 + xNow, Y1 - mCtrY * 2 / 50, X1 + xNow, Y2);
 		}
 
 		//! x-legend
 		var timeStr = $.minToStr(xHistoryInMin + mTimeOffset / 60, false);
-		dc.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 26 * mCtrX * 2 / 240), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0),  "<-" + timeStr, Gfx.TEXT_JUSTIFY_LEFT);
+		targetDC.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 26 * mCtrX * 2 / 240), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0),  "<-" + timeStr, Gfx.TEXT_JUSTIFY_LEFT);
 		
 		timeStr = $.minToStr(xFutureInMin + mTimeOffset / 60, false);
-		dc.drawText(mCtrX * 2 - (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (26 * mCtrX * 2 / 240)), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0), timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
+		targetDC.drawText(mCtrX * 2 - (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (26 * mCtrX * 2 / 240)), Y2 + 2, (mFontType > 0 ? mFontType - 1 : 0), timeStr + "->", Gfx.TEXT_JUSTIFY_RIGHT);
 		
 		if (mDownSlopeSec != null){
 			var timeLeftMin = (100.0 / (mDownSlopeSec * 60.0)).toNumber();
 			timeStr = $.minToStr(timeLeftMin, false);
-			dc.drawText(mCtrX, mCtrY * 2 - mFontHeight - mFontHeight / 3, (mFontType > 0 ? mFontType - 1 : 0), "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
+			targetDC.drawText(mCtrX, mCtrY * 2 - mFontHeight - mFontHeight / 3, (mFontType > 0 ? mFontType - 1 : 0), "100% = " + timeStr, Gfx.TEXT_JUSTIFY_CENTER);
 		}
 
 		var runTime = Sys.getTimer() - startTime;
 
 		if ((whichView == SCREEN_HISTORY || whichView == SCREEN_PROJECTION) && mDebug >= 5) {
-			dc.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 1, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + mSteps + "/" + runTime, Gfx.TEXT_JUSTIFY_LEFT);
+			targetDC.drawText(30 * mCtrX * 2 / 240, Y1 - mFontHeight - 1, mFontType, mHistoryArraySize + "/" + mFullHistorySize + "/" + mApp.mHistorySize + "/" + mSteps + "/" + runTime, Gfx.TEXT_JUSTIFY_LEFT);
 		}
 
 		if (mMarkerDataXPos.size() > 0) { // If we have markers to draw, now it's the time to do it
 			for (i = 0; i < mMarkerDataXPos.size(); i++) {
 				//DEBUG*/ logMessage("Drawing marker at " + mMarkerDataXPos[i]);
-				dc.drawLine(mMarkerDataXPos[i], Y2, mMarkerDataXPos[i], Y1);
+				targetDC.drawLine(mMarkerDataXPos[i], Y2, mMarkerDataXPos[i], Y1);
 			}
 			mMarkerDataXPos = []; // Now that we've drawn our markers, clear this so it can be filled again by the next draw of the graph
 
 		}
 		if (mShowMarkerSet) { // The marker being set is above everything
 			var xSize = mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 10 : 20 * mCtrX * 2 / 240);
-			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-			dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 10 : 20 * mCtrX * 2 / 240), mCtrY - (mFontHeight), xSize, 2 * mFontHeight, 5);
-			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-			dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 10 : 20 * mCtrX * 2 / 240), mCtrY - (mFontHeight), xSize, 2 * mFontHeight, 5);
-			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-
-			dc.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.MarkerSet), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+			drawBox(targetDC, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 10 : 20 * mCtrX * 2 / 240), mCtrY - (mFontHeight), xSize, 2 * mFontHeight);
+			targetDC.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.MarkerSet), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
 		}
 		else if (mCoord != null && mCoord[2] != null) { // If we have marker's position to show, do it now.
 			//DEBUG*/ logMessage("coordBat=" + mCoord[2] + " at " + mCoord[1]);
 
 			var xSize = mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240);
-			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-			dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (2 * mFontHeight), xSize, 4 * mFontHeight, 5);
-			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-			dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (2 * mFontHeight), xSize, 4 * mFontHeight, 5);
-			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+			drawBox(targetDC, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (2 * mFontHeight), xSize, 4 * mFontHeight);
 
 			var batStr = (mCoord[2] / 10.0).format("%0.1f") + "%";
 			timeStr = $.minToStr((timeMostRecentPoint - mCoord[1]) / 60, true);
-			var textLenght = dc.getTextWidthInPixels(timeStr, mFontType);
+			var textLenght = targetDC.getTextWidthInPixels(timeStr, mFontType);
 			if (textLenght >= xSize - 2) {
 				timeStr = $.minToStr((timeMostRecentPoint - mCoord[1]) / 60, false);
 			}			
 			var dateArray = $.timestampToStr(mCoord[1]);
 
 			var yPos = mCtrY - (2 * mFontHeight);
-			dc.drawText(mCtrX, yPos, mFontType, batStr, Gfx.TEXT_JUSTIFY_CENTER);
+			targetDC.drawText(mCtrX, yPos, mFontType, batStr, Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
-			dc.drawText(mCtrX, yPos, mFontType, timeStr, Gfx.TEXT_JUSTIFY_CENTER);
+			targetDC.drawText(mCtrX, yPos, mFontType, timeStr, Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
-			dc.drawText(mCtrX, yPos, mFontType, dateArray[0], Gfx.TEXT_JUSTIFY_CENTER);
+			targetDC.drawText(mCtrX, yPos, mFontType, dateArray[0], Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
-			dc.drawText(mCtrX, yPos, mFontType, dateArray[1], Gfx.TEXT_JUSTIFY_CENTER);
+			targetDC.drawText(mCtrX, yPos, mFontType, dateArray[1], Gfx.TEXT_JUSTIFY_CENTER);
 
 			logMessage("Coord time is " + timeStr + " Coord bat is " + batStr);
 		}
 
-		dc.setPenWidth(1);
+		targetDC.setPenWidth(1);
 
 		mNoChange = true; // Assume we'll get no changes before last redraw
+
+		mOnScreenBuffer = mOffScreenBuffer; // And we can use this buffer to draw on screen
+		mOffScreenBuffer = null; // And clear this buffer so we can start fresh next time
+
+		return false;
     }
+
+	function drawBox(dc, x, y, width, height) {
+		dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+		dc.fillRoundedRectangle(x, y, width, height, 5);
+		dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+		dc.drawRoundedRectangle(x, y, width, height, 5);
+		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+	}
 
 	function showChargingPopup(dc) {
 		//! Now add the 'popup' if the device is currently charging
-		dc.setPenWidth(2);
-		dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
 		var screenFormat = System.getDeviceSettings().screenShape;
 
-		dc.fillRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
-		dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-		dc.drawRoundedRectangle((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2), 5);
+		drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
+
 		var battery = Sys.getSystemStats().battery;
 		dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Charging) + " " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
 		var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
@@ -1367,7 +1431,7 @@ class BatteryMonitorView extends Ui.View {
 			/*DEBUG*/ logMessage("buildFullHistory: refreshing full history array, mHistoryStartPos is " + mHistoryStartPos + " mFullHistorySize is " + mFullHistorySize);
 			var i = mHistoryStartPos * mElementSize;
 			var j = mFullHistorySize * mElementSize;
-			for (; i < HISTORY_MAX * mElementSize && mApp.mHistory[i] != null; i++, j++) {
+			for (; i < HISTORY_MAX * mElementSize && (i % mElementSize == 0 ? mApp.mHistory[i] != null : true); i++, j++) {
 				mFullHistory[j] = mApp.mHistory[i];
 			}
 
