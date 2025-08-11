@@ -79,6 +79,10 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.8.2 Added the following**
+- Code optimization to prevent running out of timers.
+- Code optimization in the finding the last charge and last full charge.
+
 **V1.8.1 Added the following**
 - Fixed the blank screen when viewing graphs on some devices by decoupling the graph building from the screen refresh. Now a 'Please wait' pop up will appear while the graph is being built in the background. There shouldn't be any partly drawn graph either. A graph will only be displayed once it's fully built. It's working fine on my Fenix 7S Pro and Edge 840. If you're still experiencing problem, let me know.
 - Average the slopes when averaging the earliest two 500 array elements if we end up with over 10 slopes, otherwise at one point, there will be so many slopes and will take too long to calculate the average slopes and crash.
