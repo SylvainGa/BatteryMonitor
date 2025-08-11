@@ -31,7 +31,6 @@ class BatteryMonitorView extends Ui.View {
 	var mGraphShowFull;
 	var mCtrX, mCtrY;
 	var mRefreshTimer;
-	var mDrawChartTimer;
 	var mLastData;
 	var mNowData;
 	var mMarkerData;
@@ -64,8 +63,6 @@ class BatteryMonitorView extends Ui.View {
 	var mOnScreenBuffer;
 	var mDrawLive;
 
-	//DEBUG*/ var mDebugFont;
-
     function initialize(isViewLoop) {
         View.initialize();
 		mIsViewLoop = isViewLoop;
@@ -95,18 +92,14 @@ class BatteryMonitorView extends Ui.View {
 		mGraphShowFull = false;
 		mSelectMode = ViewMode;
 		mSummaryProjection = true;
-		mShowPageIndicator = false; // When we first display, no point showing the page indicator as we are already at the first panel
+		mShowPageIndicator = null; // When we first display, no point showing the page indicator as we are already at the first panel
 		mShowMarkerSet = false;
 		mMarkerDataXPos = [];
 		mDrawLive = false; // Assume we can draw to a bitmap. It will be set to true in drawChart if we can't
 
-		//DEBUG*/ mDebugFont = 0;
+		/*DEBUG*/ logMessage("Starting refresh timer");
 		mRefreshTimer = new Timer.Timer();
-		mRefreshTimer.start(method(:onRefreshTimer), 5000, true); // Check every 5 seconds
-
-		mDrawChartTimer = new Timer.Timer();
-		mDrawChartTimer.start(method(:onDrawChartTimer), 100, true); // When drawing graph, do it fast
-
+		mRefreshTimer.start(method(:onRefreshTimer), 100, true); // Runs every 100 msec to do its different tasks (at different intervals within)
     	// add data to ensure most recent data is shown and no time delay on the graph.
 		mStartedCharging = false;
 		mHideChargingPopup = false;
@@ -162,38 +155,43 @@ class BatteryMonitorView extends Ui.View {
 	}
 
 	function onRefreshTimer() as Void {
-		if (System.getSystemStats().charging) {
-			// Update UI, log charging status, etc.
-		}
-
-		if (mDebug < 5 || mDebug >= 10) {
-			mDebug = 0;
-		}
-
-		mRefreshCount++;
-		if (mRefreshCount == 12) { // Every minute, read a new set of data
+		if (mRefreshCount % 600 == 0) { // Every minute, read a new set of data
+			/*DEBUG*/ logMessage("Every minute event");
 			mNowData = $.getData();
 			//DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
 			if ($.analyzeAndStoreData([mNowData], 1, false) > 0) {
 				mNoChange = false;
 			}
-			mRefreshCount = 0;
 		}
 
-		doDownSlope();
+		if (mRefreshCount % 50 == 0) { // Every 5 seconds
+			/*DEBUG*/ logMessage("Every 5 seconds event");
+			if (mDebug < 5 || mDebug >= 10) {
+				mDebug = 0;
+			}
 
-		if (mNoChange == false) {
-			Ui.requestUpdate();
-		}
-	}
+			doDownSlope();
 
-	function onDrawChartTimer() {
-		if (mNoChange == false && mDrawLive == false && (mViewScreen == SCREEN_HISTORY || mViewScreen == SCREEN_PROJECTION)) { // If we have work to do, do it
-			mDrawLive = drawChart(null, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], mViewScreen, false);
-			if (mNoChange == true) { // We're done, now request a new screen update
+			if (mNoChange == false) {
 				Ui.requestUpdate();
 			}
 		}
+
+		if (mNoChange == false && mDrawLive == false && (mViewScreen == SCREEN_HISTORY || mViewScreen == SCREEN_PROJECTION)) { // If we have work to do, do it
+			/*DEBUG*/ logMessage("Drawing graph");
+			mDrawLive = drawChart(null, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], mViewScreen, false);
+			if (mNoChange == true) { // We're done, now request a new screen update
+				/*DEBUG*/ logMessage("Graph drawn, requesting to show the result");
+				Ui.requestUpdate();
+			}
+		}
+
+		if (mShowPageIndicator != null && mRefreshCount - mShowPageIndicator > 50) { // If 5 seconds have passed since we displayed our page indicator, it's time to shut it off
+			mShowPageIndicator = null; // Don't show again until we switch view
+				Ui.requestUpdate();
+		}
+
+		mRefreshCount++;
 	}
 
     function onSettingsChanged() {
@@ -263,8 +261,6 @@ class BatteryMonitorView extends Ui.View {
     }
 
 	function onReceive(newIndex, graphSizeChange) {
-		//DEBUG*/ if (graphSizeChange == 1) { mDebugFont++; if (mDebugFont > 4) { mDebugFont = 0; } }
-
 		mNoChange = false; // We interacted, assume something has (or will) change
 
 		if (newIndex == -1) {
@@ -320,10 +316,8 @@ class BatteryMonitorView extends Ui.View {
 			if (newIndex != mPanelIndex) {
 				resetViewVariables();
 
-				// Restart the timer so we can reshow the page indicators for 5 seconds
-				mRefreshTimer.stop(); 
-				mRefreshTimer.start(method(:onRefreshTimer), 5000, true);
-				mShowPageIndicator = true;
+				// Keep track of where we were in the refesh count so we can count for 5 seconds
+				mShowPageIndicator = mRefreshCount;
 			}
 
 			mPanelIndex = newIndex;
@@ -410,7 +404,6 @@ class BatteryMonitorView extends Ui.View {
 	
 		var updateStartTime = Sys.getTimer();
 
-		//DEBUG*/ var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE]; mFontType = fonts[mDebugFont]; dc.drawText(0, mCtrY, mFontType, mDebugFont, Gfx.TEXT_JUSTIFY_LEFT);
 		if (buildFullHistory() == true) {
 			Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
 			return;
@@ -499,7 +492,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		// Show page indicator
-		if (mShowPageIndicator && !mIsViewLoop) {
+		if (mShowPageIndicator != null && !mIsViewLoop) {
 			if (System.getDeviceSettings().screenShape == System.SCREEN_SHAPE_RECTANGLE) {
 				var steps = mCtrY / MAX_SCREENS;
 				var xPos = mCtrX / 20;
@@ -534,8 +527,6 @@ class BatteryMonitorView extends Ui.View {
 					}
 				}
 			}
-
-			mShowPageIndicator = false; // Don't show again until we switch view
 		}
 		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - updateStartTime) + " msec for " + mFullHistorySize + " elements");
     }
@@ -960,8 +951,6 @@ class BatteryMonitorView extends Ui.View {
 				targetDC = mOffScreenBuffer.getDc();
 			}
 			else {
-				mDrawChartTimer.stop(); // Since we can't use bitmaps, no point keeping or timer going
-				mDrawChartTimer = null;
 				return true; // return and we'll draw from onUpdate
 			}
 		}

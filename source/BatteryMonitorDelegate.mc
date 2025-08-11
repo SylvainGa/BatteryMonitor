@@ -142,7 +142,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		return false;
 	}
 
-	function debounceTimer() {
+	function onDebounceTimer() {
 		mSkipNextEvent = false;
 		mDebounceTimer = null;
 	}
@@ -199,7 +199,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 			mSkipNextEvent = true; // Why does a drag generate an event like onNextPage on my physical Fenix 7S Pro !?!
 			mDebounceTimer = new Timer.Timer();
-			mDebounceTimer.start(method(:debounceTimer), 250, false); // Debounce time is 250 msec. Any event happening within that period of time is ignored
+			mDebounceTimer.start(method(:onDebounceTimer), 250, false); // Debounce time is 250 msec. Any event happening within that period of time is ignored
 		}
 
 		return true;
@@ -253,9 +253,9 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		Ui.pushView(dialog, new ConfirmationDialogDelegate(), Ui.SLIDE_IMMEDIATE);
 		return true;
 	}
-	}    
+}    
 
-	class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
+class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 	function initialize() {
 		ConfirmationDelegate.initialize();
 	}
