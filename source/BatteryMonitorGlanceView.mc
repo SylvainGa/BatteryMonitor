@@ -46,7 +46,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
             var data = $.getData();
-			/*DEBUG*/ logMessage("refreshTimer Read data " + data);
+			//DEBUG*/ logMessage("refreshTimer Read data " + data);
 			$.analyzeAndStoreData([data], 1, false);
 			mRefreshCount = 0;
 		}
