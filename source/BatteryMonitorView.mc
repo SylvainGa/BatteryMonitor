@@ -1428,8 +1428,10 @@ class BatteryMonitorView extends Ui.View {
 			mHistoryStartPos = i / mElementSize;
 
 			// Now fetch our last full history position
-			mLastFullChargeTimeIndex = lastFullChargeIndex(60 * 60 * 24);
-			mLastChargeData = lastChargeData();
+			if (mFullHistorySize > 0) {
+				mLastFullChargeTimeIndex = lastFullChargeIndex(60 * 60 * 24);
+				mLastChargeData = lastChargeData();
+			}
 		}
 		else if (refreshedPrevious == true) {
 			//DEBUG*/ logMessage("buildFullHistory: Skipping full history refresh because flag is false?");
@@ -1484,6 +1486,9 @@ class BatteryMonitorView extends Ui.View {
     
     function lastFullChargeIndex(minTime) {
 		var lastTimestamp = mFullHistory[(mFullHistorySize - 1) * mElementSize + TIMESTAMP];
+		if (lastTimestamp == null) {
+			return 0;
+		}
 		//DEBUG*/ logMessage("Looking for latest fullcharge. mTimeLastFullChargeStartPos is " + mTimeLastFullChargeStartPos);
 		for (var i = mFullHistorySize - 1; i > mTimeLastFullChargeStartPos; i--) { // But starting where we left off before
 			var bat = $.stripMarkers(mFullHistory[i * mElementSize + BATTERY]);

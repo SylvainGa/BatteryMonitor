@@ -79,6 +79,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.8.3 Added the following**
+- Bug fix while building the history array
+
 **V1.8.2 Added the following**
 - Code optimization to prevent running out of timers.
 - Code optimization in the finding the last charge and last full charge.
