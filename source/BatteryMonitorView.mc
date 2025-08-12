@@ -79,7 +79,8 @@ class BatteryMonitorView extends Ui.View {
 
 		onSettingsChanged();
 
-		// Preset these two and they'll be calculated in BuildFullHistory but need to be set before hand
+		// Preset these and they'll be calculated in BuildFullHistory but need to be set before hand
+		mFullHistorySize = 0;
 		mLastFullChargeTimeIndex = 0;
 		mTimeLastFullChargeStartPos = 0;
 
@@ -102,9 +103,10 @@ class BatteryMonitorView extends Ui.View {
 		mMarkerDataXPos = [];
 		mDrawLive = false; // Assume we can draw to a bitmap. It will be set to true in drawChart if we can't
 
-		/*DEBUG*/ logMessage("Starting refresh timer");
+		//DEBUG*/ logMessage("Starting refresh timer");
 		mRefreshTimer = new Timer.Timer();
 		mRefreshTimer.start(method(:onRefreshTimer), 100, true); // Runs every 100 msec to do its different tasks (at different intervals within)
+
     	// add data to ensure most recent data is shown and no time delay on the graph.
 		mStartedCharging = false;
 		mHideChargingPopup = false;
@@ -159,7 +161,7 @@ class BatteryMonitorView extends Ui.View {
 
 	function onRefreshTimer() as Void {
 		if (mRefreshCount % 600 == 0) { // Every minute, read a new set of data
-			/*DEBUG*/ logMessage("Every minute event");
+			//DEBUG*/ logMessage("Every minute event");
 			mNowData = $.getData();
 			//DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
 			if ($.analyzeAndStoreData([mNowData], 1, false) > 0) {
@@ -168,7 +170,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mRefreshCount % 50 == 0) { // Every 5 seconds
-			/*DEBUG*/ logMessage("Every 5 seconds event");
+			//DEBUG*/ logMessage("Every 5 seconds event");
 			if (mDebug < 5 || mDebug >= 10) {
 				mDebug = 0;
 			}
@@ -181,10 +183,10 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mNoChange == false && mDrawLive == false && (mViewScreen == SCREEN_HISTORY || mViewScreen == SCREEN_PROJECTION)) { // If we have work to do, do it
-			/*DEBUG*/ logMessage("Drawing graph");
+			//DEBUG*/ logMessage("Drawing graph");
 			mDrawLive = drawChart(null, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], mViewScreen, false);
 			if (mNoChange == true) { // We're done, now request a new screen update
-				/*DEBUG*/ logMessage("Graph drawn, requesting to show the result");
+				//DEBUG*/ logMessage("Graph drawn, requesting to show the result");
 				Ui.requestUpdate();
 			}
 		}
@@ -405,7 +407,7 @@ class BatteryMonitorView extends Ui.View {
         // DON'T redraw the layout as it clears the screen. We handle the screen cleaning ourself
         //View.onUpdate(dc);
 	
-		var updateStartTime = Sys.getTimer();
+		//DEBUG*/ var updateStartTime = Sys.getTimer();
 		var screenFormat = System.getDeviceSettings().screenShape;
 
 		if (mApp.getHistoryNeedsReload() == true || mApp.getFullHistoryNeedsRefesh() == true || mFullHistory == null) { // We'll have some work to do, tell the user to be patient
@@ -532,7 +534,7 @@ class BatteryMonitorView extends Ui.View {
 				}
 			}
 		}
-		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - updateStartTime) + " msec for " + mFullHistorySize + " elements");
+		//DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - updateStartTime) + " msec for " + mFullHistorySize + " elements");
     }
 
 	function doHeader(dc, whichView, battery, onlyBattery) {
@@ -934,7 +936,7 @@ class BatteryMonitorView extends Ui.View {
 		var targetDC;
 
 		if (mNoChange == true) {
-			/*DEBUG*/ logMessage("No change");
+			//DEBUG*/ logMessage("No change");
 			return drawLive; // Return what we came in from
 		}
 
@@ -962,7 +964,7 @@ class BatteryMonitorView extends Ui.View {
 			targetDC = dc;
 		}
 
-		/*DEBUG*****/ Sys.println("Creating buffered bitmap took: " + (Sys.getTimer() - startTime) + " msec");
+		//DEBUG*****/ Sys.println("Creating buffered bitmap took: " + (Sys.getTimer() - startTime) + " msec");
 
 		if (mLastFullHistoryPos == mFullHistorySize) { // Only when we're starting drawing a new graph
 			mNoChange = false; // We need to redraw from fresh
@@ -995,7 +997,10 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mFullHistorySize == 0) {
-			return false; // Nothing to draw
+			mOnScreenBuffer = mOffScreenBuffer; // And we can use this buffer to draw on screen
+			mOffScreenBuffer = null; // And clear this buffer so we can start fresh next time
+			mNoChange = true; // When we get data, this will be set to false so set it to true now so we can display the empty grid right away
+			return false; // Nothing but the grid to draw
 		}
 
 		var lastElement = (mFullHistorySize - 1) * mElementSize;
@@ -1064,7 +1069,7 @@ class BatteryMonitorView extends Ui.View {
 			if (mSteps < 2) {
 				mSteps = 1;
 			}
-			/*DEBUG*/ Sys.println("Steps (" + mSteps +  ") from " + (mGraphShowFull == true && whichView == SCREEN_HISTORY ? "mFullHistorySize (" + mFullHistorySize + ")" : "mLastFullChargeTimeIndex (" + mLastFullChargeTimeIndex + ")") + " xFrame=" + xFrame + " mGraphSizeChange=" + mGraphSizeChange);
+			//DEBUG*/ Sys.println("Steps (" + mSteps +  ") from " + (mGraphShowFull == true && whichView == SCREEN_HISTORY ? "mFullHistorySize (" + mFullHistorySize + ")" : "mLastFullChargeTimeIndex (" + mLastFullChargeTimeIndex + ")") + " xFrame=" + xFrame + " mGraphSizeChange=" + mGraphSizeChange);
 
 			//DEBUG*****/ nowTime = Sys.getTimer(); Sys.println("After grid draw: " + (nowTime - startTime) + " msec"); startTime = nowTime;
 
@@ -1082,7 +1087,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 		else {
 			i = mLastFullHistoryPos; // Continue where we left off
-			/*DEBUG*/ logMessage("Coming back at index " + i);
+			//DEBUG*/ logMessage("Coming back at index " + i);
 		}
 
 		targetDC.setClip(X1, Y1, xFrame, yFrame + 5); // So we don't have some data overflowing the screen on the left and right some times (ie, rectangle going over the width of the screen. And add some room for the thick line used for activity showing is not clipped
@@ -1105,8 +1110,8 @@ class BatteryMonitorView extends Ui.View {
 			}
 		}
 
-		/*DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, mSteps is " + mSteps);
-		/*DEBUG*****/ nowTime = Sys.getTimer(); Sys.println("Overhead before main loop: " + (nowTime - startTime) + " msec");
+		//DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, mSteps is " + mSteps);
+		//DEBUG*****/ nowTime = Sys.getTimer(); Sys.println("Overhead before main loop: " + (nowTime - startTime) + " msec");
 		for (var l = i * mElementSize, count = 1; i >= 0; i -= mSteps, l -= mSteps * mElementSize, count++) {
 			//DEBUG*/ logMessage(i + " " + mFullHistory[i]);
 			// End (closer to now)
@@ -1235,13 +1240,13 @@ class BatteryMonitorView extends Ui.View {
 			nowTime = Sys.getTimer();
 			var runTime = adjustRuntime(mMaxRuntime);
 			if (nowTime - startTime > runTime) { // If we've overstated our welcome, store were we left off and wait for the next timer event to continue
-				/*DEBUG*/ logMessage("Stopping after " + (nowTime - startTime) + " msec at index " + i);
+				//DEBUG*/ logMessage("Stopping after " + (nowTime - startTime) + " msec at index " + i);
 				mLastFullHistoryPos = i - 1;
 				targetDC.clearClip();
 				return false;
 			}
 
-			/*DEBUG*/ if (count %50 == 0) { nowTime = Sys.getTimer(); Sys.println(count + " passes in " + (nowTime - startTime) + " msec"); }
+			//DEBUG*/ if (count %50 == 0) { nowTime = Sys.getTimer(); Sys.println(count + " passes in " + (nowTime - startTime) + " msec"); }
 			mLastFullHistoryPos = mFullHistorySize; // We got to the end without timing out, reset our index so we start fresh next time
 		}
 
@@ -1336,7 +1341,7 @@ class BatteryMonitorView extends Ui.View {
 			yPos += mFontHeight;
 			targetDC.drawText(mCtrX, yPos, mFontType, dateArray[1], Gfx.TEXT_JUSTIFY_CENTER);
 
-			/*DEBUG*/ logMessage("Coord time is " + timeStr + " Coord bat is " + batStr);
+			//DEBUG*/ logMessage("Coord time is " + timeStr + " Coord bat is " + batStr);
 		}
 
 		targetDC.setPenWidth(1);
@@ -1397,7 +1402,7 @@ class BatteryMonitorView extends Ui.View {
 		var startTime = Sys.getTimer();
 		var refreshedPrevious = false;
 		if (mApp.getHistoryNeedsReload() == true || mFullHistory == null) { // Full refresh of the array
-			/*DEBUG*/ logMessage("buildFullHistory: loading full history array");
+			//DEBUG*/ logMessage("buildFullHistory: loading full history array");
 			var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 			var historyArraySize = historyArray.size();
 			mHistoryArraySize = historyArraySize;
@@ -1413,7 +1418,7 @@ class BatteryMonitorView extends Ui.View {
 			if (mFullHistoryBuildIndex < historyArraySize) { // If we're at historyArraySize, we're done here and skip to the next section
 				var j = mFullHistoryBuildIndex * HISTORY_MAX * mElementSize; // This is from where we'll start adding our data
 				for (var index = mFullHistoryBuildIndex; index < historyArraySize - 1; index++) { // Skipping the last one as it's our current history and will be dealt with below
-					/*DEBUG*/ logMessage("buildFullHistory: loading history array HISTORY_" + historyArray[index]);
+					//DEBUG*/ logMessage("buildFullHistory: loading history array HISTORY_" + historyArray[index]);
 					var previousHistory = $.objectStoreGet("HISTORY_" + historyArray[index], null);
 					if (previousHistory != null) {
 						for (var i = 0; i < HISTORY_MAX * mElementSize; i++, j++) {
@@ -1424,7 +1429,7 @@ class BatteryMonitorView extends Ui.View {
 					var nowTime = Sys.getTimer();
 					var runTime = adjustRuntime(mMaxRuntime);
 					if (nowTime - startTime > runTime) { // If we've overstated our welcome, store were we left off and wait for the next onUpdate to continue
-						/*DEBUG*/ logMessage("Stopping after " + (nowTime - startTime) + " msec at index " + index);
+						//DEBUG*/ logMessage("Stopping after " + (nowTime - startTime) + " msec at index " + index);
 						mFullHistoryBuildIndex = index + 1;
 						return true; // Say we haven't finished
 					}
@@ -1437,17 +1442,17 @@ class BatteryMonitorView extends Ui.View {
 			var nowTime = Sys.getTimer();
 			var runTime = adjustRuntime(mMaxRuntime);
 			if (nowTime - startTime > runTime / 2) { // If we have spent more than half the allocated time, come back to continue with the refresh of the history array
-				/*DEBUG*/ logMessage("Stopping after " + (nowTime - startTime) + " msec and come back to refresh history array");
+				//DEBUG*/ logMessage("Stopping after " + (nowTime - startTime) + " msec and come back to refresh history array");
 				return true; // Say we haven't finished
 			}
 
-			/*DEBUG*/ logMessage("Done building the arrays in " + (Sys.getTimer() - startTime) + " msec, now adding the latest history array");
+			//DEBUG*/ logMessage("Done building the arrays in " + (Sys.getTimer() - startTime) + " msec, now adding the latest history array");
 			mApp.setFullHistoryNeedsRefesh(true); // Flag to do the current history to
 			refreshedPrevious = true;
 		}
 
 		if (mApp.getFullHistoryNeedsRefesh() == true) {
-			/*DEBUG*/ logMessage("buildFullHistory: refreshing full history array, mHistoryStartPos is " + mHistoryStartPos + " mFullHistorySize is " + mFullHistorySize);
+			//DEBUG*/ logMessage("buildFullHistory: refreshing full history array, mHistoryStartPos is " + mHistoryStartPos + " mFullHistorySize is " + mFullHistorySize);
 			var i = mHistoryStartPos * mElementSize;
 			var j = mFullHistorySize * mElementSize;
 			for (; i < HISTORY_MAX * mElementSize && (i % mElementSize == 0 ? mApp.mHistory[i] != null : true); i++, j++) {
@@ -1457,7 +1462,7 @@ class BatteryMonitorView extends Ui.View {
 			mFullHistorySize = j / mElementSize;
 			mHistoryStartPos = i / mElementSize;
 
-			/*DEBUG*/ logMessage("Done adding the history array in " + (Sys.getTimer() - startTime) + " msec, now finding last charges");
+			//DEBUG*/ logMessage("Done adding the history array in " + (Sys.getTimer() - startTime) + " msec, now finding last charges");
 			// Now fetch our last full history position
 			if (mFullHistorySize > 0) {
 				mLastFullChargeTimeIndex = lastFullChargeIndex(60 * 60 * 24);
@@ -1465,7 +1470,7 @@ class BatteryMonitorView extends Ui.View {
 			}
 		}
 		else if (refreshedPrevious == true) {
-			/*DEBUG*/ logMessage("buildFullHistory: Skipping full history refresh because flag is false?");
+			//DEBUG*/ logMessage("buildFullHistory: Skipping full history refresh because flag is false?");
 		}
 
 		mApp.setHistoryNeedsReload(false);
@@ -1473,7 +1478,7 @@ class BatteryMonitorView extends Ui.View {
 
 		mFullHistoryBuildIndex = null; // Tell next time to start from scratch
 		
-		/*DEBUG*/ logMessage("buildFullHistory took " + (Sys.getTimer() - startTime) + " msec");
+		//DEBUG*/ logMessage("buildFullHistory took " + (Sys.getTimer() - startTime) + " msec");
 		return refreshedPrevious;
 	}
 
@@ -1497,7 +1502,7 @@ class BatteryMonitorView extends Ui.View {
 	}
 
     function lastChargeData() {
-		/*DEBUG*/ var startTime = Sys.getTimer();
+		//DEBUG*/ var startTime = Sys.getTimer();
 		var bat2 = 0;
 
 		if (mFullHistory != null) {
@@ -1507,7 +1512,7 @@ class BatteryMonitorView extends Ui.View {
 					i++; // We won't overflow as the first pass is always false with bat2 being 0
 					var lastCharge = [mFullHistory[i * mElementSize + TIMESTAMP], bat2, mIsSolar ? mFullHistory[i * mElementSize + SOLAR] : null];
 					$.objectStorePut("LAST_CHARGE_DATA", lastCharge); // Since glance can't see the whole history, store what we find so it can retreive it if it can't find a charge itself
-					/*DEBUG*/ logMessage("lastChargeData took " + (Sys.getTimer() - startTime) + " msec, found at " + i + " " + lastCharge);
+					//DEBUG*/ logMessage("lastChargeData took " + (Sys.getTimer() - startTime) + " msec, found at " + i + " " + lastCharge);
 					return lastCharge;
 				}
 
@@ -1516,29 +1521,29 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		$.objectStoreErase("LAST_CHARGE_DATA");
-		/*DEBUG*/ logMessage("lastChargeData took " + (Sys.getTimer() - startTime) + " msec, couldn't find one, returning null");
+		//DEBUG*/ logMessage("lastChargeData took " + (Sys.getTimer() - startTime) + " msec, couldn't find one, returning null");
     	return null;
     }
     
     function lastFullChargeIndex(minTime) {
-		/*DEBUG*/ var startTime = Sys.getTimer();
+		//DEBUG*/ var startTime = Sys.getTimer();
 		var lastTimestamp = mFullHistory[(mFullHistorySize - 1) * mElementSize + TIMESTAMP];
 		if (lastTimestamp == null) {
-			/*DEBUG*/ logMessage("lastFullChargeIndex: lastTimestamp is null, returning 0");
+			//DEBUG*/ logMessage("lastFullChargeIndex: lastTimestamp is null, returning 0");
 			return 0;
 		}
-		/*DEBUG*/ logMessage("Looking for latest fullcharge. mTimeLastFullChargeStartPos is " + mTimeLastFullChargeStartPos);
+		//DEBUG*/ logMessage("Looking for latest fullcharge. mTimeLastFullChargeStartPos is " + mTimeLastFullChargeStartPos);
 		for (var i = mFullHistorySize - 1; i > mTimeLastFullChargeStartPos; i--) { // But starting where we left off before
 			var bat = $.stripMarkers(mFullHistory[i * mElementSize + BATTERY]);
 			if (bat >= 995) { // Watch rounds 99.5 as full so 99.5 is considered 'full' here.
 				if (minTime == null || lastTimestamp - minTime >= mFullHistory[i * mElementSize + TIMESTAMP] ) { // If we ask for a minimum time to display, honor it, even if we saw a full charge already
 					mTimeLastFullChargeStartPos = mFullHistorySize - 1; // Keep where we started this round so we stop there next time. No point going it over again. 
-					/*DEBUG*/ logMessage("lastFullChargeIndex took " + (Sys.getTimer() - startTime) + " msec, found at " + i);
+					//DEBUG*/ logMessage("lastFullChargeIndex took " + (Sys.getTimer() - startTime) + " msec, found at " + i);
 					return i;
 				}
 			}
 		}
-		/*DEBUG*/ logMessage("lastFullChargeIndex took " + (Sys.getTimer() - startTime) + " msec, could find one, returning last know " + mLastFullChargeTimeIndex);
+		//DEBUG*/ logMessage("lastFullChargeIndex took " + (Sys.getTimer() - startTime) + " msec, could find one, returning last know " + mLastFullChargeTimeIndex);
     	return mLastFullChargeTimeIndex;
     }
     
