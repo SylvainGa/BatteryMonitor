@@ -79,7 +79,8 @@ class BatteryMonitorView extends Ui.View {
 
 		onSettingsChanged();
 
-		// Preset these two and they'll be calculated in BuildFullHistory but need to be set before hand
+		// Preset these and they'll be calculated in BuildFullHistory but need to be set before hand
+		mFullHistorySize = 0;
 		mLastFullChargeTimeIndex = 0;
 		mTimeLastFullChargeStartPos = 0;
 
@@ -995,7 +996,10 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mFullHistorySize == 0) {
-			return false; // Nothing to draw
+			mOnScreenBuffer = mOffScreenBuffer; // We can use this buffer to draw on screen
+			mOffScreenBuffer = null; // And clear this buffer so we can start fresh next time
+			mNoChange = true; // When we get data, this will be set to false so set it to true now so we can display the empty grid right away
+			return false; // Nothing but the grid to draw
 		}
 
 		var lastElement = (mFullHistorySize - 1) * mElementSize;
