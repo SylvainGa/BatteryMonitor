@@ -80,13 +80,15 @@ If you would like to translate the language file in your own language, contact m
 
 ## Changelog
 **V1.8.5 Added the following**
-- Added Spanish as a supported language
+- Added Spanish as a supported language.
+- Added Russian as a supported language (thanks Andrew for your contribution).
+- Bug fix when erasing data.
 
 **V1.8.4 Added the following**
-- Optimization and fail safe in the building of the full history array so it doesn't crash with a "Code Executed Too Long" when we have lots of data
+- Optimization and fail safe in the building of the full history array so it doesn't crash with a "Code Executed Too Long" when we have lots of data.
 
 **V1.8.3 Added the following**
-- Bug fix while building the history array
+- Bug fix while building the history array.
 
 **V1.8.2 Added the following**
 - Code optimization to prevent running out of timers.

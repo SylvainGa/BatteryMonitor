@@ -696,7 +696,7 @@ class BatteryMonitorView extends Ui.View {
 			dc.drawText(xPos, yPos, mFontType, "~" + remainingStr, Gfx.TEXT_JUSTIFY_RIGHT);
 		}
 		// Now to the right of the gauge
-		xPos = mCtrX * 2 * 163 / 200;
+		xPos = mCtrX * 2 * 165 / 200;
 		yPos = mCtrY * 2 * 5 / 16;
 
 		if (mLastChargeData != null) {
@@ -1409,9 +1409,13 @@ class BatteryMonitorView extends Ui.View {
 			if (mFullHistoryBuildIndex == null) {
 				mFullHistory = null; // Release memory before asking for more of the same thing
 				mFullHistory = new [HISTORY_MAX * mElementSize * (historyArraySize == 0 ? 1 : historyArraySize)];
+				mFullHistorySize = 0;
 				mHistoryStartPos = 0;
 				mTimeLastFullChargeStartPos = 0; // As we are rebuilding the arrays, we can't rely on our last saved position for finding lastest full charge
+				mLastFullChargeTimeIndex = 0; // Same here
+				mLastFullHistoryPos = 0; // Should be the same value as mFullHistorySize so it knows to redraw the graph from scratch
 				mFullHistoryBuildIndex = 0; // We start at the first array to build
+				mNoChange = false; // Our graph is no longer relevant and need to be rebuilt
 			}
 
 			if (mFullHistoryBuildIndex < historyArraySize) { // If we're at historyArraySize, we're done here and skip to the next section

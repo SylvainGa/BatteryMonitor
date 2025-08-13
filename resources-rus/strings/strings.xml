@@ -1,0 +1,75 @@
+﻿<strings>
+    <string id="AppName">Battery Monitor</string>
+    <string id="shortComplicationLabel" scope="background">BM</string>
+    <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
+
+    <!-- No glance view -->
+    <string id="label_press">Нажмите Back</string>
+    <string id="label_quit">для выхода</string>
+
+    <string id="NotAvailableShort" scope="glance">Н/Д</string>
+    <string id="PercentPerDay" scope="glance">%/д</string>
+    <string id="PercentPerHour" scope="glance">%/ч</string>
+    <string id="PercentPerDayLong">%/день</string>
+    <string id="PercentPerHourLong">%/час</string>
+
+    <string id="NoRecordedData">Данные ещё не\nбыли записаны\n\nЗаряд батареи = </string>
+    <string id="Remaining">Осталось</string>
+    <string id="Discharging">Разряжается</string>
+    <string id="Charging">Заряжается</string>
+    <string id="Rate">Скорость</string>
+
+    <string id="MoreDataNeeded">Идёт сбор данных...</string>
+
+    <string id="BatteryLevel">Уровень\nбатареи</string>
+    <string id="TimeRemaining">Осталось\nвремени</string>
+
+    <string id="SinceLastView">С недавнего просмотра</string>
+    <string id="SinceLastCharge">С недавней зарядки</string>
+
+    <string id="LastCharge">Недавняя зарядка</string>
+    <string id="At">до</string>
+
+    <string id="SetFirstMarker">Ожидание первой\nотметки</string>
+    <string id="SetSecondMarker">Ожидание второй\nотметки</string>
+    <string id="FirstMarker">Первая отметка @</string>
+    <string id="SecondMarker">Вторая отметка @</string>
+    <string id="MarkerSet">Отметка установлена</string>
+    <string id="In">в</string>
+
+    <string id="ViewMode">Просмотр</string>
+    <string id="ZoomMode">Увеличение</string>
+    <string id="PanMode">Обзор</string>
+    <string id="ZoomFull">Все</string>
+
+    <string id="PleaseWait">Пожалуйста,\nподождите</string>
+
+    <string id="Now" scope="glance">Сейчас</string>
+    <string id="Minute">мин.</string>
+    <string id="MinuteShort" scope="glance"> м</string>
+    <string id="Hour">час.</string>
+    <string id="HourShort" scope="glance"> ч</string>
+    <string id="Day">дней</string>
+    <string id="DayShort" scope="glance"> д</string>
+    <string id="PluralSuffix"> </string>
+    <string id="MediumDateFormat">$1$ $3$ $2$</string>
+
+    <string id="EraseHistory">Удалить историю?</string>
+
+<!-- In Settings -->
+	<string id="PanelOrder">Порядок панелей</string>
+    <string id="SummaryMode">Модуль сводных данных</string>
+    <string id="Auto">Авто</string>
+    <string id="PerDay">За день</string>
+    <string id="PerHour">За час</string>
+    <string id="GlanceProjectionType">Какие данные отображаются в режиме Glance</string>
+    <string id="LastCharge1">С недавней зарядки</string>
+    <string id="LongTermAvg">Среднее на длинном периоде</string>
+    <string id="BuiltinPageIndicator">Использовать встроенный индикатор страницы (устройства с CIQ 3.4 и выше)</string>
+    <string id="MaxRuntime">Максимальное время в мс до необходимости передать контроль при рисовании (от 250 до 900)</string>
+    <string id="MaxArrays">Сколько элементов хранить</string>
+    <string id="BGInterval">Интервал записи в фоне (в минутах)</string>
+    <string id="HowHandleFullArray">Что делать, когда история заполняется</string>
+    <string id="HowHandleFullArrayDiscard">Удалять старые данные</string>
+    <string id="HowHandleFullArrayAverage">Усреднять вместе со старыми данными</string>
+</strings>

@@ -20,6 +20,7 @@
             <iq:product id="vivoactive5"/>-->
             <iq:product id="edge840"/>
             <iq:product id="fenix7spro"/>
+            <iq:product id="venux1"/>
         </iq:products>
         <iq:permissions>
             <iq:uses-permission id="Background"/>
@@ -28,6 +29,7 @@
         <iq:languages>
             <iq:language>eng</iq:language>
             <iq:language>fre</iq:language>
+            <iq:language>rus</iq:language>
             <iq:language>spa</iq:language>
         </iq:languages>
         <iq:barrels/>
