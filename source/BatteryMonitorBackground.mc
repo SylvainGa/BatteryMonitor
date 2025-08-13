@@ -54,7 +54,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
 
             var success;
             do {
-                /*DEBUG*/ logMessage("onTE: Exit with" + data.size() + " elements");
+                /*DEBUG*/ logMessage("onTE: Exit with " + data.size() + " elements");
                 success = true; // Assume we'll succeed
                 try {
                     Background.exit(data);
