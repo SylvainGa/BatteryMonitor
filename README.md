@@ -79,6 +79,10 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.8.5 Added the following**
+- Added Spanish as a supported language
+- Added Russian as a supported language (thanks )
+
 **V1.8.4 Added the following**
 - Optimization and fail safe in the building of the full history array so it doesn't crash with a "Code Executed Too Long" when we have lots of data
 

@@ -1,0 +1,76 @@
+<strings>
+    <string id="AppName">Battery Monitor</string>
+    <string id="AppNameVersion">Battery Monitor V1.8.4</string>
+    <string id="shortComplicationLabel" scope="background">BM</string>
+    <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
+
+    <!-- No glance view -->
+    <string id="label_press">Presione Atrás</string>
+    <string id="label_quit">para salir</string>
+
+    <string id="NotAvailableShort" scope="glance">N/D</string>
+    <string id="PercentPerDay" scope="glance">%/d</string>
+    <string id="PercentPerHour" scope="glance">%/h</string>
+    <string id="PercentPerDayLong">%/día</string>
+    <string id="PercentPerHourLong">%/hora</string>
+
+    <string id="NoRecordedData">Aún no se han\nregistrado datos\nBatería = </string>
+    <string id="Remaining">Restante</string>
+    <string id="Discharging">Descarga</string>
+    <string id="Charging">Cargando</string>
+    <string id="Rate">Tasa</string>
+
+    <string id="MoreDataNeeded">Se necesitan más datos...</string>
+
+    <string id="BatteryLevel">Batería\nNivel</string>
+    <string id="TimeRemaining">Tiempo\nRestante</string>
+
+    <string id="SinceLastView">Desde la última vista</string>
+    <string id="SinceLastCharge">Desde el último cargo</string>
+
+    <string id="LastCharge">Última carga</string>
+    <string id="At">en</string>
+
+    <string id="SetFirstMarker">Esperando el primer\nmarcador</string>
+    <string id="SetSecondMarker">Esperando el segundo\nmarcador</string>
+    <string id="FirstMarker">Primer marcador @</string>
+    <string id="SecondMarker">Segundo marcador @</string>
+    <string id="MarkerSet">Conjunto de marcadores</string>
+    <string id="In">in</string>
+
+    <string id="ViewMode">Vista</string>
+    <string id="ZoomMode">Zoom</string>
+    <string id="PanMode">Mover</string>
+    <string id="ZoomFull">Lleno</string>
+
+    <string id="PleaseWait">Espere por favor</string>
+
+    <string id="Now" scope="glance">Ahora</string>
+    <string id="Minute">Minuto</string>
+    <string id="MinuteShort" scope="glance">m</string>
+    <string id="Hour">Hora</string>
+    <string id="HourShort" scope="glance">h</string>
+    <string id="Day">Día</string>
+    <string id="DayShort" scope="glance">d</string>
+    <string id="PluralSuffix">s</string>
+    <string id="MediumDateFormat">$1$ $2$ $3$</string>
+
+    <string id="EraseHistory">Borrar historial?</string>
+
+<!-- In Settings -->
+	<string id="PanelOrder">Orden de los paneles</string>
+    <string id="SummaryMode">Unidad de proyección resumida</string>
+    <string id="Auto">Auto</string>
+    <string id="PerDay">Por dia</string>
+    <string id="PerHour">Por hora</string>
+    <string id="GlanceProjectionType">Qué proyección mostrar en Glance</string>
+    <string id="LastCharge1">Desde el último cargo</string>
+    <string id="LongTermAvg">Promedio a largo plazo</string>
+    <string id="BuiltinPageIndicator">Utilice el indicador de página incorporado (dispositivos con CIQ 3.4 y superior)</string>
+    <string id="MaxRuntime">Tiempo máximo en mseg antes de tener que ceder el control al dibujar (de 250 a 900)</string>
+    <string id="MaxArrays">Cuántos elementos almacenar</string>
+    <string id="BGInterval">Intervalo de fondo (en minutos)</string>
+    <string id="HowHandleFullArray">Qué hacer cuando el historial está lleno</string>
+    <string id="HowHandleFullArrayDiscard">Descartar datos más antiguos</string>
+    <string id="HowHandleFullArrayAverage">Datos promedio más antiguos</string>
+</strings>

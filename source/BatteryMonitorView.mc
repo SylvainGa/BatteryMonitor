@@ -160,7 +160,7 @@ class BatteryMonitorView extends Ui.View {
 
 	function onRefreshTimer() as Void {
 		if (mRefreshCount % 600 == 0) { // Every minute, read a new set of data
-			/*DEBUG*/ logMessage("Every minute event");
+			//DEBUG*/ logMessage("Every minute event");
 			mNowData = $.getData();
 			//DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
 			if ($.analyzeAndStoreData([mNowData], 1, false) > 0) {
@@ -169,7 +169,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mRefreshCount % 50 == 0) { // Every 5 seconds
-			/*DEBUG*/ logMessage("Every 5 seconds event");
+			//DEBUG*/ logMessage("Every 5 seconds event");
 			if (mDebug < 5 || mDebug >= 10) {
 				mDebug = 0;
 			}
@@ -406,7 +406,7 @@ class BatteryMonitorView extends Ui.View {
         // DON'T redraw the layout as it clears the screen. We handle the screen cleaning ourself
         //View.onUpdate(dc);
 	
-		var updateStartTime = Sys.getTimer();
+		//DEBUG*/ var updateStartTime = Sys.getTimer();
 		var screenFormat = System.getDeviceSettings().screenShape;
 
 		if (mApp.getHistoryNeedsReload() == true || mApp.getFullHistoryNeedsRefesh() == true || mFullHistory == null) { // We'll have some work to do, tell the user to be patient
@@ -533,7 +533,7 @@ class BatteryMonitorView extends Ui.View {
 				}
 			}
 		}
-		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - updateStartTime) + " msec for " + mFullHistorySize + " elements");
+		//DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - updateStartTime) + " msec for " + mFullHistorySize + " elements");
     }
 
 	function doHeader(dc, whichView, battery, onlyBattery) {
@@ -1542,7 +1542,7 @@ class BatteryMonitorView extends Ui.View {
 				}
 			}
 		}
-		/*DEBUG*/ logMessage("lastFullChargeIndex took " + (Sys.getTimer() - startTime) + " msec, could find one, returning last know " + mLastFullChargeTimeIndex);
+		/*DEBUG*/ logMessage("lastFullChargeIndex took " + (Sys.getTimer() - startTime) + " msec, couldn't find one, returning last known " + mLastFullChargeTimeIndex);
     	return mLastFullChargeTimeIndex;
     }
     

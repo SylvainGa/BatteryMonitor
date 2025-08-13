@@ -4,7 +4,6 @@
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
     <!-- No glance view -->
-    <string id="label_touch">Appuyer sur Back</string>
     <string id="label_press">Appuyer sur Back</string>
     <string id="label_quit">pour quitter</string>
 
