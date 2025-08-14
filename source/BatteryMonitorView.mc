@@ -44,7 +44,8 @@ class BatteryMonitorView extends Ui.View {
 	var mSelectMode;
 	var mSummaryProjection;
 	var mDownSlopeSec;
-	var mSlopeNeedsCalc;
+	var mSlopeNeedsCalc; // Set to true if downslope needs more passes to finish the calculation of the slopes
+	var mSlopeNeedsFirstCalc; // If true, we need to run our first pass of the slope function
 	var mTimeLastFullChargeStartPos; // No point going lower than this index to find last full charge.
 	var mLastFullChargeTimeIndex; // FullhistoryArray index of the last full charge
 	var mLastChargeData; // Last charge array element. This and the one above are recalculated only when the fullhistory array  size change
@@ -64,6 +65,7 @@ class BatteryMonitorView extends Ui.View {
 	var mOffScreenBuffer; // Points to the bit buffer that we are going to use to draw our chart
 	var mOnScreenBuffer; // Points to a completed drawn bit buffer that we'll use to display on screen
 	var mDrawLive; // We have no bit buffers (shouldn't happen with all devices being at CIQ 3.2 or above) so flag to draw directly on screen
+	var mPleaseWaitVisible; // If true, we don't need to clear the screen as it's already visible
 
     function initialize(isViewLoop) {
         View.initialize();
@@ -90,6 +92,7 @@ class BatteryMonitorView extends Ui.View {
 			mHistoryLastPos = downSlopeData[1];
 		}
 		mSlopeNeedsCalc = true;
+		mSlopeNeedsFirstCalc = true; // Done once in onUpdate
 
 		// Was in onShow
 		mDebug = 0;
@@ -102,18 +105,13 @@ class BatteryMonitorView extends Ui.View {
 		mShowMarkerSet = false;
 		mMarkerDataXPos = [];
 		mDrawLive = false; // Assume we can draw to a bitmap. It will be set to true in drawChart if we can't
+		mPleaseWaitVisible = false; // We're not showing the please wait popup yet
 
-		/*DEBUG*/ logMessage("Starting refresh timer");
-		mRefreshTimer = new Timer.Timer();
-		mRefreshTimer.start(method(:onRefreshTimer), 100, true); // Runs every 100 msec to do its different tasks (at different intervals within)
     	// add data to ensure most recent data is shown and no time delay on the graph.
 		mStartedCharging = false;
 		mHideChargingPopup = false;
 		mLastData = $.objectStoreGet("LAST_VIEWED_DATA", null);
 		mMarkerData = $.objectStoreGet("MARKER_DATA", null);
-		mNowData = $.getData();
-		
-		$.analyzeAndStoreData([mNowData], 1, false);
     }
 
     // Called when this View is brought to the foreground. Restore
@@ -175,10 +173,6 @@ class BatteryMonitorView extends Ui.View {
 			}
 
 			doDownSlope();
-
-			if (mNoChange == false) {
-				Ui.requestUpdate();
-			}
 		}
 
 		if (mNoChange == false && mDrawLive == false && (mViewScreen == SCREEN_HISTORY || mViewScreen == SCREEN_PROJECTION)) { // If we have work to do, do it
@@ -192,7 +186,7 @@ class BatteryMonitorView extends Ui.View {
 
 		if (mShowPageIndicator != null && mRefreshCount - mShowPageIndicator > 50) { // If 5 seconds have passed since we displayed our page indicator, it's time to shut it off
 			mShowPageIndicator = null; // Don't show again until we switch view
-				Ui.requestUpdate();
+			Ui.requestUpdate();
 		}
 
 		mRefreshCount++;
@@ -264,7 +258,7 @@ class BatteryMonitorView extends Ui.View {
 		}
     }
 
-	function onReceive(newIndex, graphSizeChange) {
+	function onReceiveFromDelegate(newIndex, graphSizeChange) {
 		mNoChange = false; // We interacted, assume something has (or will) change
 
 		if (newIndex == -1) {
@@ -403,24 +397,80 @@ class BatteryMonitorView extends Ui.View {
 
     // Update the view
     function onUpdate(dc) {
-        // DON'T redraw the layout as it clears the screen. We handle the screen cleaning ourself
+        // DON'T redraw the layout as it clears the screen. We handle the screen cleaning ourself. However, some devices DO clear the screen, no matter what (like my Edge840) so every call to onUpdate MUST draw its full screen, sigh
         //View.onUpdate(dc);
 	
 		//DEBUG*/ var updateStartTime = Sys.getTimer();
 		var screenFormat = System.getDeviceSettings().screenShape;
 
+		if (mApp.mHistory == null) {
+			if (mPleaseWaitVisible == false) {  // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
+				/*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
+				mPleaseWaitVisible = true;
+				showPleaseWait(dc, screenFormat);
+				Ui.requestUpdate(); // Stop now so we can show our Please Wait popup
+				return;
+			}
+
+			/*DEBUG*/ logMessage("onUpdate: Getting latest history");
+			showPleaseWait(dc, screenFormat);
+			mApp.getLatestHistoryFromStorage();
+			Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
+			return;
+		}
+
+		var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
+		if (receivedData.size() > 0 || mNowData == null) {
+			showPleaseWait(dc, screenFormat);
+			$.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
+
+			/*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
+			if (mNowData == null) {
+				/*DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
+				mNowData = $.getData();
+				receivedData.add(mNowData);
+			}
+
+			var added = $.analyzeAndStoreData(receivedData, receivedData.size(), false);
+			if (added > 1) {
+				/*DEBUG*/ logMessage("Saving history");
+				$.objectStorePut("HISTORY_" + mApp.mHistory[0 + TIMESTAMP], mApp.mHistory);
+				mApp.setHistoryModified(false);
+			}
+			if (added > 0 && mApp.getHistoryNeedsReload() == true) {
+				Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
+				return;
+			}
+		}
+
+		if (mSlopeNeedsFirstCalc == true) {
+			/*DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
+			showPleaseWait(dc, screenFormat);
+
+			$.initDownSlope();
+			mSlopeNeedsFirstCalc = false;
+
+			Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
+			return;
+		}
+
 		if (mApp.getHistoryNeedsReload() == true || mApp.getFullHistoryNeedsRefesh() == true || mFullHistory == null) { // We'll have some work to do, tell the user to be patient
-			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_BLACK);		
-			dc.clear();
-			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);	
-			drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
-			dc.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+			/*DEBUG*/ logMessage("onUpdate: Building full history array");
+			showPleaseWait(dc, screenFormat);
 
 			if (buildFullHistory() == true) {
 				Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
 				return;
 			}
 		}
+
+		if (mRefreshTimer == null) {
+			/*DEBUG*/ logMessage("Starting refresh timer");
+			mRefreshTimer = new Timer.Timer();
+			mRefreshTimer.start(method(:onRefreshTimer), 100, true); // Runs every 100 msec to do its different tasks (at different intervals within)
+		}
+
+		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore
 
 		switch (mViewScreen) {
 			case SCREEN_DATA_MAIN:
@@ -535,6 +585,16 @@ class BatteryMonitorView extends Ui.View {
 		}
 		//DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - updateStartTime) + " msec for " + mFullHistorySize + " elements");
     }
+
+	function showPleaseWait(dc, screenFormat) {
+		if (mPleaseWaitVisible == true) {
+			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_BLACK);		
+			dc.clear();
+			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+			drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
+			dc.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
+		}
+	}
 
 	function doHeader(dc, whichView, battery, onlyBattery) {
 		// Start with an empty screen

@@ -18,7 +18,7 @@ class PageIndicatorFactory extends WatchUi.ViewLoopFactory {
         ViewLoopFactory.initialize();
 
         mView = new BatteryMonitorView(true);
-        mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive), true);
+        mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceiveFromDelegate), true);
 
         var app = App.getApp();
         app.mView = mView;

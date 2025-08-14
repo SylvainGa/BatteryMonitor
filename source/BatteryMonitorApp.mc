@@ -65,7 +65,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
-		/*DEBUG*/ logMessage("Start: mHistory " + (mHistory != null ? "has data" : "is null") + " state is " + state);
+		/*DEBUG*/ logMessage("onStart: state is " + state);
 
         if (state != null) {
             if (state.get(:launchedFromComplication) != null) {
@@ -81,27 +81,12 @@ class BatteryMonitorApp extends App.AppBase {
 
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
-		/*DEBUG*/ logMessage("onBGData (" + (mService != null ? "SD)" : "VW or GL)") + " data: " + data);
+		/*DEBUG*/ logMessage("onBackgroundData: " + data);
     	//DEBUG*/ logMessage("onBG: " + data);
 
-		// Make sure we have the latest data from storage if we're empty, otherwise use what you have
-		if (mHistory == null) {
-			getLatestHistoryFromStorage();
-		}
-		else {
-	    	/*DEBUG*/ logMessage("Already have " + mHistorySize);
-		}
-
-		if (data != null /* && mDelegate == null*/) {
-			var size = data.size();
-			if ($.analyzeAndStoreData(data, size, false) > 1) {
-				/*DEBUG*/ logMessage("Saving history");
-				$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory);
-				mHistoryModified = false;
-			}
-		
-        	Ui.requestUpdate();
-		}
+		// Store the data so the View's onUpdate function can process it
+		$.objectStorePut("RECEIVED_DATA", data);
+		Ui.requestUpdate();
     }    
 
     // onStop() is called when your application is exiting
@@ -172,19 +157,10 @@ class BatteryMonitorApp extends App.AppBase {
 
 	(:can_glance)
     function getGlanceView() {
-		/*DEBUG*/ logMessage("getGlanceView: mHistory " + (mHistory != null ? "has data" : "is null"));
-		//DEBUG*/ logMessage("getGlanceView");
+		/*DEBUG*/ logMessage("getGlanceView");
 
 		// Tell the 'Main View' that we launched from Glance
         Storage.setValue("fromGlance", true);
-
-		// If onBackgroundData hasn't fetched it, get the history
-		if (mHistory == null) {
-			getLatestHistoryFromStorage();
-		}
-
-		// Run the initial slope calc here as it seems to not time out, unlike the view code
-		$.initDownSlope();
 
 		mGlance = new BatteryMonitorGlanceView();
 		mView = mGlance; // So onSettingsChanged can call the view or glance onSettingsChanged code without needing to check for both
@@ -193,21 +169,12 @@ class BatteryMonitorApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {	
-		/*DEBUG*/ logMessage("getInitialView: mHistory " + (mHistory != null ? "has data" : "is null"));
-		//DEBUG*/ logMessage("getInitialView");
+		/*DEBUG*/ logMessage("getInitialView");
 
 		//DEBUG*/ var historyArray = $.objectStoreGet("HISTORY_ARRAY", null); $.dumpHistory(historyArray.size() - 1); return;
 
 		//DEBUG*/ logMessage("Building fake history"); buildFakeHistory();
 		//DEBUG*/ logMessage("Building copied history"); $.buildCopiedHistory(); logMessage("History built from a copy"); return;
-
-		// If onBackgroundData hasn't fetched it, get the history
-		if (mHistory == null) {
-			getLatestHistoryFromStorage();
-		}
-
-		// Run the initial slope calc here as it seems to not time out, unlike the view code
-		$.initDownSlope();
 
 		var useBuiltinPageIndicator = true;
 		try {
@@ -226,7 +193,7 @@ class BatteryMonitorApp extends App.AppBase {
 				return [viewLoop, new PageIndicatorDelegate(viewLoop)];
 			} else {
 				mView = new BatteryMonitorView(false);
-				mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceive), false);
+				mDelegate = new BatteryMonitorDelegate(mView, mView.method(:onReceiveFromDelegate), false);
 				return [mView , mDelegate];
 			}
         }
@@ -247,8 +214,7 @@ class BatteryMonitorApp extends App.AppBase {
     }
 
     function getServiceDelegate(){
-		/*DEBUG*/ logMessage("getServiceDelegate: mHistory " + (mHistory != null ? "has data" : "is null"));
-		//DEBUG*/ logMessage("getServiceDelegate");
+		/*DEBUG*/ logMessage("getServiceDelegate");
 		mService = new BatteryMonitorServiceDelegate();
         return [mService];
     }

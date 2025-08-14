@@ -42,7 +42,7 @@
     <string id="PanMode">Обзор</string>
     <string id="ZoomFull">Все</string>
 
-    <string id="PleaseWait">Пожалуйста,\nподождите</string>
+    <string id="PleaseWait" scope="glance">Пожалуйста,\nподождите</string>
 
     <string id="Now" scope="glance">Сейчас</string>
     <string id="Minute">мин.</string>

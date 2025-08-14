@@ -43,7 +43,7 @@
     <string id="PanMode">Mover</string>
     <string id="ZoomFull">Lleno</string>
 
-    <string id="PleaseWait">Espere por favor</string>
+    <string id="PleaseWait" scope="glance">Espere por favor</string>
 
     <string id="Now" scope="glance">Ahora</string>
     <string id="Minute">Minuto</string>

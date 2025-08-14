@@ -80,9 +80,11 @@ If you would like to translate the language file in your own language, contact m
 
 ## Changelog
 **V1.8.5 Added the following**
+- Optimized launching of app and now shows 'Please wait' while reading initial data.
+- Glance view no longer hogs the display of the glance wheel. However, it can take a few seconds before our data is shown as they are loaded after the launch.
+- Bug fix when erasing data.
 - Added Spanish as a supported language.
 - Added Russian as a supported language (thanks Andrew for your contribution).
-- Bug fix when erasing data.
 
 **V1.8.4 Added the following**
 - Optimization and fail safe in the building of the full history array so it doesn't crash with a "Code Executed Too Long" when we have lots of data.
