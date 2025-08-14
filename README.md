@@ -79,9 +79,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
-**V1.8.5 Added the following**
+**V1.9.0 Added the following**
 - Optimized launching of app and now shows 'Please wait' while reading initial data.
-- Glance view no longer hogs the display of the glance wheel. However, it can take a few seconds before our data is shown as they are loaded after the launch.
+- Glance view no longer hogs the display of the glance wheel. However, it can take a few seconds before our data is shown as they are loaded after the launch, it displays 'Please wait' in the mean time.
 - Bug fix when erasing data.
 - Added Spanish as a supported language.
 - Added Russian as a supported language (thanks Andrew for your contribution).
