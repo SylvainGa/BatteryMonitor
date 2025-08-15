@@ -50,7 +50,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
             var data = $.getData();
-			/*DEBUG*/ logMessage("refreshTimer Read data " + data);
+			//DEBUG*/ logMessage("refreshTimer Read data " + data);
 			$.analyzeAndStoreData([data], 1, false);
 			mRefreshCount = 0;
 		}
@@ -120,14 +120,14 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         // Draw the two/three rows of text on the glance widget
 		if (mApp.mHistory == null) {
             if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
-				/*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
+				//DEBUG*/ logMessage("onUpdate: Displaying first please wait");
                 mPleaseWaitVisible = true;
                 showPleaseWait(dc);
                 Ui.requestUpdate(); // Needed so we can show a 'please wait' message whlle we're reading our data
                 return;
             }
 
-			/*DEBUG*/ logMessage("onUpdate: Getting latest history");
+			//DEBUG*/ logMessage("onUpdate: Getting latest history");
             showPleaseWait(dc);
 			mApp.getLatestHistoryFromStorage();
 			Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
@@ -140,16 +140,16 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
 			$.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
 
-			/*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
+			//DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
 			if (mNowData == null) {
-				/*DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
+				//DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
 				mNowData = $.getData();
 				receivedData.add(mNowData);
 			}
 
 			var added = $.analyzeAndStoreData(receivedData, receivedData.size(), false);
 			if (added > 1) {
-				/*DEBUG*/ logMessage("Saving history");
+				//DEBUG*/ logMessage("Saving history");
 				$.objectStorePut("HISTORY_" + mApp.mHistory[0 + TIMESTAMP], mApp.mHistory);
 				mApp.setHistoryModified(false);
 			}
@@ -160,7 +160,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 		}
 
 		if (mSlopeNeedsFirstCalc == true) {
-			/*DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
+			//DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
 
             showPleaseWait(dc);
 
