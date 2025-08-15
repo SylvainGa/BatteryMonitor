@@ -368,10 +368,8 @@ function stripTrailingZeros(value) {
 
 				break; // Not one of the above, so that's where we stop
 			}
-			value = "";
-			for (var j = 0; j <= i; j++) {
-				value += carray[j];
-			}
+
+			return value.substring(0, i + 1); // Return the text before we stopped
 		}
 	}
 	return value;
