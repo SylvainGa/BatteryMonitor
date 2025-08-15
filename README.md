@@ -81,6 +81,7 @@ If you would like to translate the language file in your own language, contact m
 ## Changelog
 **V1.9.1 Added the following**
 - Decluterred the display by trimming trailling zeros in decimal numbers.
+- The "Since Last view" and "Since Last charge" will only keep three digits of precision so 123%, 12.3% and 1.23% and 0.123% is what will now be displayed.
 - Bug fix, reinstated the 5 seconds screen refresh that got removed by mistake, oops.
 
 **V1.9.0 Added the following**
