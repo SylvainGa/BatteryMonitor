@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.9.1.b1</string>
+    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.9.1</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 

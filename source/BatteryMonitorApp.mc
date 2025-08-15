@@ -65,7 +65,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
-		/*DEBUG*/ logMessage("onStart: state is " + state);
+		//DEBUG*/ logMessage("onStart: state is " + state);
 
         if (state != null) {
             if (state.get(:launchedFromComplication) != null) {
@@ -81,7 +81,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     function onBackgroundData(data) {
     	//DEBUG*/ logMessage("App/onBackgroundData");
-		/*DEBUG*/ logMessage("onBackgroundData: " + data);
+		//DEBUG*/ logMessage("onBackgroundData: " + data);
     	//DEBUG*/ logMessage("onBG: " + data);
 
 		// Store the data so the View's onUpdate function can process it
@@ -91,19 +91,19 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStop() is called when your application is exiting
     function onStop(state) {
-		/*DEBUG*/ logMessage("onStop (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onStop (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 
 		// Was in onHide
 		if (mService == null && mGlance == null) { // This is JUST for the main view process
 			var lastData = $.getData();
-			/*DEBUG*/ logMessage("Saving last viewed data " + lastData);
+			//DEBUG*/ logMessage("Saving last viewed data " + lastData);
 			$.analyzeAndStoreData([lastData], 1, false);
 			$.objectStorePut("LAST_VIEWED_DATA", lastData);
 		}
 
 		// If we have unsaved data, now it's the time to save them
 		if (mHistory != null && mHistoryModified == true) {
-			/*DEBUG*/ logMessage("History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
+			//DEBUG*/ logMessage("History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
 
 			storeHistory(true, mHistory[0 + TIMESTAMP]);
 		}
@@ -111,13 +111,13 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onAppInstall() is called when your application is installed
     function onAppInstall() {
-		/*DEBUG*/ logMessage("onAppInstall (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onAppInstall (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 		startBackgroundService(false);
     }
 
     // onAppUpdate() is called when your application is Updated
     function onAppUpdate() {
-		/*DEBUG*/ logMessage("onAppUpdate (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onAppUpdate (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 		startBackgroundService(false);
 	}
 
@@ -133,7 +133,7 @@ class BatteryMonitorApp extends App.AppBase {
 	function startBackgroundService(redo) {
 		var regTime = Background.getTemporalEventRegisteredTime();
 		if ( regTime == null || redo == true) {
-			/*DEBUG*/ logMessage("Starting BG process");
+			//DEBUG*/ logMessage("Starting BG process");
 			var bgInterval = 5;
 			try {
 				bgInterval = Properties.getValue("BGInterval");
@@ -152,13 +152,13 @@ class BatteryMonitorApp extends App.AppBase {
 			}
 		}
 		else {
-			/*DEBUG*/ logMessage("Next BG " + (regTime.value() / 60) + " min");
+			//DEBUG*/ logMessage("Next BG " + (regTime.value() / 60) + " min");
 		}
 	}
 
 	(:can_glance)
     function getGlanceView() {
-		/*DEBUG*/ logMessage("getGlanceView");
+		//DEBUG*/ logMessage("getGlanceView");
 
 		// Tell the 'Main View' that we launched from Glance
         Storage.setValue("fromGlance", true);
@@ -170,7 +170,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {	
-		/*DEBUG*/ logMessage("getInitialView");
+		//DEBUG*/ logMessage("getInitialView");
 
 		//DEBUG*/ var historyArray = $.objectStoreGet("HISTORY_ARRAY", null); $.dumpHistory(historyArray.size() - 1); return;
 
@@ -206,7 +206,7 @@ class BatteryMonitorApp extends App.AppBase {
 				var viewLoop = new WatchUi.ViewLoop(factory, {:page => mView.getPanelSize() - 1, :wrap => true /*, :color => Graphics.COLOR_BLACK */});
 				return [viewLoop, new PageIndicatorDelegate(viewLoop)];
 			} else {
-				/*DEBUG*/ logMessage(("Launching no glance view"));
+				//DEBUG*/ logMessage(("Launching no glance view"));
 				mView = new NoGlanceView();
 				mDelegate = new NoGlanceDelegate();
 				return [mView , mDelegate];
@@ -215,7 +215,7 @@ class BatteryMonitorApp extends App.AppBase {
     }
 
     function getServiceDelegate(){
-		/*DEBUG*/ logMessage("getServiceDelegate");
+		//DEBUG*/ logMessage("getServiceDelegate");
 		mService = new BatteryMonitorServiceDelegate();
         return [mService];
     }
@@ -234,7 +234,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 				mHistory = $.objectStoreGet("HISTORY_" + historyArray[historyArray.size() - 1], null);
 				if (mHistory != null && mHistory.size() == HISTORY_MAX * elementSize) {
-					/*DEBUG*/ getHistorySize(); logMessage("getLatest.. Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
+					//DEBUG*/ getHistorySize(); logMessage("getLatest.. Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
 					//DEBUG*/ Sys.println(historyArray); var start = mHistory[0 + TIMESTAMP]; Sys.println(start); Sys.print("["); for (var i = 0; i < mHistorySize; i++) { Sys.print(mHistory[i*3 + TIMESTAMP] - start + "," + mHistory[i*3 + BATTERY] + "," + mHistory[i*3 + SOLAR]); if (i < mHistorySize - 1) { Sys.print(","); } } Sys.println("];");
 					break;
 				 }
@@ -252,7 +252,7 @@ class BatteryMonitorApp extends App.AppBase {
 					// 	}
 					// 	break; // Now get out as our arrays are now all converted and mHistory has the latest one
 					// }
-				 	/*DEBUG*/ if (mHistory == null) { logMessage("Unable to read from HISTORY_" + historyArray[historyArray.size() - 1] + ". Dropping it"); } else { logMessage("HISTORY_" + historyArray[historyArray.size() - 1] + "is too short at " + mHistory.size()); }
+				 	//DEBUG*/ if (mHistory == null) { logMessage("Unable to read from HISTORY_" + historyArray[historyArray.size() - 1] + ". Dropping it"); } else { logMessage("HISTORY_" + historyArray[historyArray.size() - 1] + "is too short at " + mHistory.size()); }
 					$.objectStoreErase("HISTORY_" + historyArray[historyArray.size() - 1]);
 					historyArray.remove(historyArray[historyArray.size() - 1]);
 					if (historyArray.size() > 0) {
@@ -274,13 +274,13 @@ class BatteryMonitorApp extends App.AppBase {
 			var historyArray = [];
 			var history = $.objectStoreGet("HISTORY_KEY", null);
 			if (history != null) {
-				/*DEBUG*/ logMessage("Old HISTORY_KEY format found, dropping it");
+				//DEBUG*/ logMessage("Old HISTORY_KEY format found, dropping it");
 				$.objectStoreErase("HISTORY_KEY", null);
 			}
 		
 			history = $.objectStoreGet("HISTORY", null);
 			if (history != null) {
-				/*DEBUG*/ logMessage("Converting old history format to new one");
+				//DEBUG*/ logMessage("Converting old history format to new one");
 				var i = 0;
 				while (i < history.size()) {
 					mHistory = null;
@@ -291,7 +291,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 					historyArray.add(mHistory[0 + TIMESTAMP]);
 					$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory);
-					/*DEBUG*/ logMessage("HISTORY_" + mHistory[0 + TIMESTAMP] + " added to store with " + (mHistory.size() / elementSize) + " elements");
+					//DEBUG*/ logMessage("HISTORY_" + mHistory[0 + TIMESTAMP] + " added to store with " + (mHistory.size() / elementSize) + " elements");
 				}
 
 				$.objectStorePut("HISTORY_ARRAY", historyArray);
@@ -300,7 +300,7 @@ class BatteryMonitorApp extends App.AppBase {
 		}
 
 		if (mHistory == null) {
-			/*DEBUG*/ logMessage("Starting from fresh!");
+			//DEBUG*/ logMessage("Starting from fresh!");
 			mHistory = new [HISTORY_MAX * elementSize];
 		}
 
@@ -341,7 +341,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		if (historyArray.size() > maxArrays) { // But if we already have the max history arrays
 			if (handlingFullArray == 0) { // drop the earliest one
-				/*DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
+				//DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
 				$.objectStoreErase("HISTORY_" + historyArray[0]);
 				$.objectStoreErase("SLOPES_" + historyArray[0]);
 				historyArray.remove(historyArray[0]);
@@ -349,7 +349,7 @@ class BatteryMonitorApp extends App.AppBase {
 				mHistoryNeedsReload = true;
 			}
 			else { // Average earliest one with the one before (but do that in its own timer thread and yes, we'll have an extra array until this merge is completed)
-				/*DEBUG*/ logMessage("Too many history arrays, spawning averageHistoryTimer in 100 msec");
+				//DEBUG*/ logMessage("Too many history arrays, spawning averageHistoryTimer in 100 msec");
 				var timer = new Timer.Timer();
 				timer.start(method(:averageHistoryTimer), 100, false);
 			}
@@ -362,7 +362,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 		if (historyArray.size() > 1) { // Can't average if we have less than two arrays...
-			/*DEBUG*/ logMessage("Too many history arrays, averaging HISTORY_" + historyArray[0] + " and HISTORY_" + historyArray[1] + " into HISTORY_" + historyArray[0]);
+			//DEBUG*/ logMessage("Too many history arrays, averaging HISTORY_" + historyArray[0] + " and HISTORY_" + historyArray[1] + " into HISTORY_" + historyArray[0]);
 
 			var destHistory = $.objectStoreGet("HISTORY_" + historyArray[0], null); // First the first pass, source and destination is the same as we're shrinking by two
 			if (destHistory != null && destHistory.size() == HISTORY_MAX * elementSize) { // Make sure both arrays are fine
@@ -380,7 +380,7 @@ class BatteryMonitorApp extends App.AppBase {
 				}
 			}
 			else { // Something is wrong, delete it and remove it from our history array
-				/*DEBUG*/ logMessage("HISTORY_" + historyArray[0] + " is only " + destHistory.size() + " instead of " + (HISTORY_MAX * elementSize) + ". Dropping it");
+				//DEBUG*/ logMessage("HISTORY_" + historyArray[0] + " is only " + destHistory.size() + " instead of " + (HISTORY_MAX * elementSize) + ". Dropping it");
 				$.objectStoreErase("HISTORY_" + historyArray[0]);
 				$.objectStoreErase("SLOPES_" + historyArray[0]);
 				historyArray.remove(historyArray[0]);
@@ -427,12 +427,12 @@ class BatteryMonitorApp extends App.AppBase {
 				mHistoryNeedsReload = true;
 				mFullHistoryNeedsRefesh = true;
 
-				/*DEBUG*/ logMessage("HISTORY_ARRAY now has " + historyArray);
+				//DEBUG*/ logMessage("HISTORY_ARRAY now has " + historyArray);
 				$.objectStorePut("HISTORY_ARRAY", historyArray);
 
 			}
 			else { // Something is wrong, delete it and remove it from our history array
-				/*DEBUG*/ logMessage("HISTORY_" + historyArray[1] + " is only " + srcHistory.size() + " instead of " + (HISTORY_MAX * elementSize) + ". Dropping it");
+				//DEBUG*/ logMessage("HISTORY_" + historyArray[1] + " is only " + srcHistory.size() + " instead of " + (HISTORY_MAX * elementSize) + ". Dropping it");
 				$.objectStoreErase("HISTORY_" + historyArray[1]);
 				$.objectStoreErase("SLOPES_" + historyArray[1]);
 				historyArray.remove(historyArray[1]);
@@ -445,7 +445,7 @@ class BatteryMonitorApp extends App.AppBase {
 			}
 		}
 		else {
-			/*DEBUG*/ logMessage("Can't average, only " + historyArray.size() + " history arrays. Need at least 2!");
+			//DEBUG*/ logMessage("Can't average, only " + historyArray.size() + " history arrays. Need at least 2!");
 		}
 	}
 
@@ -472,7 +472,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		var historySize = mHistory.size();
 		if (historySize != HISTORY_MAX * elementSize) {
-			/*DEBUG*/ logMessage("mHistory is " + mHistory.size() + "elements instead of " + HISTORY_MAX * elementSize + "! Resizing it");
+			//DEBUG*/ logMessage("mHistory is " + mHistory.size() + "elements instead of " + HISTORY_MAX * elementSize + "! Resizing it");
 			var newHistory = new [HISTORY_MAX * elementSize];
 			var i;
 			for (i = 0; i < historySize && i < HISTORY_MAX * elementSize; i++) {
@@ -487,7 +487,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		// Sanity check. If our previous position (mHistorySize - 1) is null, start from scratch, otherwise start from our current position to improve performance
 		if (mHistorySize == null || mHistorySize > HISTORY_MAX || (mHistorySize > 0 && mHistory[(mHistorySize - 1) * elementSize + TIMESTAMP] == null)) {
-			/*DEBUG*/ if (mHistorySize != 0) { logMessage("mHistorySize was " + mHistorySize); }
+			//DEBUG*/ if (mHistorySize != 0) { logMessage("mHistorySize was " + mHistorySize); }
 			mHistorySize = 0;
 		}
 
