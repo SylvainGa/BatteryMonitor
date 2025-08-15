@@ -352,6 +352,32 @@ function initDownSlope() {
 }
 
 (:glance)
+function stripTrailingZeros(value) {
+    if (value instanceof Lang.String) {
+		if (value.find(".") != null) { // Only mathers if we contain a decimal
+			var carray = value.toCharArray();
+			var i = carray.size() - 1;
+			for (; i > 0; i--) {
+				if (carray[i].equals('.')) { // If we reached the '.', we'll skip it too and stop so we don't drop zeros before '.'
+					i--;
+					break;
+				}
+				if (carray[i].equals('0')) { // Trailing zero? Keep going
+					continue;
+				}
+
+				break; // Not one of the above, so that's where we stop
+			}
+			value = "";
+			for (var j = 0; j <= i; j++) {
+				value += carray[j];
+			}
+		}
+	}
+	return value;
+}
+
+(:glance)
 function findPositionInArray(array, index, elementSize) {
 	// Are we empty?
 	if (array[0 + TIMESTAMP] == null) {

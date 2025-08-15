@@ -3,6 +3,7 @@ using Toybox.System as Sys;
 using Toybox.Timer;
 using Toybox.Application as App;
 using Toybox.Time;
+using Toybox.StringUtil;
 using Toybox.Math;
 using Toybox.Time.Gregorian;
 using Toybox.Graphics as Gfx;
@@ -107,7 +108,7 @@ class BatteryMonitorView extends Ui.View {
 		mDrawLive = false; // Assume we can draw to a bitmap. It will be set to true in drawChart if we can't
 		mPleaseWaitVisible = false; // We're not showing the please wait popup yet
 
-    	// add data to ensure most recent data is shown and no time delay on the graph.
+		// add data to ensure most recent data is shown and no time delay on the graph.
 		mStartedCharging = false;
 		mHideChargingPopup = false;
 		mLastData = $.objectStoreGet("LAST_VIEWED_DATA", null);
@@ -173,6 +174,8 @@ class BatteryMonitorView extends Ui.View {
 			}
 
 			doDownSlope();
+
+			Ui.requestUpdate(); // And ask the screen to be refreshed
 		}
 
 		if (mNoChange == false && mDrawLive == false && (mViewScreen == SCREEN_HISTORY || mViewScreen == SCREEN_PROJECTION)) { // If we have work to do, do it
@@ -426,8 +429,8 @@ class BatteryMonitorView extends Ui.View {
 
 			/*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
 			if (mNowData == null) {
-				/*DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
 				mNowData = $.getData();
+				/*DEBUG*/ logMessage("onUpdate: tagging nowData (" + mNowData + ") to background data");
 				receivedData.add(mNowData);
 			}
 
@@ -605,7 +608,7 @@ class BatteryMonitorView extends Ui.View {
 		//! Display current charge level with the appropriate color
 		var colorBat = getBatteryColor(battery);
 		dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
-		dc.drawText(mCtrX, 20 * mCtrY * 2 / 240, Gfx.FONT_NUMBER_MILD, battery.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER |  Gfx.TEXT_JUSTIFY_VCENTER);
+		dc.drawText(mCtrX, 20 * mCtrY * 2 / 240, Gfx.FONT_NUMBER_MILD, $.stripTrailingZeros(battery.format("%0.1f")) + "%", Gfx.TEXT_JUSTIFY_CENTER |  Gfx.TEXT_JUSTIFY_VCENTER);
     	dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 
 		var scale = mCtrY * 2.0 / 240.0; // 240 was the default resolution of the watch used at the time this widget was created
@@ -720,7 +723,7 @@ class BatteryMonitorView extends Ui.View {
 		xPos -= 5;
 		dc.drawText(xPos, yPos, mFontType, Ui.loadResource(Rez.Strings.BatteryLevel), Gfx.TEXT_JUSTIFY_RIGHT);
 		yPos += mFontHeight * 2;
-		dc.drawText(xPos, yPos, Gfx.FONT_NUMBER_MILD, battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_RIGHT);
+		dc.drawText(xPos, yPos, Gfx.FONT_NUMBER_MILD, $.stripTrailingZeros(battery.format("%0.1f")) + "%", Gfx.TEXT_JUSTIFY_RIGHT);
 		yPos += Gfx.getFontHeight(Gfx.FONT_NUMBER_MILD);
 		dc.drawText(xPos, yPos, mFontType, Ui.loadResource(Rez.Strings.TimeRemaining), Gfx.TEXT_JUSTIFY_RIGHT);
 		yPos += mFontHeight * 2;
@@ -774,10 +777,10 @@ class BatteryMonitorView extends Ui.View {
 				var downSlopeStr;
 				var downSlopeHours = mDownSlopeSec * 60 * 60;
 				if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
-					downSlopeStr = (downSlopeHours * 24).format("%0.1f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerDayLong);
+					downSlopeStr = $.stripTrailingZeros((downSlopeHours * 24).format("%0.1f")) + "\n" + Ui.loadResource(Rez.Strings.PercentPerDayLong);
 				}
 				else {
-					downSlopeStr = (downSlopeHours).format("%0.2f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerHourLong);
+					downSlopeStr = $.stripTrailingZeros((downSlopeHours).format("%0.2f")) + "\n" + Ui.loadResource(Rez.Strings.PercentPerHourLong);
 				}	
 				dc.drawText(xPos, yPos, mFontType, downSlopeStr, Gfx.TEXT_JUSTIFY_CENTER);
 			}
@@ -800,10 +803,10 @@ class BatteryMonitorView extends Ui.View {
                             var dischargePerMin = batDiff * 60.0 / timeDiff;
 							var downSlopeHours = dischargePerMin * 60;
 							if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
-								dischargeStr = (downSlopeHours * 24).format("%0.1f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerDayLong);
+								dischargeStr = $.stripTrailingZeros((downSlopeHours * 24).format("%0.1f")) + "\n" + Ui.loadResource(Rez.Strings.PercentPerDayLong);
 							}
 							else {
-								dischargeStr = (downSlopeHours).format("%0.2f") + "\n" + Ui.loadResource(Rez.Strings.PercentPerHourLong);
+								dischargeStr = $.stripTrailingZeros((downSlopeHours).format("%0.2f")) + "\n" + Ui.loadResource(Rez.Strings.PercentPerHourLong);
 							}	
 						}
 					}
@@ -820,39 +823,38 @@ class BatteryMonitorView extends Ui.View {
 		yPos += mFontHeight / 4; // Give some room before displaying the charging stats
 
 		//! Data section
-		//DEBUG*/ logMessage(mNowData);
-		//DEBUG*/ logMessage(mLastData);
+		/*DEBUG*/ logMessage("mNowData " + mNowData);
+		/*DEBUG*/ logMessage("mLastData " + mLastData);
 
 		//! Bat usage since last view
-		var batUsage;
+		var batUsage = 0;
 		var timeDiff = 0;
 		if (mNowData != null && mLastData != null) {
 			var bat1 = $.stripMarkers(mNowData[BATTERY]);
 			var bat2 = $.stripMarkers(mLastData[BATTERY]);
-			batUsage = (bat1 - bat2) / 10.0;
+			batUsage = (bat2 - bat1) / 10.0;
 			timeDiff = mNowData[TIMESTAMP] - mLastData[TIMESTAMP];
 		}
 
-		//DEBUG*/ logMessage("Bat usage: " + batUsage);
-		//DEBUG*/ logMessage("Time diff: " + timeDiff);
+		/*DEBUG*/ logMessage("Bat usage: " + batUsage);
+		/*DEBUG*/ logMessage("Time diff: " + timeDiff);
 
 		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SinceLastView), Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 
 		var dischargeRate;
-		if (timeDiff > 0 && batUsage < 0) {
-			dischargeRate = batUsage * 60 * 60 * (mViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
+		if (timeDiff > 0 && batUsage >= 0) {
+			dischargeRate = $.stripTrailingZeros((batUsage * 60 * 60 * (mViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff).format("%0.3f")) + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
 		}
 		else {
-			dischargeRate = 0.0f;
+			dischargeRate = Ui.loadResource(Rez.Strings.NotAvailableShort);
 		}
 
-		dischargeRate = (-dischargeRate).format("%0.3f") + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
 		dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 
-		//DEBUG*/ logMessage("Discharge since last view: " + dischargeRate);
+		/*DEBUG*/ logMessage("Discharge since last view: " + dischargeRate);
 
 		//! Bat usage since last charge
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SinceLastCharge), Gfx.TEXT_JUSTIFY_CENTER);
@@ -871,7 +873,7 @@ class BatteryMonitorView extends Ui.View {
 				dischargeRate = 0.0f;
 			}
 
-			dischargeRate = (-dischargeRate).format("%0.3f") + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
+			dischargeRate = $.stripTrailingZeros((-dischargeRate).format("%0.3f")) + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
 			dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 			//DEBUG*/ logMessage("Discharge since last charge: " + dischargeRate);
@@ -900,7 +902,7 @@ class BatteryMonitorView extends Ui.View {
 			dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 
-			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + (mLastChargeData[BATTERY] / 10.0).format("%0.1f") + "%" , Gfx.TEXT_JUSTIFY_CENTER);
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + $.stripTrailingZeros((mLastChargeData[BATTERY] / 10.0).format("%0.1f")) + "%" , Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 		}
 		else if (mStartedCharging == true) {
@@ -943,7 +945,7 @@ class BatteryMonitorView extends Ui.View {
 		dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 
-		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + bat1.format("%0.1f") + "%" , Gfx.TEXT_JUSTIFY_CENTER);
+		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + $.stripTrailingZeros(bat1.format("%0.1f")) + "%" , Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 
 		var bat2 = $.stripMarkers(latest[BATTERY]) / 10.0;
@@ -953,17 +955,17 @@ class BatteryMonitorView extends Ui.View {
 			dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 
-			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + bat2.format("%0.1f") + "%" , Gfx.TEXT_JUSTIFY_CENTER);
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + $.stripTrailingZeros(bat2.format("%0.1f")) + "%" , Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 		}
 
 		var batDiff = (bat1 - bat2).abs();
 		var timeDiff = (latest[TIMESTAMP] - mMarkerData[0][TIMESTAMP]) / 60; // In minutes
 
-		var text = batDiff.format("%0.1f") + "% " + Ui.loadResource(Rez.Strings.In) + " " + $.minToStr(timeDiff, true);
+		var text = $.stripTrailingZeros(batDiff.format("%0.1f")) + "% " + Ui.loadResource(Rez.Strings.In) + " " + $.minToStr(timeDiff, true);
 		var textLenght = dc.getTextWidthInPixels(text, mFontType);
 		if (textLenght > (System.getDeviceSettings().screenShape == System.SCREEN_SHAPE_RECTANGLE ? mCtrX * 2 : mCtrX * 2 * 220 / 240)) {
-			text = batDiff.format("%0.1f") + "% " + Ui.loadResource(Rez.Strings.In) + " " + $.minToStr(timeDiff, false);
+			text = $.stripTrailingZeros(batDiff.format("%0.1f")) + "% " + Ui.loadResource(Rez.Strings.In) + " " + $.minToStr(timeDiff, false);
 		}
 		dc.drawText(mCtrX, yPos, mFontType, text, Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
@@ -972,10 +974,10 @@ class BatteryMonitorView extends Ui.View {
 			var discharge = batDiff * 60.0 / timeDiff; // Discharge rate per hour
 			var dischargeStr;
 			if ((discharge * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
-				dischargeStr = (discharge * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDayLong);
+				dischargeStr = $.stripTrailingZeros((discharge * 24).format("%0.1f")) + Ui.loadResource(Rez.Strings.PercentPerDayLong);
 			}
 			else {
-				dischargeStr = (discharge).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHourLong);
+				dischargeStr = $.stripTrailingZeros((discharge).format("%0.2f")) + Ui.loadResource(Rez.Strings.PercentPerHourLong);
 			}
 
 			dc.drawText(mCtrX, yPos, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_CENTER);
@@ -1023,7 +1025,7 @@ class BatteryMonitorView extends Ui.View {
 			targetDC = dc;
 		}
 
-		/*DEBUG*****/ Sys.println("Creating buffered bitmap took: " + (Sys.getTimer() - startTime) + " msec");
+		//DEBUG*****/ Sys.println("Creating buffered bitmap took: " + (Sys.getTimer() - startTime) + " msec");
 
 		if (mLastFullHistoryPos == mFullHistorySize) { // Only when we're starting drawing a new graph
 			mNoChange = false; // We need to redraw from fresh
@@ -1128,7 +1130,7 @@ class BatteryMonitorView extends Ui.View {
 			if (mSteps < 2) {
 				mSteps = 1;
 			}
-			/*DEBUG*/ Sys.println("Steps (" + mSteps +  ") from " + (mGraphShowFull == true && whichView == SCREEN_HISTORY ? "mFullHistorySize (" + mFullHistorySize + ")" : "mLastFullChargeTimeIndex (" + mLastFullChargeTimeIndex + ")") + " xFrame=" + xFrame + " mGraphSizeChange=" + mGraphSizeChange);
+			//DEBUG*/ Sys.println("Steps (" + mSteps +  ") from " + (mGraphShowFull == true && whichView == SCREEN_HISTORY ? "mFullHistorySize (" + mFullHistorySize + ")" : "mLastFullChargeTimeIndex (" + mLastFullChargeTimeIndex + ")") + " xFrame=" + xFrame + " mGraphSizeChange=" + mGraphSizeChange);
 
 			//DEBUG*****/ nowTime = Sys.getTimer(); Sys.println("After grid draw: " + (nowTime - startTime) + " msec"); startTime = nowTime;
 
@@ -1170,7 +1172,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		/*DEBUG*/ logMessage("Drawing graph with " + mFullHistorySize + " elements, mSteps is " + mSteps);
-		/*DEBUG*****/ nowTime = Sys.getTimer(); Sys.println("Overhead before main loop: " + (nowTime - startTime) + " msec");
+		//DEBUG*****/ nowTime = Sys.getTimer(); Sys.println("Overhead before main loop: " + (nowTime - startTime) + " msec");
 		for (var l = i * mElementSize, count = 1; i >= 0; i -= mSteps, l -= mSteps * mElementSize, count++) {
 			//DEBUG*/ logMessage(i + " " + mFullHistory[i]);
 			// End (closer to now)
@@ -1305,7 +1307,7 @@ class BatteryMonitorView extends Ui.View {
 				return false;
 			}
 
-			/*DEBUG*/ if (count %50 == 0) { nowTime = Sys.getTimer(); Sys.println(count + " passes in " + (nowTime - startTime) + " msec"); }
+			//DEBUG*/ if (count %50 == 0) { nowTime = Sys.getTimer(); Sys.println(count + " passes in " + (nowTime - startTime) + " msec"); }
 			mLastFullHistoryPos = mFullHistorySize; // We got to the end without timing out, reset our index so we start fresh next time
 		}
 
@@ -1383,7 +1385,7 @@ class BatteryMonitorView extends Ui.View {
 			var xSize = mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240);
 			drawBox(targetDC, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (2 * mFontHeight), xSize, 4 * mFontHeight);
 
-			var batStr = (mCoord[2] / 10.0).format("%0.1f") + "%";
+			var batStr = $.stripTrailingZeros((mCoord[2] / 10.0).format("%0.1f")) + "%";
 			timeStr = $.minToStr((timeMostRecentPoint - mCoord[1]) / 60, true);
 			var textLenght = targetDC.getTextWidthInPixels(timeStr, mFontType);
 			if (textLenght >= xSize - 2) {
@@ -1428,7 +1430,7 @@ class BatteryMonitorView extends Ui.View {
 		drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
 
 		var battery = Sys.getSystemStats().battery;
-		dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Charging) + " " + battery.format("%0.1f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
+		dc.drawText(mCtrX, mCtrY - (mFontHeight + mFontHeight / 4), (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Charging) + " " + $.stripTrailingZeros(battery.format("%0.1f")) + "%", Gfx.TEXT_JUSTIFY_CENTER);
 		var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
 		if (chargingData) {
 			var batUsage = battery - (chargingData[BATTERY]) / 10.0;
@@ -1438,10 +1440,10 @@ class BatteryMonitorView extends Ui.View {
 			//DEBUG*/ logMessage("Time diff: " + timeDiff);
 			var chargeRate;
 			if (timeDiff > 0) {
-				chargeRate = ((batUsage * 60 * 60 / timeDiff).format("%0.1f")).toString();
+				chargeRate = $.stripTrailingZeros((batUsage * 60 * 60 / timeDiff).format("%0.1f"));
 			}
 			else {
-				chargeRate = "0.0";
+				chargeRate = "0";
 			}
 			dc.drawText(mCtrX, mCtrY + mFontHeight / 8, (mFontType < 4 ? mFontType + 1 : mFontType), Ui.loadResource(Rez.Strings.Rate) + " " + chargeRate + Ui.loadResource(Rez.Strings.PercentPerHour), Gfx.TEXT_JUSTIFY_CENTER);
 		}

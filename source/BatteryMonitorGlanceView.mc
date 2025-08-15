@@ -186,7 +186,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         }
 
         dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
-        var batteryStr = battery.toNumber() + (Sys.getSystemStats().charging ? "+%" : "%");
+        var batteryStr = $.stripTrailingZeros(battery.format("%0.1f")) + (Sys.getSystemStats().charging ? "+%" : "%");
 
         var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", mFontType);
         dc.drawText(0, 0, mFontType, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
@@ -212,10 +212,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
                             var downSlopeHours = dischargePerMin * 60;
                             if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
-                                dischargeStr = (downSlopeHours * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDay);
+                                dischargeStr = $.stripTrailingZeros((downSlopeHours * 24).format("%0.1f")) + Ui.loadResource(Rez.Strings.PercentPerDay);
                             }
                             else {
-                                dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
+                                dischargeStr = $.stripTrailingZeros((downSlopeHours).format("%0.2f")) + Ui.loadResource(Rez.Strings.PercentPerHour);
                             }	
 
                             //DEBUG*/ var lastChargeMoment = new Time.Moment(lastChargeData[0]); var lastChargeInfo = Gregorian.info(lastChargeMoment, Time.FORMAT_MEDIUM); logMessage("Last charge: " + lastChargeInfo.hour + "h" + lastChargeInfo.min.format("%02d") + "m" + lastChargeInfo.sec.format("%02d") + "s, " + secToStr(timeDiff) + " ago (" + timeDiff + " sec). Battery was " + batAtLastCharge.format("%0.1f") + "%. Now at " + battery.format("%0.1f") + "%. Discharge at " + dischargeStr + ". Remaining is " + remainingStr);
@@ -253,10 +253,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
                 var downSlopeHours = downSlopeSec * 60 * 60;
                 if ((downSlopeHours * 24 <= 100 && mSummaryMode == 0) || mSummaryMode == 2) {
-                    dischargeStr = (downSlopeHours * 24).format("%0.1f") + Ui.loadResource(Rez.Strings.PercentPerDay);
+                    dischargeStr = $.stripTrailingZeros((downSlopeHours * 24).format("%0.1f")) + Ui.loadResource(Rez.Strings.PercentPerDay);
                 }
                 else {
-                    dischargeStr = (downSlopeHours).format("%0.2f") + Ui.loadResource(Rez.Strings.PercentPerHour);
+                    dischargeStr = $.stripTrailingZeros((downSlopeHours).format("%0.2f")) + Ui.loadResource(Rez.Strings.PercentPerHour);
                 }	
             } 
         }

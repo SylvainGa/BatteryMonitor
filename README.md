@@ -79,6 +79,10 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.9.1 Added the following**
+- Decluterred the display by trimming trailling zeros in decimal numbers.
+- Bug fix, reinstated the 5 seconds screen refresh that got removed by mistake, oops.
+
 **V1.9.0 Added the following**
 - Optimized launching of app and now shows 'Please wait' while reading initial data.
 - Glance view no longer hogs the display of the glance wheel. However, it can take a few seconds before our data is shown as they are loaded after the launch, it displays 'Please wait' in the mean time.
