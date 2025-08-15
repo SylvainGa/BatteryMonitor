@@ -845,7 +845,20 @@ class BatteryMonitorView extends Ui.View {
 
 		var dischargeRate;
 		if (timeDiff > 0 && batUsage >= 0) {
-			dischargeRate = $.stripTrailingZeros((batUsage * 60 * 60 * (mViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff).format("%0.3f")) + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
+			dischargeRate = batUsage * 60 * 60 * (mViewScreen == SCREEN_DATA_HR ? 1 : 24) / timeDiff;
+			var format = "%0.1f";
+			if (dischargeRate > 0) {
+				var digits = (3 - Math.log(dischargeRate, 10)).toNumber();
+				if (digits < 0) {
+					digits = 0;
+				}
+				else if (digits > 3) {
+					digits = 3;
+				}
+
+				format = "%0." + digits + "f";
+			}
+			dischargeRate = $.stripTrailingZeros((dischargeRate).format(format)) + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
 		}
 		else {
 			dischargeRate = Ui.loadResource(Rez.Strings.NotAvailableShort);
@@ -863,7 +876,7 @@ class BatteryMonitorView extends Ui.View {
 		if (mNowData != null && mLastChargeData != null) {
 			var bat1 = $.stripMarkers(mNowData[BATTERY]);
 			var bat2 = $.stripMarkers(mLastChargeData[BATTERY]);
-			batUsage = (bat1 - bat2) / 10.0;
+			batUsage = (bat2 - bat1) / 10.0;
 			timeDiff = mNowData[TIMESTAMP] - mLastChargeData[TIMESTAMP];
 
 			if (timeDiff != 0) {
@@ -873,7 +886,20 @@ class BatteryMonitorView extends Ui.View {
 				dischargeRate = 0.0f;
 			}
 
-			dischargeRate = $.stripTrailingZeros((-dischargeRate).format("%0.3f")) + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
+			var format = "%0.1f";
+			if (dischargeRate > 0) {
+				var digits = (3 - Math.log(dischargeRate, 10)).toNumber();
+				if (digits < 0) {
+					digits = 0;
+				}
+				else if (digits > 3) {
+					digits = 3;
+				}
+
+				format = "%0." + digits + "f";
+			}
+
+			dischargeRate = $.stripTrailingZeros((dischargeRate).format(format)) + (mViewScreen == SCREEN_DATA_HR ? Ui.loadResource(Rez.Strings.PercentPerHourLong) : Ui.loadResource(Rez.Strings.PercentPerDayLong));
 			dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 			//DEBUG*/ logMessage("Discharge since last charge: " + dischargeRate);
