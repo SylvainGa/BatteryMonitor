@@ -16,13 +16,16 @@ function getData() {
     var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
     var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+	var nowData = [now, battery, solar];
 
     if (Sys.getSystemStats().charging) {
         var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
         if (chargingData == null) {
-            objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
+            objectStorePut("STARTED_CHARGING_DATA", nowData);
         }
-    }
+		/*DEBUG*/ logMessage("getData: Charging " + nowData);
+		$.objectStorePut("LAST_CHARGE_DATA", nowData);
+   }
     else {
         objectStoreErase("STARTED_CHARGING_DATA");
     }
@@ -32,7 +35,7 @@ function getData() {
 		battery |= 0x1000;
 	}
 
-    return [now, battery, solar];
+    return nowData;
 }
 
 (:glance)
@@ -80,6 +83,8 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 		}
 
 		var historyRefresh = false;
+		var chargeData;
+		
 		/*DEBUG*/ var addedData = []; logMessage("analyze: historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 			if (historySize >= HISTORY_MAX) { // We've reached 500 (HISTORY_MAX), start a new array
@@ -93,6 +98,13 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 				App.getApp().setHistoryNeedsReload(true); // Flag so we can rebuild our full history based on the new history arrays
 			}
 
+			if (lastHistory != null && lastHistory[BATTERY] < data[dataIndex][BATTERY]) { // If our last battery value is less than the current one, we were charging
+				if (chargeData == null || chargeData[BATTERY] < data[dataIndex][BATTERY]) { // Keep the highest battery level
+					chargeData = data[dataIndex];
+				}
+			}
+
+			// No history or we asked to always store (for markers) or the battery value is diffenrent than the previous one, store
 			if (historySize == 0 || storeAlways || history[((historySize - 1) * elementSize) + BATTERY] != data[dataIndex][BATTERY]) {
 				history[historySize * elementSize + TIMESTAMP] = data[dataIndex][TIMESTAMP];
 				history[historySize * elementSize + BATTERY] = data[dataIndex][BATTERY];
@@ -110,8 +122,13 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 			}
 		}
 
-		/*DEBUG*/ logMessage("Added (" + added + ") " + addedData);
+		// If we found new charge data (should be the case only if we charged through USB as the standard method of charging is detected through Sys.getSystemStats().charging)
+		if (chargeData != null) {
+			/*DEBUG*/ logMessage("analyzeAndStoreData: Charging " + chargeData);
+			$.objectStorePut("LAST_CHARGE_DATA", chargeData);
+		}
 
+		/*DEBUG*/ logMessage("Added (" + added + ") " + addedData);
 		if (added > 0) {
 			// Reset the whole App history array if we had to redo a new one because we outgrew it size (see above)
 			if (historyRefresh == true) {

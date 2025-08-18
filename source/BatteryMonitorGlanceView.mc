@@ -36,7 +36,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
 		mRefreshCount = 0;
 		mTimer = new Timer.Timer();
-		mTimer.start(method(:refreshTimer), 5000, true); // Check every five second
+		mTimer.start(method(:onRefreshTimer), 5000, true); // Check every five second
     }
 
     function onHide() {
@@ -46,11 +46,11 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         }
     }
 
-	function refreshTimer() as Void {
+	function onRefreshTimer() as Void {
 		mRefreshCount++;
 		if (mRefreshCount == 12) { // Every minute, read a new set of data
             var data = $.getData();
-			/*DEBUG*/ logMessage("refreshTimer Read data " + data);
+			/*DEBUG*/ logMessage("onRefreshTimer Read data " + data);
 			$.analyzeAndStoreData([data], 1, false);
 			mRefreshCount = 0;
 		}
@@ -60,11 +60,14 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
             var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
             var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+            var nowData = [now, battery, solar];
 
             var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
             if (chargingData == null) {
-                $.objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
+                $.objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
+            /*DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
+            $.objectStorePut("LAST_CHARGE_DATA", nowData);
         }
         else {
             $.objectStoreErase("STARTED_CHARGING_DATA");
@@ -197,7 +200,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
         if (mProjectionType == 0) {
             if (Sys.getSystemStats().charging == false) { // There won't be a since last charge if we're charging...
-                var lastChargeData = LastChargeData();
+                var lastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null);
                 if (lastChargeData != null ) {
                     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
                     var timeDiff = now - lastChargeData[TIMESTAMP];
@@ -216,7 +219,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                             }
                             else {
                                 dischargeStr = $.stripTrailingZeros((downSlopeHours).format("%0.2f")) + Ui.loadResource(Rez.Strings.PercentPerHour);
-                            }	
+                            }
 
                             //DEBUG*/ var lastChargeMoment = new Time.Moment(lastChargeData[0]); var lastChargeInfo = Gregorian.info(lastChargeMoment, Time.FORMAT_MEDIUM); logMessage("Last charge: " + lastChargeInfo.hour + "h" + lastChargeInfo.min.format("%02d") + "m" + lastChargeInfo.sec.format("%02d") + "s, " + secToStr(timeDiff) + " ago (" + timeDiff + " sec). Battery was " + batAtLastCharge.format("%0.1f") + "%. Now at " + battery.format("%0.1f") + "%. Discharge at " + dischargeStr + ". Remaining is " + remainingStr);
                         }
@@ -273,30 +276,4 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             dc.drawText(0, dc.getHeight() / 2, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_LEFT | Gfx.TEXT_JUSTIFY_VCENTER);
         }
     }
-
-
-    function LastChargeData() {
-        var history = mApp.mHistory;
-        var historySize = mApp.getHistorySize();
-
-		if (history != null) {
-    		var bat2 = 0;
-			for (var i = historySize - 1; i >= 0; i--) {
-				var bat1 = $.stripMarkers(history[i * mElementSize + BATTERY]);
-				if (bat2 > bat1) {
-					i++; // We won't overflow as the first pass is always false with bat2 being 0
-					var lastCharge = [history[i * mElementSize + TIMESTAMP], bat2, mIsSolar ? history[i * mElementSize + SOLAR] : null];
-					$.objectStorePut("LAST_CHARGE_DATA", lastCharge);
-					return lastCharge;
-				}
-
-				bat2 = bat1;
-			}
-		}
-
-		var lastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null); // If we can't find the battery going up in the current history file, try to get it from the last time we saved the last charge (either here or in the main view)
-    	return lastChargeData;
-    }
-    
-
 }

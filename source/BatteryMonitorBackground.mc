@@ -30,12 +30,14 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
         var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
         var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+        var nowData = [now, battery, solar];
 
         if (Sys.getSystemStats().charging) {
             var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
             if (chargingData == null) {
-                $.objectStorePut("STARTED_CHARGING_DATA", [now, battery, solar]);
+                $.objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
+            $.objectStorePut("LAST_CHARGE_DATA", nowData);
         }
         else {
             $.objectStoreErase("STARTED_CHARGING_DATA");
@@ -49,8 +51,8 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         // Only add if it's newer to prevent passing data that are not going to be consumed
         var dataSize = data.size();
         if (dataSize == 0 || data[dataSize - 1][BATTERY] != battery) {
-            data.add([now, battery, solar]);
-            /*DEBUG*/ logMessage("onTE: adding " + [now, battery, solar]);
+            data.add(nowData);
+            /*DEBUG*/ logMessage("onTE: adding " + nowData);
 
             var success;
             do {

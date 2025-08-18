@@ -79,6 +79,10 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.9.2 Added the following**
+- New method of detecting last charge and last full charge that are less CPU/time intensive.
+- Full history array is only built when showing the graph (that's the only time it's used for) for the first time instead of at launch. This should shorten the lauch time, especially when there is a lot of data.
+
 **V1.9.1 Added the following**
 - Decluterred the display by trimming trailling zeros in decimal numbers.
 - The "Since Last view" and "Since Last charge" will only keep three digits of precision so 123%, 12.3% and 1.23% and 0.123% is what will now be displayed.
