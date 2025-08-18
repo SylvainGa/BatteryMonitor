@@ -80,9 +80,7 @@ class BatteryMonitorApp extends App.AppBase {
     }
 
     function onBackgroundData(data) {
-    	//DEBUG*/ logMessage("App/onBackgroundData");
 		/*DEBUG*/ logMessage("onBackgroundData: " + data);
-    	//DEBUG*/ logMessage("onBG: " + data);
 
 		// Store the data so the View's onUpdate function can process it
 		$.objectStorePut("RECEIVED_DATA", data);
@@ -173,7 +171,6 @@ class BatteryMonitorApp extends App.AppBase {
 		/*DEBUG*/ logMessage("getInitialView");
 
 		//DEBUG*/ var historyArray = $.objectStoreGet("HISTORY_ARRAY", null); $.dumpHistory(historyArray.size() - 1); return;
-
 		//DEBUG*/ logMessage("Building fake history"); buildFakeHistory();
 		//DEBUG*/ logMessage("Building copied history"); $.buildCopiedHistory(); logMessage("History built from a copy"); return;
 
@@ -239,19 +236,6 @@ class BatteryMonitorApp extends App.AppBase {
 					break;
 				 }
 				 else { // We had corruption? Drop it and try again
-					// Remove this converstion from 3 elements to 2
-					// if (mHistory.size() == HISTORY_MAX * 3 && isSolar == false) {
-					// 	for (var index = 0; index < historyArray.size(); index++) {
-					// 		var history = $.objectStoreGet("HISTORY_" + historyArray[index], null);
-					// 		mHistory = new [HISTORY_MAX * elementSize];
-					// 		for (var i = 0; i < HISTORY_MAX; i++) {
-					// 			mHistory[i * elementSize + TIMESTAMP] = history[i * 3 + TIMESTAMP];
-					// 			mHistory[i * elementSize + BATTERY] = history[i * 3 + BATTERY];
-					// 		}
-					// 		$.objectStorePut("HISTORY_" + historyArray[index], mHistory);
-					// 	}
-					// 	break; // Now get out as our arrays are now all converted and mHistory has the latest one
-					// }
 				 	/*DEBUG*/ if (mHistory == null) { logMessage("Unable to read from HISTORY_" + historyArray[historyArray.size() - 1] + ". Dropping it"); } else { logMessage("HISTORY_" + historyArray[historyArray.size() - 1] + "is too short at " + mHistory.size()); }
 					$.objectStoreErase("HISTORY_" + historyArray[historyArray.size() - 1]);
 					historyArray.remove(historyArray[historyArray.size() - 1]);
@@ -494,14 +478,6 @@ class BatteryMonitorApp extends App.AppBase {
 		mHistorySize = $.findPositionInArray(mHistory, mHistorySize, elementSize);
 
 		return mHistorySize;
-
-		// for (; mHistorySize < HISTORY_MAX; mHistorySize++) {
-		// 	if (mHistory[mHistorySize * elementSize + TIMESTAMP] == null) {
-		// 		break;
-		// 	}
-		// }
-		//DEBUG*/ logMessage("(3) mHistorySize is " + mHistorySize + " mHistory.size() is " + mHistory.size() + " elementSize is " + elementSize);
-
 	}
 
 	function getHistoryModified() {
