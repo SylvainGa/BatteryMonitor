@@ -20,10 +20,10 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         var data = Background.getBackgroundData();
         if (data == null) {
             data = [];
-            /*DEBUG*/ logMessage("onTE: BG no previous data ");
+            //DEBUG*/ logMessage("onTE: BG no previous data ");
         }
         else {
-            /*DEBUG*/ logMessage("onTE: BG previous data (" + data.size() + ") last: " + data[data.size() - 1]);
+            //DEBUG*/ logMessage("onTE: BG previous data (" + data.size() + ") last: " + data[data.size() - 1]);
         }
 
         var stats = Sys.getSystemStats();
@@ -52,11 +52,11 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         var dataSize = data.size();
         if (dataSize == 0 || data[dataSize - 1][BATTERY] != battery) {
             data.add(nowData);
-            /*DEBUG*/ logMessage("onTE: adding " + nowData);
+            /*DEBUG*/ logMessage("TE: " + nowData);
 
             var success;
             do {
-                /*DEBUG*/ logMessage("onTE: Exit with " + data.size() + " elements");
+                //DEBUG*/ logMessage("onTE: Exit with " + data.size() + " elements");
                 success = true; // Assume we'll succeed
                 try {
                     Background.exit(data);
@@ -75,7 +75,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             } while (success == false);
         }
         else {
-            /*DEBUG*/ logMessage("onTE: Exit ignoring " + battery);
+            //DEBUG*/ logMessage("onTE: Exit ignoring " + battery);
             Background.exit(null);
         }
     }

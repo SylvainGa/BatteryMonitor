@@ -82,6 +82,7 @@ If you would like to translate the language file in your own language, contact m
 **V1.9.2 Added the following**
 - New method of detecting last charge and last full charge that are less CPU/time intensive.
 - Full history array is only built when showing the graph (that's the only time it's used for) for the first time instead of at launch. This should shorten the lauch time, especially when there is a lot of data.
+- Bug fix when averaging solar of oldest two arrays
 
 **V1.9.1 Added the following**
 - Decluterred the display by trimming trailling zeros in decimal numbers.

@@ -128,7 +128,7 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 			$.objectStorePut("LAST_CHARGE_DATA", chargeData);
 		}
 
-		/*DEBUG*/ logMessage("Added (" + added + ") " + addedData);
+		//DEBUG*/ logMessage("Added (" + added + ") " + addedData);
 		if (added > 0) {
 			// Reset the whole App history array if we had to redo a new one because we outgrew it size (see above)
 			if (historyRefresh == true) {
@@ -168,10 +168,6 @@ function downSlope(fromInit) { //data is history data as array / return a slope 
 
 	var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 	var historyArraySize = historyArray.size();
-
-	// for (var i = 0; i < historyArraySize; i++) {
-	// 	$.objectStoreErase("SLOPES_" + historyArray[i]);
-	// }
 
 	var totalSlopes = [];
 	var firstPass = true; // In case we have no history arrays yet, we still need to process our current in memory history
@@ -310,7 +306,7 @@ function downSlope(fromInit) { //data is history data as array / return a slope 
 			}
 
 			if (slopes.size() > 0) {
-				/*DEBUG*/ logMessage("Slopes=" + slopes /*+ " start " + (size != HISTORY_MAX ? j : HISTORY_MAX) + (historyArraySize > 0 ? " for HISTORY_" + historyArray[index] : " with no historyArray")*/);
+				//DEBUG*/ logMessage("Slopes=" + slopes /*+ " start " + (size != HISTORY_MAX ? j : HISTORY_MAX) + (historyArraySize > 0 ? " for HISTORY_" + historyArray[index] : " with no historyArray")*/);
 				var slopesName;
 				var posInHistory;
 				if (size != HISTORY_MAX || historyArraySize == 0) { // We're working on the live history file and not a stored one
@@ -345,7 +341,7 @@ function downSlope(fromInit) { //data is history data as array / return a slope 
 		sumSlopes += totalSlopes[i];
 	}
 	var avgSlope = sumSlopes / slopesSize;
-	/*DEBUG*/ logMessage("avgSlope=" + avgSlope + " for " + slopesSize + " slopes");
+	//DEBUG*/ logMessage("avgSlope=" + avgSlope + " for " + slopesSize + " slopes");
 	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
 	return [avgSlope, slopeNeedsCalc];
@@ -397,30 +393,30 @@ function findPositionInArray(array, index, elementSize) {
 	// Are we empty?
 	if (array[0 + TIMESTAMP] == null) {
 		index = 0;
-		/*DEBUG*/ logMessage("index " + index + " because is empty");
+		//DEBUG*/ logMessage("index " + index + " because is empty");
 	}
 
 	// Are we full already?
 	else if (array[(HISTORY_MAX - 1) * elementSize + TIMESTAMP] != null) {
 		index = HISTORY_MAX;
-		/*DEBUG*/ logMessage("index " + index + " found at 500");
+		//DEBUG*/ logMessage("index " + index + " found at 500");
 	}
 
 	// Are we already at the right location?
 	else if (index > 0 && array[(index - 1) * elementSize + TIMESTAMP] != null && array[(index) * elementSize + TIMESTAMP] == null) {
 		index = index;
-		/*DEBUG*/ logMessage("index " + index + " is already at the right place");
+		//DEBUG*/ logMessage("index " + index + " is already at the right place");
 	}
 
 	// Have just moved by one?
 	else if (index < HISTORY_MAX - 1 && array[index * elementSize + TIMESTAMP] != null && array[(index + 1) * elementSize + TIMESTAMP] == null) {
 		index++;
-		/*DEBUG*/ logMessage("index " + index + " found at next");
+		//DEBUG*/ logMessage("index " + index + " found at next");
 	}
 
 	// Use a variation of a binary search to find the size. Worst case will be 8 iterations
 	else {
-		/*DEBUG*/ var oldHistorySize = index;
+		//DEBUG*/ var oldHistorySize = index;
 		var nextTest = ((HISTORY_MAX - index) * 10 / 2 + 5) / 10; // This is the same as x / 2.0 + 0.5 but without the floating performance point penalty
 		var count = 0; 
 		index += nextTest;
@@ -442,7 +438,7 @@ function findPositionInArray(array, index, elementSize) {
 			}
 		}
 
-		/*DEBUG*/ logMessage("index " + index + " found in " + count + " tries, started at " + oldHistorySize);
+		//DEBUG*/ logMessage("index " + index + " found in " + count + " tries, started at " + oldHistorySize);
 	}
 
 	return index;
