@@ -108,11 +108,11 @@ class BatteryMonitorApp extends App.AppBase {
 
     function onBackgroundData(data) {
 		//DEBUG*/ logMessage("onBackgroundData: " + data);
-		/*DEBUG*/ logMessage("onBackgroundData: " + data.size());
+		//DEBUG*/ logMessage("onBackgroundData: " + data.size());
 
 		if (mGlanceLaunchMode == LAUNCH_FAST) { // If we're launching Glance fast, we aren't reading and clearing RECEIVED_DATA in the Glance code so keep adding to it. It will be read once we finally launch the main view
 			var oldData = $.objectStoreGet("RECEIVED_DATA", []);
-			/*DEBUG*/ logMessage("onBackgroundData: Adding " + data + " to " + oldData);
+			//DEBUG*/ logMessage("onBackgroundData: Adding " + data + " to " + oldData);
 			oldData.addAll(data);
 			$.objectStorePut("RECEIVED_DATA", oldData);	
 		}
@@ -131,14 +131,14 @@ class BatteryMonitorApp extends App.AppBase {
 		// Was in onHide4
 		if (mService == null && mGlance == null) { // This is JUST for the main view process
 			var lastData = $.getData();
-			/*DEBUG*/ logMessage("Saving last viewed data " + lastData);
+			//DEBUG*/ logMessage("Saving last viewed data " + lastData);
 			$.analyzeAndStoreData([lastData], 1, false);
 			$.objectStorePut("LAST_VIEWED_DATA", lastData);
 		}
 
 		// If we have unsaved data, now it's the time to save them
 		if (mHistory != null && mHistoryModified == true) {
-			/*DEBUG*/ logMessage("History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
+			//DEBUG*/ logMessage("History changed, saving " + mHistorySize + " to HISTORY_" + mHistory[0 + TIMESTAMP]);
 
 			storeHistory(true, mHistory[0 + TIMESTAMP]);
 		}
@@ -146,13 +146,13 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onAppInstall() is called when your application is installed
     function onAppInstall() {
-		/*DEBUG*/ logMessage("onAppInstall (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onAppInstall (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 		startBackgroundService(false);
     }
 
     // onAppUpdate() is called when your application is Updated
     function onAppUpdate() {
-		/*DEBUG*/ logMessage("onAppUpdate (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onAppUpdate (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 		startBackgroundService(false);
 	}
 
@@ -212,7 +212,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 	(:can_glance)
     function getGlanceView() {
-		/*DEBUG*/ logMessage("getGlanceView");
+		//DEBUG*/ logMessage("getGlanceView");
 
 		// Tell the 'Main View' that we launched from Glance
         Storage.setValue("fromGlance", true);
@@ -224,7 +224,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {	
-		/*DEBUG*/ logMessage("getInitialView");
+		//DEBUG*/ logMessage("getInitialView");
 
 		//DEBUG*/ var historyArray = $.objectStoreGet("HISTORY_ARRAY", null); $.dumpHistory(historyArray.size() - 1); return;
 		//DEBUG*/ logMessage("Building fake history"); buildFakeHistory();
@@ -259,7 +259,7 @@ class BatteryMonitorApp extends App.AppBase {
 				var viewLoop = new WatchUi.ViewLoop(factory, {:page => mView.getPanelSize() - 1, :wrap => true /*, :color => Graphics.COLOR_BLACK */});
 				return [viewLoop, new PageIndicatorDelegate(viewLoop)];
 			} else {
-				/*DEBUG*/ logMessage(("Launching no glance view"));
+				//DEBUG*/ logMessage(("Launching no glance view"));
 				mView = new NoGlanceView();
 				mDelegate = new NoGlanceDelegate();
 				return [mView , mDelegate];
@@ -287,13 +287,13 @@ class BatteryMonitorApp extends App.AppBase {
 
 				mHistory = $.objectStoreGet("HISTORY_" + historyArray[historyArray.size() - 1], null);
 				if (mHistory != null && mHistory.size() == HISTORY_MAX * elementSize) {
-					/*DEBUG*/ getHistorySize(); logMessage("getLatest.. Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
+					//DEBUG*/ getHistorySize(); logMessage("getLatest.. Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
 					//DEBUG*/ Sys.println(historyArray); var start = mHistory[0 + TIMESTAMP]; Sys.println(start); Sys.print("["); for (var i = 0; i < mHistorySize; i++) { Sys.print(mHistory[i*3 + TIMESTAMP] - start + "," + mHistory[i*3 + BATTERY] + "," + mHistory[i*3 + SOLAR]); if (i < mHistorySize - 1) { Sys.print(","); } } Sys.println("];");
 					break;
 				 }
 				 else {
 					 // We had corruption? Drop it and try again
-				 	/*DEBUG*/ if (mHistory == null) { logMessage("Unable to read from HISTORY_" + historyArray[historyArray.size() - 1] + ". Dropping it"); } else { logMessage("HISTORY_" + historyArray[historyArray.size() - 1] + "is too short at " + mHistory.size()); }
+				 	//DEBUG*/ if (mHistory == null) { logMessage("Unable to read from HISTORY_" + historyArray[historyArray.size() - 1] + ". Dropping it"); } else { logMessage("HISTORY_" + historyArray[historyArray.size() - 1] + "is too short at " + mHistory.size()); }
 					$.objectStoreErase("HISTORY_" + historyArray[historyArray.size() - 1]);
 					historyArray.remove(historyArray[historyArray.size() - 1]);
 					if (historyArray.size() > 0) {
@@ -315,13 +315,13 @@ class BatteryMonitorApp extends App.AppBase {
 			var historyArray = [];
 			var history = $.objectStoreGet("HISTORY_KEY", null);
 			if (history != null) {
-				/*DEBUG*/ logMessage("Old HISTORY_KEY format found, dropping it");
+				//DEBUG*/ logMessage("Old HISTORY_KEY format found, dropping it");
 				$.objectStoreErase("HISTORY_KEY", null);
 			}
 		
 			history = $.objectStoreGet("HISTORY", null);
 			if (history != null) {
-				/*DEBUG*/ logMessage("Converting old history format to new one");
+				//DEBUG*/ logMessage("Converting old history format to new one");
 				var i = 0;
 				while (i < history.size()) {
 					mHistory = null;
@@ -332,7 +332,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 					historyArray.add(mHistory[0 + TIMESTAMP]);
 					$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory);
-					/*DEBUG*/ logMessage("HISTORY_" + mHistory[0 + TIMESTAMP] + " added to store with " + (mHistory.size() / elementSize) + " elements");
+					//DEBUG*/ logMessage("HISTORY_" + mHistory[0 + TIMESTAMP] + " added to store with " + (mHistory.size() / elementSize) + " elements");
 				}
 
 				$.objectStorePut("HISTORY_ARRAY", historyArray);
@@ -341,7 +341,7 @@ class BatteryMonitorApp extends App.AppBase {
 		}
 
 		if (mHistory == null) {
-			/*DEBUG*/ logMessage("Starting from fresh!");
+			//DEBUG*/ logMessage("Starting from fresh!");
 			mHistory = new [HISTORY_MAX * elementSize];
 		}
 
@@ -353,8 +353,8 @@ class BatteryMonitorApp extends App.AppBase {
 
 	function storeHistory(modified, timestamp) {
 		if (modified == true) {
-			/*DEBUG */ logMessage("(storeHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
-			/*DEBUG */ logMessage("storeHistory: Saving HISTORY_" + mHistory[0 + TIMESTAMP]);
+			//DEBUG */ logMessage("(storeHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+			//DEBUG */ logMessage("storeHistory: Saving HISTORY_" + mHistory[0 + TIMESTAMP]);
 			$.objectStoreErase("HISTORY_" + mHistory[0 + TIMESTAMP]); // Remove it first as it seems to drop the memory used by objectStorePut
 			$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory); // Store our history using the first timestamp for a key
 		}
@@ -363,7 +363,7 @@ class BatteryMonitorApp extends App.AppBase {
 		if (historyArray.size() == 0 || historyArray[historyArray.size() - 1] != timestamp) { // If that key isn't in the array of histories, add it
 			historyArray.add(timestamp);
 			$.objectStorePut("HISTORY_ARRAY", historyArray);
-			/*DEBUG */ logMessage("storeHistory: historyArray now " + historyArray);
+			//DEBUG */ logMessage("storeHistory: historyArray now " + historyArray);
 			shrinkArraysIfNeeded(historyArray);
 		}
 		mHistoryModified = false;
@@ -386,7 +386,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		if (historyArray.size() > maxArrays) { // But if we already have the max history arrays
 			if (handlingFullArray == 0) { // drop the earliest one
-				/*DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
+				//DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
 				$.objectStoreErase("HISTORY_" + historyArray[0]);
 				$.objectStoreErase("SLOPES_" + historyArray[0]);
 				historyArray.remove(historyArray[0]);
@@ -394,7 +394,7 @@ class BatteryMonitorApp extends App.AppBase {
 				mHistoryNeedsReload = true;
 			}
 			else { // Average earliest one with the one before (but do that in its own timer thread and yes, we'll have an extra array until this merge is completed)
-				/*DEBUG*/ logMessage("Too many history arrays, spawning averageHistoryTimer in 100 msec");
+				//DEBUG*/ logMessage("Too many history arrays, spawning averageHistoryTimer in 100 msec");
 				var timer = new Timer.Timer();
 				timer.start(method(:averageHistoryTimer), 100, false);
 			}
@@ -407,11 +407,11 @@ class BatteryMonitorApp extends App.AppBase {
 
 		var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 		if (historyArray.size() > 1) { // Can't average if we have less than two arrays...
-			/*DEBUG*/ logMessage("Too many history arrays, averaging HISTORY_" + historyArray[0] + " and HISTORY_" + historyArray[1] + " into HISTORY_" + historyArray[0]);
-	        /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+			//DEBUG*/ logMessage("Too many history arrays, averaging HISTORY_" + historyArray[0] + " and HISTORY_" + historyArray[1] + " into HISTORY_" + historyArray[0]);
+	        //DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
 			var destHistory = $.objectStoreGet("HISTORY_" + historyArray[0], null); // First the first pass, source and destination is the same as we're shrinking by two
-			/*DEBUG */ logMessage("(destHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+			//DEBUG */ logMessage("(destHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 			if (destHistory != null && destHistory.size() == HISTORY_MAX * elementSize) { // Make sure both arrays are fine
 				for (var i = 0; i < HISTORY_MAX; i += 2) {
 					var destIndex = i / 2 * elementSize;
@@ -427,7 +427,7 @@ class BatteryMonitorApp extends App.AppBase {
 				}
 			}
 			else { // Something is wrong, delete it and remove it from our history array
-				/*DEBUG*/ logMessage("HISTORY_" + historyArray[0] + " is only " + destHistory.size() + " instead of " + (HISTORY_MAX * elementSize) + ". Dropping it");
+				//DEBUG*/ logMessage("HISTORY_" + historyArray[0] + " is only " + destHistory.size() + " instead of " + (HISTORY_MAX * elementSize) + ". Dropping it");
 				$.objectStoreErase("HISTORY_" + historyArray[0]);
 				$.objectStoreErase("SLOPES_" + historyArray[0]);
 				historyArray.remove(historyArray[0]);
@@ -439,7 +439,7 @@ class BatteryMonitorApp extends App.AppBase {
 			}
 
 			var srcHistory = $.objectStoreGet("HISTORY_" + historyArray[1], null);
-			/*DEBUG */ logMessage("(srcHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+			//DEBUG */ logMessage("(srcHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 			if (srcHistory != null && srcHistory.size() == HISTORY_MAX * elementSize) { // Make sure both arrays are fine
 				for (var i = 0; i < HISTORY_MAX; i += 2) {
 					var destIndex = ((HISTORY_MAX + i) / 2) * elementSize;
@@ -454,20 +454,20 @@ class BatteryMonitorApp extends App.AppBase {
 					}
 				}
 
-				/*DEBUG */ logMessage("(before clear src) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				//DEBUG */ logMessage("(before clear src) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 				srcHistory = null; // Clear up the memory used by the source as we don't use it anymore
-				/*DEBUG */ logMessage("(before put) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				//DEBUG */ logMessage("(before put) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 				$.objectStoreErase("HISTORY_" + historyArray[0]); // Remove it first as it seems to drop the memory used by objectStorePut
 				$.objectStorePut("HISTORY_" + historyArray[0], destHistory);
-				/*DEBUG */ logMessage("(after put) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				//DEBUG */ logMessage("(after put) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
 				destHistory = null; // Clear up the memory used by the destination as we don't use it anymore
-				/*DEBUG */ logMessage("(after clear dest) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				//DEBUG */ logMessage("(after clear dest) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
 				// Now add the slopes
 				var slopes0 = $.objectStoreGet("SLOPES_" + historyArray[0], []);
 				var slopes1 = $.objectStoreGet("SLOPES_" + historyArray[1], []);
-				/*DEBUG */ logMessage("(slopes) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				//DEBUG */ logMessage("(slopes) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 				if (slopes0.size() != 0 && slopes1.size() != 0) {
 					slopes0[0].addAll(slopes1[0]);
 					for (var i = 0; i < slopes0[0].size() - 1 && slopes0[0].size() > 10 ; i++) { // Average the earliest slopes until we have have a max of 10 slopes (size is going down by one because of the .remove within)
@@ -484,12 +484,12 @@ class BatteryMonitorApp extends App.AppBase {
 				mHistoryNeedsReload = true;
 				mFullHistoryNeedsRefesh = true;
 
-				/*DEBUG*/ logMessage("HISTORY_ARRAY now has " + historyArray);
+				//DEBUG*/ logMessage("HISTORY_ARRAY now has " + historyArray);
 				$.objectStorePut("HISTORY_ARRAY", historyArray);
 
 			}
 			else { // Something is wrong, delete it and remove it from our history array
-				/*DEBUG*/ logMessage("HISTORY_" + historyArray[1] + " is only " + srcHistory.size() + " instead of " + (HISTORY_MAX * elementSize) + ". Dropping it");
+				//DEBUG*/ logMessage("HISTORY_" + historyArray[1] + " is only " + srcHistory.size() + " instead of " + (HISTORY_MAX * elementSize) + ". Dropping it");
 				$.objectStoreErase("HISTORY_" + historyArray[1]);
 				$.objectStoreErase("SLOPES_" + historyArray[1]);
 				historyArray.remove(historyArray[1]);
@@ -502,7 +502,7 @@ class BatteryMonitorApp extends App.AppBase {
 			}
 		}
 		else {
-			/*DEBUG*/ logMessage("Can't average, only " + historyArray.size() + " history arrays. Need at least 2!");
+			//DEBUG*/ logMessage("Can't average, only " + historyArray.size() + " history arrays. Need at least 2!");
 		}
 	}
 
@@ -529,7 +529,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		var historySize = mHistory.size();
 		if (historySize != HISTORY_MAX * elementSize) {
-			/*DEBUG*/ logMessage("mHistory is " + mHistory.size() + "elements instead of " + HISTORY_MAX * elementSize + "! Resizing it");
+			//DEBUG*/ logMessage("mHistory is " + mHistory.size() + "elements instead of " + HISTORY_MAX * elementSize + "! Resizing it");
 			var newHistory = new [HISTORY_MAX * elementSize];
 			var i;
 			for (i = 0; i < historySize && i < HISTORY_MAX * elementSize; i++) {
@@ -544,7 +544,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		// Sanity check. If our previous position (mHistorySize - 1) is null, start from scratch, otherwise start from our current position to improve performance
 		if (mHistorySize == null || mHistorySize > HISTORY_MAX || (mHistorySize > 0 && mHistory[(mHistorySize - 1) * elementSize + TIMESTAMP] == null)) {
-			/*DEBUG*/ if (mHistorySize != 0) { logMessage("mHistorySize was " + mHistorySize); }
+			//DEBUG*/ if (mHistorySize != 0) { logMessage("mHistorySize was " + mHistorySize); }
 			mHistorySize = 0;
 		}
 

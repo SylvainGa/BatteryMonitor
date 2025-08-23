@@ -82,7 +82,7 @@ If you would like to translate the language file in your own language, contact m
 **V1.9.2 Added the following**
 - New method of detecting last charge and last full charge that are less CPU/time intensive.
 - Added a new Settings to fast load the glance view (new default) has been added. In the Fast mode, new data since the last launch will only be processed when launching the main view (data will accumulate so don't wait months to launch the main view!) and the last calculated slope will be used instead of calculating a new one (since no new data were processed).
-- Increased maximum numbers of data points from 2500 to 5000 (default remains at 2500). However, this will have a performance penalty when showing the graph and might crash devices with less available memories.
+- Increased maximum numbers of data points from 2500 to 5000 (default remains at 2500). However, this will have a performance penalty when showing the graph and might crash devices with less available memories if increased beyond 2500.
 - Full history array is now only built when showing the graph (that's the only time it's used for) for the first time instead of at launch. This should shorten the lauch time, especially when there is a lot of data.
 - Latency reduced when switching between View/Zoom an Pan mode.
 - Background color of glances now taken into consideration when writing glance numbers (so Edge device in Day mode now have black text over white background).

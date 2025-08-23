@@ -23,7 +23,7 @@ function getData() {
         if (chargingData == null) {
             objectStorePut("STARTED_CHARGING_DATA", nowData);
         }
-		/*DEBUG*/ logMessage("getData: Charging " + nowData);
+		//DEBUG*/ logMessage("getData: Charging " + nowData);
 		$.objectStorePut("LAST_CHARGE_DATA", nowData);
    }
     else {
@@ -32,7 +32,7 @@ function getData() {
 
 	var activityStartTime = Activity.getActivityInfo().startTime;
 	if (activityStartTime != null) { // we'll hack the battery level to flag that an activity is running by 'ORing' 0x1000 (4096) to the battery level
-		battery |= 0x1000;
+		nowData[BATTERY] |= 0x1000;
 	}
 
     return nowData;
@@ -64,7 +64,7 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 
 		lastHistory = data[dataSize - 1];
 		added = dataSize;
-		/*DEBUG*/ logMessage("analyze: First addition (" + added + ") " + data);
+		//DEBUG*/ logMessage("analyze: First addition (" + added + ") " + data);
 	}
 	else { // We have a history and a last history, see if the battery value is different than the last and if so, store it but ignore this is we ask to always store
 		var dataIndex;
@@ -80,7 +80,7 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 		var historyRefresh = false;
 		var chargeData;
 		
-		/*DEBUG*/ var addedData = []; logMessage("analyze: historySize " + historySize + " dataSize " + dataSize);
+		//DEBUG*/ var addedData = []; logMessage("analyze: historySize " + historySize + " dataSize " + dataSize);
 		for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 			if (historySize >= HISTORY_MAX) { // We've reached 500 (HISTORY_MAX), start a new array
 				App.getApp().storeHistory(added > 0 || App.getApp().getHistoryModified() == true, data[dataIndex][TIMESTAMP]); // Store the current history if modified and create a new one based on the latest time stamp
@@ -111,16 +111,16 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 				historySize++;
 				added++;
 
-				/*DEBUG*/ addedData.add(data[dataIndex]);
+				//DEBUG*/ addedData.add(data[dataIndex]);
 			}
 			else {
-				/*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
+				//DEBUG*/ logMessage("Ignored " + data[dataIndex]);
 			}
 		}
 
 		// If we found new charge data (should be the case only if we charged through USB as the standard method of charging is detected through Sys.getSystemStats().charging)
 		if (chargeData != null) {
-			/*DEBUG*/ logMessage("analyzeAndStoreData: Charging " + chargeData);
+			//DEBUG*/ logMessage("analyzeAndStoreData: Charging " + chargeData);
 			$.objectStorePut("LAST_CHARGE_DATA", chargeData);
 		}
 
@@ -146,7 +146,7 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 	}
 
 	if (added > 0) {
-		/*DEBUG*/ logMessage("Added " + added + ". history now " + App.getApp().getHistorySize());
+		//DEBUG*/ logMessage("Added " + added + ". history now " + App.getApp().getHistorySize());
 		objectStorePut("LAST_HISTORY_KEY", lastHistory);
 		App.getApp().setHistoryModified(true);
 		App.getApp().setFullHistoryNeedsRefesh(true);
@@ -157,8 +157,8 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 
 (:glance)
 function downSlope(fromInit) { //data is history data as array / return a slope in percentage point per second
-	/*DEBUG*/ var startTime = Sys.getTimer();
-	/*DEBUG*/ logMessage("Calculating slope");
+	//DEBUG*/ var startTime = Sys.getTimer();
+	//DEBUG*/ logMessage("Calculating slope");
 	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
     var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
@@ -185,13 +185,13 @@ function downSlope(fromInit) { //data is history data as array / return a slope 
 			if (index == historyArraySize - 1 || historyArraySize == 0) { // Last history is from memory
 				data = App.getApp().mHistory;
 				size = App.getApp().mHistorySize;
-				/*DEBUG*/ logMessage("History: size " + size + " start@" + slopesStartPos);
+				//DEBUG*/ logMessage("History: size " + size + " start@" + slopesStartPos);
 			}
 			else {
 				data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
-				/*DEBUG*/ logMessage("Calculating slope for HISTORY_" + historyArray[index]);
+				//DEBUG*/ logMessage("Calculating slope for HISTORY_" + historyArray[index]);
 				if (data == null) {
-					/*DEBUG*/ logMessage("Skipping because it can't be found");
+					//DEBUG*/ logMessage("Skipping because it can't be found");
 					continue; // Skip this one if we can't read it. Can happen when arrays have been merged but not accounting for yet
 				}
 				size = $.findPositionInArray(data, 0, elementSize);
@@ -338,7 +338,7 @@ function downSlope(fromInit) { //data is history data as array / return a slope 
 	}
 	var avgSlope = sumSlopes / slopesSize;
 	//DEBUG*/ logMessage("avgSlope=" + avgSlope + " for " + slopesSize + " slopes");
-	/*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
+	//DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
 	return [avgSlope, slopeNeedsCalc];
 }

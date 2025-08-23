@@ -23,7 +23,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mSlopeNeedsFirstCalc;
     var mNowData;
     var mPleaseWaitVisible;
-	/*DEBUG*/ var mUpdateStartTime;
+	//DEBUG*/ var mUpdateStartTime;
 
     function initialize() {
         GlanceView.initialize();
@@ -53,7 +53,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
             if (mRefreshCount % 12 == 0) { // Every minute, read a new set of data
                 var data = $.getData();
-                /*DEBUG*/ logMessage("onRefreshTimer Read data " + data);
+                //DEBUG*/ logMessage("onRefreshTimer Read data " + data);
                 $.analyzeAndStoreData([data], 1, false);
             }
         }
@@ -69,7 +69,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             if (chargingData == null) {
                 $.objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
-            /*DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
+            //DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
             $.objectStorePut("LAST_CHARGE_DATA", nowData);
         }
         else {
@@ -135,22 +135,22 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         dc.setColor(fgColor, bgColor);
         dc.clear();
 
-        /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+        //DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
         if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
             // Draw the two/three rows of text on the glance widget
             if (mApp.mHistory == null) {
                 if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
-                    /*DEBUG*/ mUpdateStartTime = Sys.getTimer();
-                    /*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
+                    //DEBUG*/ mUpdateStartTime = Sys.getTimer();
+                    //DEBUG*/ logMessage("onUpdate: Displaying first please wait");
                     mPleaseWaitVisible = true;
                     showPleaseWait(dc, fgColor);
                     Ui.requestUpdate(); // Needed so we can show a 'please wait' message whlle we're reading our data
                     return;
                 }
 
-                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
-                /*DEBUG*/ logMessage("onUpdate: Getting latest history");
+                //DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                //DEBUG*/ logMessage("onUpdate: Getting latest history");
                 showPleaseWait(dc, fgColor);
                 mApp.getLatestHistoryFromStorage();
                 Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
@@ -159,21 +159,21 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
             var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
             if (receivedData.size() > 0 || mNowData == null) {
-                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before reading background data took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                //DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before reading background data took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
                 showPleaseWait(dc, fgColor);
 
                 $.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
 
-                /*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
+                //DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
                 if (mNowData == null) {
-                    /*DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
+                    //DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
                     mNowData = $.getData();
                     receivedData.add(mNowData);
                 }
 
                 var added = $.analyzeAndStoreData(receivedData, receivedData.size(), false);
                 if (added > 1) {
-                    /*DEBUG*/ logMessage("Saving history");
+                    //DEBUG*/ logMessage("Saving history");
                     $.objectStorePut("HISTORY_" + mApp.mHistory[0 + TIMESTAMP], mApp.mHistory);
                     mApp.setHistoryModified(false);
                 }
@@ -184,8 +184,8 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             }
 
             if (mSlopeNeedsFirstCalc == true) {
-                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
-                /*DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
+                //DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                //DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
 
                 showPleaseWait(dc, fgColor);
 
@@ -196,7 +196,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 return;
             }
 
-    		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate after everything took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+    		//DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate after everything took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
         }
 
 		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore
