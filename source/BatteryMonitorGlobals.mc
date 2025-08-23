@@ -32,7 +32,7 @@ function getData() {
 
 	var activityStartTime = Activity.getActivityInfo().startTime;
 	if (activityStartTime != null) { // we'll hack the battery level to flag that an activity is running by 'ORing' 0x1000 (4096) to the battery level
-		battery |= 0x1000;
+		nowData[BATTERY] |= 0x1000;
 	}
 
     return nowData;
