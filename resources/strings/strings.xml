@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.9.2.b6</string>
+    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.9.2.b23</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -64,6 +64,9 @@
     <string id="PerDay">Per day</string>
     <string id="PerHour">Per hour</string>
     <string id="GlanceProjectionType">Which projection to show in Glance</string>
+    <string id="GlanceLaunchMode">What mode to launch Glance in</string>
+    <string id="LaunchFast">Fast - Don't process new data now</string>
+    <string id="LaunchWhole">Whole - Process new data</string>
     <string id="LastCharge1">Since last charge</string>
     <string id="LongTermAvg">Long term average</string>
     <string id="BuiltinPageIndicator">Use built-in page indicator (devices with CIQ 3.4 and above)</string>

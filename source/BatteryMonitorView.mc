@@ -43,6 +43,7 @@ class BatteryMonitorView extends Ui.View {
 	var mViewScreen;
 	var mStartedCharging;
 	var mSelectMode;
+	var mSelectModeChanged;
 	var mSummaryProjection;
 	var mDownSlopeSec;
 	var mSlopeNeedsCalc; // Set to true if downslope needs more passes to finish the calculation of the slopes
@@ -66,6 +67,7 @@ class BatteryMonitorView extends Ui.View {
 	var mOnScreenBuffer; // Points to a completed drawn bit buffer that we'll use to display on screen
 	var mDrawLive; // We have no bit buffers (shouldn't happen with all devices being at CIQ 3.2 or above) so flag to draw directly on screen
 	var mPleaseWaitVisible; // If true, we don't need to clear the screen as it's already visible
+	/*DEBUG*/ var mUpdateStartTime;
 
     function initialize(isViewLoop) {
         View.initialize();
@@ -99,6 +101,7 @@ class BatteryMonitorView extends Ui.View {
 		mGraphSizeChange = 0;
 		mGraphShowFull = false;
 		mSelectMode = ViewMode;
+		mSelectModeChanged = false;
 		mSummaryProjection = true;
 		mShowPageIndicator = null; // When we first display, no point showing the page indicator as we are already at the first panel
 		mShowMarkerSet = false;
@@ -270,8 +273,6 @@ class BatteryMonitorView extends Ui.View {
     }
 
 	function onReceiveFromDelegate(newIndex, graphSizeChange) {
-		mNoChange = false; // We interacted, assume something has (or will) change
-
 		if (newIndex == -1) {
 			mHideChargingPopup = !mHideChargingPopup;
 		}
@@ -293,6 +294,9 @@ class BatteryMonitorView extends Ui.View {
 						if (mSelectMode > PanMode) {
 							mSelectMode = ViewMode;
 						}
+						Ui.requestUpdate();
+						return;
+
 						//DEBUG*/ logMessage("Changing Select mode to " + mSelectMode);
 					}
 					else {
@@ -308,6 +312,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 		else if (newIndex == -3) { // We're touching and holding the screen
 			if (mViewScreen == SCREEN_HISTORY) {
+				mNoChange = false; // So we go in and draw the popup
 				if (mCoord != null) { // We already showing a data, and we're holding AGAIN, mark it 
 					var markerData = [mFullHistory[mCoord[3] + TIMESTAMP], mFullHistory[mCoord[3] + BATTERY], (mIsSolar ? mFullHistory[mCoord[3] + SOLAR] : null)];
 					setMarkerData([markerData], false);
@@ -315,7 +320,6 @@ class BatteryMonitorView extends Ui.View {
 				}
 				else {
 					mCoord = [graphSizeChange[0], null, null, null];
-					mNoChange = false; // So we go in and draw the popup
 				}
 				Ui.requestUpdate();
 				return;
@@ -356,6 +360,8 @@ class BatteryMonitorView extends Ui.View {
 			}
 		}
 		//DEBUG*/ logMessage("mGraphSizeChange is " + mGraphSizeChange);
+
+		mNoChange = false; // We interacted, assume something has (or will) change
 
 		Ui.requestUpdate();
 	}
@@ -410,12 +416,15 @@ class BatteryMonitorView extends Ui.View {
     function onUpdate(dc) {
         // DON'T redraw the layout as it clears the screen. We handle the screen cleaning ourself. However, some devices DO clear the screen, no matter what (like my Edge840) so every call to onUpdate MUST draw its full screen, sigh
         //View.onUpdate(dc);
-	
+		
 		//DEBUG*/ var updateStartTime = Sys.getTimer();
 		var screenFormat = System.getDeviceSettings().screenShape;
 
+        /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+
 		if (mApp.mHistory == null) {
 			if (mPleaseWaitVisible == false) {  // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
+				/*DEBUG*/ mUpdateStartTime = Sys.getTimer();
 				/*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
 				mPleaseWaitVisible = true;
 				showPleaseWait(dc, screenFormat);
@@ -423,6 +432,7 @@ class BatteryMonitorView extends Ui.View {
 				return;
 			}
 
+			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 			/*DEBUG*/ logMessage("onUpdate: Getting latest history");
 			showPleaseWait(dc, screenFormat);
 			mApp.getLatestHistoryFromStorage();
@@ -432,6 +442,7 @@ class BatteryMonitorView extends Ui.View {
 
 		var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
 		if (receivedData.size() > 0 || mNowData == null) {
+			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before reading background data took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 			showPleaseWait(dc, screenFormat);
 			$.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
 
@@ -458,10 +469,11 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mSlopeNeedsFirstCalc == true) {
+			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 			/*DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
 			showPleaseWait(dc, screenFormat);
 
-			$.initDownSlope();
+			doDownSlope();
 			mSlopeNeedsFirstCalc = false;
 
 			Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
@@ -469,11 +481,13 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mRefreshTimer == null) {
+			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before refresh timer took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 			/*DEBUG*/ logMessage("Starting refresh timer");
 			mRefreshTimer = new Timer.Timer();
 			mRefreshTimer.start(method(:onRefreshTimer), 100, true); // Runs every 100 msec to do its different tasks (at different intervals within)
 		}
 
+		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate after everything took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore
 
 		switch (mViewScreen) {
@@ -500,10 +514,18 @@ class BatteryMonitorView extends Ui.View {
 			case SCREEN_HISTORY:
 				if (mDrawLive == true) {
 					drawChart(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], SCREEN_HISTORY, true);
+					if (mDownSlopeSec != null && mDebug == 0) {
+						showSelectMode(dc, screenFormat);
+					}
 				}
 				else {
 					if (mOnScreenBuffer != null) {
+						dc.clear();
 			            dc.drawBitmap(0, 0, mOnScreenBuffer);
+						//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right (unless we have no data to work with)
+						if (mDownSlopeSec != null && mDebug == 0) {
+							showSelectMode(dc, screenFormat);
+						}
 					}
 					else {
 						drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
@@ -1041,6 +1063,8 @@ class BatteryMonitorView extends Ui.View {
 			return drawLive; // Return what we came in from
 		}
 
+		mSelectModeChanged = false; // Since we'll be drawing the whole thing, no need to redraw the mode we're in in onUpdate
+
 		if (drawLive == false) { // We're drawing to a bitmap buffer and not directly to the screen
 			// get a buffer if we don't have one already
 			if (mOffScreenBuffer == null) {
@@ -1147,22 +1171,6 @@ class BatteryMonitorView extends Ui.View {
 		var nowTime;
 
 		if (mLastFullHistoryPos == mFullHistorySize) {
-			//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right (unless we have no data to work with)
-			if (whichView == SCREEN_HISTORY && mDownSlopeSec != null && mDebug == 0) {
-				var str;
-				if (mSelectMode == ViewMode) {
-					str = Ui.loadResource(Rez.Strings.ViewMode);
-				}
-				else if (mSelectMode == ZoomMode) {
-					str = Ui.loadResource(Rez.Strings.ZoomMode) + " " + (mGraphShowFull ? Ui.loadResource(Rez.Strings.ZoomFull) : "") +  " x" + zoomLevel[mGraphSizeChange];
-				}
-				else {
-					str = Ui.loadResource(Rez.Strings.PanMode);
-				}
-
-				targetDC.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (30 * mCtrX * 2 / 240)), Y1 - mFontHeight - 1, mFontType, str, Gfx.TEXT_JUSTIFY_LEFT);
-			}
-
 			mLastPoint = [null, null];
 
 			//! draw history data
@@ -1454,6 +1462,24 @@ class BatteryMonitorView extends Ui.View {
 
 		return false;
     }
+
+	function showSelectMode(dc, screenFormat) {
+		var str;
+		var zoomLevel = [1, 2, 4, 8, 16, 32, 64, 128];
+
+		if (mSelectMode == ViewMode) {
+			str = Ui.loadResource(Rez.Strings.ViewMode);
+		}
+		else if (mSelectMode == ZoomMode) {
+			str = Ui.loadResource(Rez.Strings.ZoomMode) + " " + (mGraphShowFull ? Ui.loadResource(Rez.Strings.ZoomFull) : "") +  " x" + zoomLevel[mGraphSizeChange];
+		}
+		else {
+			str = Ui.loadResource(Rez.Strings.PanMode);
+		}
+
+		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+		dc.drawText((screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : (30 * mCtrX * 2 / 240)), (mCtrY - mCtrY / 2) - mFontHeight - 1, mFontType, str, Gfx.TEXT_JUSTIFY_LEFT);
+	}
 
 	function drawBox(dc, x, y, width, height) {
 		dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);

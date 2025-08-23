@@ -23,6 +23,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mSlopeNeedsFirstCalc;
     var mNowData;
     var mPleaseWaitVisible;
+	/*DEBUG*/ var mUpdateStartTime;
 
     function initialize() {
         GlanceView.initialize();
@@ -48,12 +49,14 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
 	function onRefreshTimer() as Void {
 		mRefreshCount++;
-		if (mRefreshCount == 12) { // Every minute, read a new set of data
-            var data = $.getData();
-			/*DEBUG*/ logMessage("onRefreshTimer Read data " + data);
-			$.analyzeAndStoreData([data], 1, false);
-			mRefreshCount = 0;
-		}
+        
+        if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
+            if (mRefreshCount % 12 == 0) { // Every minute, read a new set of data
+                var data = $.getData();
+                /*DEBUG*/ logMessage("onRefreshTimer Read data " + data);
+                $.analyzeAndStoreData([data], 1, false);
+            }
+        }
 
         if (Sys.getSystemStats().charging) {
             var stats = Sys.getSystemStats();
@@ -120,59 +123,81 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     }
 
     function onUpdate(dc) {
-        // Draw the two/three rows of text on the glance widget
-		if (mApp.mHistory == null) {
-            if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
-				/*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
-                mPleaseWaitVisible = true;
-                showPleaseWait(dc);
-                Ui.requestUpdate(); // Needed so we can show a 'please wait' message whlle we're reading our data
+        var fgColor = Gfx.COLOR_WHITE;
+        var bgColor = Gfx.COLOR_TRANSPARENT;
+
+        // Clear the screen with a black background so devices like my Edge 840 (usually a white background during daytime) can actually show something
+        if (mApp.getTheme() == THEME_LIGHT) {
+            fgColor = Gfx.COLOR_BLACK;
+            bgColor = Gfx.COLOR_TRANSPARENT;
+        }
+
+        dc.setColor(fgColor, bgColor);
+        dc.clear();
+
+        /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+
+        if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
+            // Draw the two/three rows of text on the glance widget
+            if (mApp.mHistory == null) {
+                if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
+                    /*DEBUG*/ mUpdateStartTime = Sys.getTimer();
+                    /*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
+                    mPleaseWaitVisible = true;
+                    showPleaseWait(dc, fgColor);
+                    Ui.requestUpdate(); // Needed so we can show a 'please wait' message whlle we're reading our data
+                    return;
+                }
+
+                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                /*DEBUG*/ logMessage("onUpdate: Getting latest history");
+                showPleaseWait(dc, fgColor);
+                mApp.getLatestHistoryFromStorage();
+                Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
                 return;
             }
 
-			/*DEBUG*/ logMessage("onUpdate: Getting latest history");
-            showPleaseWait(dc);
-			mApp.getLatestHistoryFromStorage();
-			Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
-			return;
-		}
+            var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
+            if (receivedData.size() > 0 || mNowData == null) {
+                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before reading background data took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                showPleaseWait(dc, fgColor);
 
-		var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
-		if (receivedData.size() > 0 || mNowData == null) {
-            showPleaseWait(dc);
+                $.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
 
-			$.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
+                /*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
+                if (mNowData == null) {
+                    /*DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
+                    mNowData = $.getData();
+                    receivedData.add(mNowData);
+                }
 
-			/*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
-			if (mNowData == null) {
-				/*DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
-				mNowData = $.getData();
-				receivedData.add(mNowData);
-			}
+                var added = $.analyzeAndStoreData(receivedData, receivedData.size(), false);
+                if (added > 1) {
+                    /*DEBUG*/ logMessage("Saving history");
+                    $.objectStorePut("HISTORY_" + mApp.mHistory[0 + TIMESTAMP], mApp.mHistory);
+                    mApp.setHistoryModified(false);
+                }
+                if (added > 0 && mApp.getHistoryNeedsReload() == true) {
+                    Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
+                    return;
+                }
+            }
 
-			var added = $.analyzeAndStoreData(receivedData, receivedData.size(), false);
-			if (added > 1) {
-				/*DEBUG*/ logMessage("Saving history");
-				$.objectStorePut("HISTORY_" + mApp.mHistory[0 + TIMESTAMP], mApp.mHistory);
-				mApp.setHistoryModified(false);
-			}
-			if (added > 0 && mApp.getHistoryNeedsReload() == true) {
-				Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
-				return;
-			}
-		}
+            if (mSlopeNeedsFirstCalc == true) {
+                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                /*DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
 
-		if (mSlopeNeedsFirstCalc == true) {
-			/*DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
+                showPleaseWait(dc, fgColor);
 
-            showPleaseWait(dc);
+                $.initDownSlope();
+                mSlopeNeedsFirstCalc = false;
 
-			$.initDownSlope();
-			mSlopeNeedsFirstCalc = false;
+                Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
+                return;
+            }
 
-			Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
-			return;
-		}
+    		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate after everything took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+        }
 
 		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore
 
@@ -239,7 +264,8 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 downSlopeSec = downSlopeData[0];
                 mHistoryLastPos = downSlopeData[1];
             }
-            if (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mApp.mHistorySize) {
+
+            if (mApp.getGlanceLaunchMode == LAUNCH_WHOLE && (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mApp.mHistorySize)) { // ONLY do if we read mHistory (ie, LAUNCH_WHOLE) 
                 // Calculate projected usage slope
                 var downSlopeResult = $.downSlope(false);
                 downSlopeSec = downSlopeResult[0];
@@ -264,15 +290,15 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             } 
         }
 
-        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+        dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
         dc.drawText(0, mFontHeight, mFontType, remainingStr, Gfx.TEXT_JUSTIFY_LEFT);
         var xPos = (batteryStrLen > remainingStrLen ? batteryStrLen : remainingStrLen);
         dc.drawText(xPos, mFontHeight / 2, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
     }
 
-	function showPleaseWait(dc) {
+	function showPleaseWait(dc, fgColor) {
         if (mPleaseWaitVisible == true) {
-            dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+            dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
             dc.drawText(0, dc.getHeight() / 2, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_LEFT | Gfx.TEXT_JUSTIFY_VCENTER);
         }
     }

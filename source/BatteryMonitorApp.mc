@@ -44,6 +44,17 @@ enum {
 	BATTERY`,
 	SOLAR
 }
+
+enum Theme {
+    THEME_LIGHT,
+    THEME_DARK
+}
+
+enum GlanceLaunchMode {
+	LAUNCH_FAST,
+	LAUNCH_WHOLE
+}
+
 const HISTORY_ELEMENT_SIZE_SOLAR = 3; // Solar watches have three fields of 4 bytes (signed 32 bits) each, TIMESTAMP, BATTERY and SOLAR
 const HISTORY_ELEMENT_SIZE = 2; // Non solar watches have two fields of 4 bytes (signed 32 bits) each, TIMESTAMP and BATTERY
 
@@ -58,10 +69,26 @@ class BatteryMonitorApp extends App.AppBase {
 	public var mHistoryModified; // The current history array has been modified and will need to be saved when we exit
 	public var mHistoryNeedsReload; // A reload is when the full history needs to be rebuilt from scratch since the history arrays have changed
 	public var mFullHistoryNeedsRefesh; // A refresh is when only the current history array needs to be readded to the full history
-
+	private var mTheme as Theme; // Device theme
+	private var mGlanceLaunchMode as GlanceLaunchMode; // From Settings. If we need to load everything or simply go with what was used last time (not as precise)
+ 
     function initialize() {
         AppBase.initialize();
-    }	
+
+        // Test for night mode
+        if (System.DeviceSettings has :isNightModeEnabled) {
+            mTheme = System.getDeviceSettings().isNightModeEnabled ? THEME_DARK : THEME_LIGHT;
+        } else {
+            mTheme = THEME_DARK;
+        }
+
+		try {
+			mGlanceLaunchMode = Properties.getValue("GlanceLaunchMode");
+		}
+		catch (e) {
+			mGlanceLaunchMode = LAUNCH_FAST;
+		}
+    }
 
     // onStart() is called on application start up
     function onStart(state) {
@@ -83,8 +110,17 @@ class BatteryMonitorApp extends App.AppBase {
 		//DEBUG*/ logMessage("onBackgroundData: " + data);
 		/*DEBUG*/ logMessage("onBackgroundData: " + data.size());
 
-		// Store the data so the View's onUpdate function can process it
-		$.objectStorePut("RECEIVED_DATA", data);
+		if (mGlanceLaunchMode == LAUNCH_FAST) { // If we're launching Glance fast, we aren't reading and clearing RECEIVED_DATA in the Glance code so keep adding to it. It will be read once we finally launch the main view
+			var oldData = $.objectStoreGet("RECEIVED_DATA", []);
+			/*DEBUG*/ logMessage("onBackgroundData: Adding " + data + " to " + oldData);
+			oldData.addAll(data);
+			$.objectStorePut("RECEIVED_DATA", oldData);	
+		}
+		else {
+			// Store the data so the View's onUpdate function can process it
+			$.objectStorePut("RECEIVED_DATA", data);
+		}
+
 		Ui.requestUpdate();
     }    
 
@@ -92,7 +128,7 @@ class BatteryMonitorApp extends App.AppBase {
     function onStop(state) {
 		//DEBUG*/ logMessage("onStop (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 
-		// Was in onHide
+		// Was in onHide4
 		if (mService == null && mGlance == null) { // This is JUST for the main view process
 			var lastData = $.getData();
 			/*DEBUG*/ logMessage("Saving last viewed data " + lastData);
@@ -125,8 +161,27 @@ class BatteryMonitorApp extends App.AppBase {
 			mView.onSettingsChanged();
 		}
 
+		try {
+			mGlanceLaunchMode = Properties.getValue("GlanceLaunchMode");
+		}
+		catch (e) {
+			mGlanceLaunchMode = 1;
+		}
+
 		startBackgroundService(true);
 	}
+
+    // Application handler for changes in day/night mode
+    public function onNightModeChanged() {
+        // Handle a change in night mode
+        if (System.DeviceSettings has :isNightModeEnabled) {
+            mTheme = System.getDeviceSettings().isNightModeEnabled ? THEME_DARK : THEME_LIGHT;
+        } else {
+            mTheme = THEME_LIGHT;
+        }
+        // Force a screen update.
+        WatchUi.requestUpdate();
+    }
 
 	// Start the background process if it hasn't yet
 	function startBackgroundService(redo) {
@@ -298,6 +353,9 @@ class BatteryMonitorApp extends App.AppBase {
 
 	function storeHistory(modified, timestamp) {
 		if (modified == true) {
+			/*DEBUG */ logMessage("(storeHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+			/*DEBUG */ logMessage("storeHistory: Saving HISTORY_" + mHistory[0 + TIMESTAMP]);
+			$.objectStoreErase("HISTORY_" + mHistory[0 + TIMESTAMP]); // Remove it first as it seems to drop the memory used by objectStorePut
 			$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory); // Store our history using the first timestamp for a key
 		}
 
@@ -305,6 +363,7 @@ class BatteryMonitorApp extends App.AppBase {
 		if (historyArray.size() == 0 || historyArray[historyArray.size() - 1] != timestamp) { // If that key isn't in the array of histories, add it
 			historyArray.add(timestamp);
 			$.objectStorePut("HISTORY_ARRAY", historyArray);
+			/*DEBUG */ logMessage("storeHistory: historyArray now " + historyArray);
 			shrinkArraysIfNeeded(historyArray);
 		}
 		mHistoryModified = false;
@@ -349,8 +408,10 @@ class BatteryMonitorApp extends App.AppBase {
 		var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 		if (historyArray.size() > 1) { // Can't average if we have less than two arrays...
 			/*DEBUG*/ logMessage("Too many history arrays, averaging HISTORY_" + historyArray[0] + " and HISTORY_" + historyArray[1] + " into HISTORY_" + historyArray[0]);
+	        /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
 			var destHistory = $.objectStoreGet("HISTORY_" + historyArray[0], null); // First the first pass, source and destination is the same as we're shrinking by two
+			/*DEBUG */ logMessage("(destHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 			if (destHistory != null && destHistory.size() == HISTORY_MAX * elementSize) { // Make sure both arrays are fine
 				for (var i = 0; i < HISTORY_MAX; i += 2) {
 					var destIndex = i / 2 * elementSize;
@@ -378,6 +439,7 @@ class BatteryMonitorApp extends App.AppBase {
 			}
 
 			var srcHistory = $.objectStoreGet("HISTORY_" + historyArray[1], null);
+			/*DEBUG */ logMessage("(srcHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 			if (srcHistory != null && srcHistory.size() == HISTORY_MAX * elementSize) { // Make sure both arrays are fine
 				for (var i = 0; i < HISTORY_MAX; i += 2) {
 					var destIndex = ((HISTORY_MAX + i) / 2) * elementSize;
@@ -392,11 +454,20 @@ class BatteryMonitorApp extends App.AppBase {
 					}
 				}
 
+				/*DEBUG */ logMessage("(before clear src) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				srcHistory = null; // Clear up the memory used by the source as we don't use it anymore
+				/*DEBUG */ logMessage("(before put) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				$.objectStoreErase("HISTORY_" + historyArray[0]); // Remove it first as it seems to drop the memory used by objectStorePut
 				$.objectStorePut("HISTORY_" + historyArray[0], destHistory);
+				/*DEBUG */ logMessage("(after put) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+
+				destHistory = null; // Clear up the memory used by the destination as we don't use it anymore
+				/*DEBUG */ logMessage("(after clear dest) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
 				// Now add the slopes
 				var slopes0 = $.objectStoreGet("SLOPES_" + historyArray[0], []);
 				var slopes1 = $.objectStoreGet("SLOPES_" + historyArray[1], []);
+				/*DEBUG */ logMessage("(slopes) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 				if (slopes0.size() != 0 && slopes1.size() != 0) {
 					slopes0[0].addAll(slopes1[0]);
 					for (var i = 0; i < slopes0[0].size() - 1 && slopes0[0].size() > 10 ; i++) { // Average the earliest slopes until we have have a max of 10 slopes (size is going down by one because of the .remove within)
@@ -506,6 +577,14 @@ class BatteryMonitorApp extends App.AppBase {
 		mFullHistoryNeedsRefesh = state;
 	}
 
+    // Theme accessor
+    public function getTheme() as Theme {
+        return mTheme;
+    }
+
+	public function getGlanceLaunchMode() as GlanceLaunchMode {
+		return mGlanceLaunchMode;
+	}
 
 	(:debug)
 	function buildFakeHistory() {

@@ -63,6 +63,9 @@
     <string id="PerDay">Par jour</string>
     <string id="PerHour">Par heure</string>
     <string id="GlanceProjectionType">Quelle projection à montrer dans l'apperçue rapide</string>
+    <string id="GlanceLaunchMode">Dans quel mode lancé l'apperçue rapide</string>
+    <string id="LaunchFast">Rapide - Ne pas traité maintenant les données en attente</string>
+    <string id="LaunchWhole">Complète - Traité les données en attente</string>
     <string id="LastCharge1">Depuis la dernière charge</string>
     <string id="LongTermAvg">La projection long terme</string>
     <string id="BuiltinPageIndicator">Utilisez les indicateurs de page interne (appareils avec CIQ 3.4 et plus)</string>

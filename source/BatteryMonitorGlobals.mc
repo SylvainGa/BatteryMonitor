@@ -62,11 +62,6 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 			}
 		}
 
-		// Tell the App this is our history now
-		var ret = App.getApp().setHistory(history);
-		history = ret[0];
-		historySize = ret[1];
-
 		lastHistory = data[dataSize - 1];
 		added = dataSize;
 		/*DEBUG*/ logMessage("analyze: First addition (" + added + ") " + data);
@@ -91,7 +86,8 @@ function analyzeAndStoreData(data, dataSize, storeAlways) {
 				App.getApp().storeHistory(added > 0 || App.getApp().getHistoryModified() == true, data[dataIndex][TIMESTAMP]); // Store the current history if modified and create a new one based on the latest time stamp
 
 				// Now start fresh
-				history = null; // Clean up before asking for more space
+				App.getApp().setHistory(null); // Reclaims mHistory space
+				history = null; // Reclaims history space
 				history = new [HISTORY_MAX * elementSize];
 				historySize = 0;
 				historyRefresh = true;

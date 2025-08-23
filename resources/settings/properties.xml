@@ -3,6 +3,7 @@
 	<property id="PanelOrder" type="string">1,2,3,4,5,6,7</property>
 	<property id="SummaryMode" type="number">0</property>
 	<property id="GlanceProjectionType" type="number">1</property>
+	<property id="GlanceLaunchMode" type="number">0</property>
 	<property id="BuiltinPageIndicator" type="boolean">true</property>
 	<property id="MaxRuntime" type="number">700</property>
 	<property id="MaxArrays" type="number">5</property>
