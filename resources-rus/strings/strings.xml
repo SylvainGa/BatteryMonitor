@@ -63,6 +63,9 @@
     <string id="PerDay">За день</string>
     <string id="PerHour">За час</string>
     <string id="GlanceProjectionType">Какие данные отображаются в режиме Glance</string>
+    <string id="GlanceLaunchMode">В каком режиме запускать Glance</string>
+    <string id="LaunchFast">Быстро - не обрабатывать новые данные сейчас</string>
+    <string id="LaunchWhole">Целое - Обработка новых данных</string>
     <string id="LastCharge1">С недавней зарядки</string>
     <string id="LongTermAvg">Среднее на длинном периоде</string>
     <string id="BuiltinPageIndicator">Использовать встроенный индикатор страницы (устройства с CIQ 3.4 и выше)</string>

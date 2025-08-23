@@ -64,6 +64,9 @@
     <string id="PerDay">Por dia</string>
     <string id="PerHour">Por hora</string>
     <string id="GlanceProjectionType">Qué proyección mostrar en Glance</string>
+    <string id="GlanceLaunchMode">En qué modo iniciar Glance</string>
+    <string id="LaunchFast">Rápido - no procese datos nuevos ahora</string>
+    <string id="LaunchWhole">Todo - Procesar nuevos datos</string>
     <string id="LastCharge1">Desde el último cargo</string>
     <string id="LongTermAvg">Promedio a largo plazo</string>
     <string id="BuiltinPageIndicator">Utilice el indicador de página incorporado (dispositivos con CIQ 3.4 y superior)</string>
