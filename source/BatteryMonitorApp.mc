@@ -121,6 +121,7 @@ class BatteryMonitorApp extends App.AppBase {
 			$.objectStorePut("RECEIVED_DATA", data);
 		}
 
+		/*DEBUG*/ logMessage("onBackgroundData requestUpdate");
 		Ui.requestUpdate();
     }    
 
@@ -180,6 +181,7 @@ class BatteryMonitorApp extends App.AppBase {
             mTheme = THEME_LIGHT;
         }
         // Force a screen update.
+		/*DEBUG*/ logMessage("onNightModeChanged requestUpdate");
         WatchUi.requestUpdate();
     }
 

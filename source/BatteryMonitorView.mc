@@ -43,7 +43,6 @@ class BatteryMonitorView extends Ui.View {
 	var mViewScreen;
 	var mStartedCharging;
 	var mSelectMode;
-	var mSelectModeChanged;
 	var mSummaryProjection;
 	var mDownSlopeSec;
 	var mSlopeNeedsCalc; // Set to true if downslope needs more passes to finish the calculation of the slopes
@@ -68,6 +67,8 @@ class BatteryMonitorView extends Ui.View {
 	var mDrawLive; // We have no bit buffers (shouldn't happen with all devices being at CIQ 3.2 or above) so flag to draw directly on screen
 	var mPleaseWaitVisible; // If true, we don't need to clear the screen as it's already visible
 	/*DEBUG*/ var mUpdateStartTime;
+	/*DEBUG*/ var mDrawChartStartTime;
+	/*DEBUG*/ var mDrawChartBuiltFullArray;
 
     function initialize(isViewLoop) {
         View.initialize();
@@ -101,7 +102,6 @@ class BatteryMonitorView extends Ui.View {
 		mGraphSizeChange = 0;
 		mGraphShowFull = false;
 		mSelectMode = ViewMode;
-		mSelectModeChanged = false;
 		mSummaryProjection = true;
 		mShowPageIndicator = null; // When we first display, no point showing the page indicator as we are already at the first panel
 		mShowMarkerSet = false;
@@ -432,17 +432,18 @@ class BatteryMonitorView extends Ui.View {
 				return;
 			}
 
-			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 			/*DEBUG*/ logMessage("onUpdate: Getting latest history");
 			showPleaseWait(dc, screenFormat);
+			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime; var startTime = endTime;
 			mApp.getLatestHistoryFromStorage();
+			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("onUpdate getLatestHistoryFromStorage took " + (endTime - startTime) + " msec");
 			Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
 			return;
 		}
 
 		var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
 		if (receivedData.size() > 0 || mNowData == null) {
-			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before reading background data took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+			/*DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("onUpdate before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
 			showPleaseWait(dc, screenFormat);
 			$.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
 
@@ -453,11 +454,14 @@ class BatteryMonitorView extends Ui.View {
 				receivedData.add(mNowData);
 			}
 
+			/*DEBUG*/ var startTime = Sys.getTimer();
 			var added = $.analyzeAndStoreData(receivedData, receivedData.size(), false);
+			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("onUpdate analyzing data took " + (endTime - startTime) + " msec"); startTime = endTime;
 			if (added > 1) {
 				/*DEBUG*/ logMessage("Saving history");
 				$.objectStorePut("HISTORY_" + mApp.mHistory[0 + TIMESTAMP], mApp.mHistory);
 				mApp.setHistoryModified(false);
+				/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("onUpdate saving history took " + (endTime - startTime) + " msec");
 
 				mLastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null);
 				/*DEBUG*/ logMessage("Refreshing last charge to " + mLastChargeData);
@@ -470,10 +474,12 @@ class BatteryMonitorView extends Ui.View {
 
 		if (mSlopeNeedsFirstCalc == true) {
 			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
-			/*DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
+			/*DEBUG*/ logMessage("onUpdate: Doing calc of slopes");
 			showPleaseWait(dc, screenFormat);
 
+			/*DEBUG*/ var startTime = Sys.getTimer();
 			doDownSlope();
+			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("onUpdate calc of slopes took " + (endTime - startTime) + " msec");
 			mSlopeNeedsFirstCalc = false;
 
 			Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
@@ -486,8 +492,10 @@ class BatteryMonitorView extends Ui.View {
 			mRefreshTimer = new Timer.Timer();
 			mRefreshTimer.start(method(:onRefreshTimer), 100, true); // Runs every 100 msec to do its different tasks (at different intervals within)
 		}
+		/*DEBUG*/ else { mUpdateStartTime = null; }
 
-		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate after everything took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+		/*DEBUG*/ if (mUpdateStartTime != null) { var endTime = Sys.getTimer(); Sys.println("onUpdate after everything took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime; }
+
 		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore
 
 		switch (mViewScreen) {
@@ -614,7 +622,7 @@ class BatteryMonitorView extends Ui.View {
     }
 
 	function showPleaseWait(dc, screenFormat) {
-		if (mPleaseWaitVisible == true) {
+		if (mPleaseWaitVisible == true && dc != null) {
 			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_BLACK);		
 			dc.clear();
 			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
@@ -1046,6 +1054,8 @@ class BatteryMonitorView extends Ui.View {
 		var startTime = Sys.getTimer();
 		var targetDC;
 
+		/*DEBUG*/ if (mDrawChartStartTime == null) { mDrawChartStartTime = Sys.getTimer(); }
+
 		if (mApp.getHistoryNeedsReload() == true || mApp.getFullHistoryNeedsRefesh() == true || mFullHistory == null) { // We'll have some work to do, tell the user to be patient
 			/*DEBUG*/ logMessage("onUpdate: Building full history array");
 			var screenFormat = System.getDeviceSettings().screenShape;
@@ -1058,12 +1068,12 @@ class BatteryMonitorView extends Ui.View {
 			}
 		}
 
+		/*DEBUG*/ if (mDrawChartBuiltFullArray == null) { var endTime = Sys.getTimer(); Sys.println("drawChart building full history took " + (endTime - mDrawChartStartTime) + " msec"); } mDrawChartBuiltFullArray = true;
+
 		if (mNoChange == true) {
 			/*DEBUG*/ logMessage("No change");
 			return drawLive; // Return what we came in from
 		}
-
-		mSelectModeChanged = false; // Since we'll be drawing the whole thing, no need to redraw the mode we're in in onUpdate
 
 		if (drawLive == false) { // We're drawing to a bitmap buffer and not directly to the screen
 			// get a buffer if we don't have one already
@@ -1459,6 +1469,8 @@ class BatteryMonitorView extends Ui.View {
 
 		mOnScreenBuffer = mOffScreenBuffer; // And we can use this buffer to draw on screen
 		mOffScreenBuffer = null; // And clear this buffer so we can start fresh next time
+
+		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("drawChart finished in " + (endTime - mDrawChartStartTime) + " msec"); mDrawChartStartTime = null;
 
 		return false;
     }

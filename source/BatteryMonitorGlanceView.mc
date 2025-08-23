@@ -76,6 +76,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             $.objectStoreErase("STARTED_CHARGING_DATA");
         }
 
+		/*DEBUG*/ logMessage("onRefreshTimer requestUpdate");
 		Ui.requestUpdate();
     }
 
@@ -138,6 +139,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
         if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
+    		/*DEBUG*/ logMessage("onUpdate LAUNCH_WHOLE");
             // Draw the two/three rows of text on the glance widget
             if (mApp.mHistory == null) {
                 if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
