@@ -29,7 +29,7 @@ Use the Menu button to erase the history and start fresh.
  
 Depending on the device, there could be enough memory to store 2,500 data elements (settable in Settings, depends on how much memory your device has). Since only changed battery level are recorded, depending on how fast your device is draining, you'll have data for several days if not weeks.
 
-Data points are calculated using a background process running every 5 minutes (configurable in Settings) when inactive and every minute while the Glance or main app is active.
+Data points are calculated using a background process running every 5 minutes (configurable in Settings) when inactive and every minute while the Glance (unless in Fast launch mode) or the app is active.
 
 **Explanation on how the projection works**:
 On the real device, the Garmin's projection until discharged is two fold but for both, it's basically how long will the device last if it stays in that state, be it simply being at the watchface or being in an activity. That's why you might see a time to empty of 3 days when the device is idle and this goes down to 8 hours when you select an activity with GPS. 
