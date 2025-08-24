@@ -92,7 +92,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
-		//DEBUG*/ logMessage("onStart: state is " + state);
+		/*DEBUG*/ logMessage("onStart: state is " + state);
 
         if (state != null) {
             if (state.get(:launchedFromComplication) != null) {
@@ -127,7 +127,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStop() is called when your application is exiting
     function onStop(state) {
-		//DEBUG*/ logMessage("onStop (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		/*DEBUG*/ logMessage("onStop (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 
 		// Was in onHide4
 		if (mService == null && mGlance == null) { // This is JUST for the main view process
@@ -669,33 +669,33 @@ function buildCopiedHistory() {
 
 (:debug)
 function buildCopiedHistoryInternal(start, readHistory, readSlopes) {
-	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
-	var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+	// var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+	// var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
-	var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
-	var history = new [HISTORY_MAX * elementSize];
+	// var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
+	// var history = new [HISTORY_MAX * elementSize];
 
-	var i;
-	for (i = 0; i < HISTORY_MAX && i < readHistory.size() / 3 && readHistory[i * 3 + TIMESTAMP] != null; i++) {
-		history[i * elementSize + TIMESTAMP] = start + readHistory[i * 3 + TIMESTAMP];
-		history[i * elementSize + BATTERY] = readHistory[i * 3 + BATTERY];
-		if (isSolar) {
-			history[i * elementSize + SOLAR] = readHistory[i * 3 + SOLAR];
-		}
-	}
+	// var i;
+	// for (i = 0; i < HISTORY_MAX && i < readHistory.size() / 3 && readHistory[i * 3 + TIMESTAMP] != null; i++) {
+	// 	history[i * elementSize + TIMESTAMP] = start + readHistory[i * 3 + TIMESTAMP];
+	// 	history[i * elementSize + BATTERY] = readHistory[i * 3 + BATTERY];
+	// 	if (isSolar) {
+	// 		history[i * elementSize + SOLAR] = readHistory[i * 3 + SOLAR];
+	// 	}
+	// }
 
-	historyArray.add(start);
-	$.objectStorePut("HISTORY_" + start, history);
+	// historyArray.add(start);
+	// $.objectStorePut("HISTORY_" + start, history);
 
-	$.objectStorePut("SLOPES_" + start, readSlopes);
-	$.objectStorePut("HISTORY_ARRAY", historyArray);
+	// $.objectStorePut("SLOPES_" + start, readSlopes);
+	// $.objectStorePut("HISTORY_ARRAY", historyArray);
 
-	if (i == 0) {
-		i = 1;
-	}
+	// if (i == 0) {
+	// 	i = 1;
+	// }
 
-	$.objectStorePut("LAST_HISTORY_KEY", [history[(i - 1) * elementSize + TIMESTAMP], history[(i - 1) * elementSize + BATTERY], (isSolar ? history[(i - 1) * elementSize + SOLAR] : null)]);
-	$.objectStoreErase("LAST_SLOPE_DATA");
+	// $.objectStorePut("LAST_HISTORY_KEY", [history[(i - 1) * elementSize + TIMESTAMP], history[(i - 1) * elementSize + BATTERY], (isSolar ? history[(i - 1) * elementSize + SOLAR] : null)]);
+	// $.objectStoreErase("LAST_SLOPE_DATA");
 }
 
 (:release)
