@@ -79,6 +79,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.9.3 Added the following**
+- Switched the default to use the builtin page indicator from On to Off since devices with CIQ 3.4 crashes at launch with this setting enabled. It shouldn't, but it does so unless I find why (which I haven't after several hours of troubleshooting), those devices should restrain from using the builtin page indicator, sorry.
+
 **V1.9.2 Added the following**
 - New method of detecting last charge and last full charge that are less CPU/time intensive.
 - Added a new Settings to fast load the glance view (new default) has been added. In the Fast mode, new data since the last launch will only be processed when launching the main view (data will accumulate so don't wait months to launch the main view!) and the last calculated slope will be used instead of calculating a new one (since no new data were processed).
