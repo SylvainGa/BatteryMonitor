@@ -110,7 +110,9 @@ class BatteryMonitorApp extends App.AppBase {
 			}
 
 			// Now this is for both glance and main view (mView is used for both Glance and Main view)
-			mView.mHistoryClass.storeHistory(mView.mHistoryClass.getHistoryModified());
+			if (mView.mHistoryClass != null) {
+				mView.mHistoryClass.storeHistory(mView.mHistoryClass.getHistoryModified());
+			}
 		}
     }
 

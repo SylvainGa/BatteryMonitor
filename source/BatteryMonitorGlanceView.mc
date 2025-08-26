@@ -27,7 +27,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     function initialize() {
         GlanceView.initialize();
 
-		mHistoryClass = new HistoryClass();
+        if (self has :HistoryClassGlance) {
+    		mHistoryClass = new HistoryClassGlance();
+        }
 
         onSettingsChanged(true);
     }
@@ -48,7 +50,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 	function onRefreshTimer() as Void {
 		mRefreshCount++;
         
-        if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
+        if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
             if (mRefreshCount % 12 == 0) { // Every minute, read a new set of data
                 var data = mHistoryClass.getData();
                 /*DEBUG*/ logMessage("onRefreshTimer Read data " + data);
@@ -120,7 +122,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 			mProjectionType = 0;
         }
 
-		mHistoryClass.onSettingsChanged(fromInit);
+        if (mHistoryClass != null) {
+    		mHistoryClass.onSettingsChanged(fromInit);
+        }
     }
 
     function onUpdate(dc) {
@@ -138,7 +142,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
         /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
-        if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
+        if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
     		/*DEBUG*/ logMessage("onUpdate LAUNCH_WHOLE");
             // Draw the two/three rows of text on the glance widget
             if (mHistoryClass.getHistory() == null) {
@@ -266,7 +270,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 mHistoryLastPos = downSlopeData[1];
             }
 
-            if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE && (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mHistoryClass.getHistorySize())) { // ONLY do if we read mHistory (ie, LAUNCH_WHOLE) 
+            if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE && (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mHistoryClass.getHistorySize())) { // ONLY do if we read mHistory (ie, LAUNCH_WHOLE) 
                 // Calculate projected usage slope
                 var downSlopeResult = mHistoryClass.downSlope(false);
                 downSlopeSec = downSlopeResult[0];
@@ -288,7 +292,11 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 else {
                     dischargeStr = $.stripTrailingZeros((downSlopeHours).format("%0.2f")) + Ui.loadResource(Rez.Strings.PercentPerHour);
                 }	
-            } 
+            }
+            else if (mHistoryClass == null || mApp.getGlanceLaunchMode() == LAUNCH_FAST) { //If one of these are true, we need to launch the app to get the first value
+                remainingStr = Ui.loadResource(Rez.Strings.LaunchApp);
+                dischargeStr = "";
+            }
         }
 
         dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
