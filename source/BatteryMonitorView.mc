@@ -113,11 +113,10 @@ class BatteryMonitorView extends Ui.View {
     // Called when this View is brought to the foreground. Restore
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
-    function onShow() {
+    function onLayout(dc) {
 		// Find the right font size based on screen size
 		var fontByScreenSizes = [[218, Gfx.FONT_SMALL], [240, Gfx.FONT_SMALL], [260, Gfx.FONT_SMALL], [280, Gfx.FONT_SMALL], [320, Gfx.FONT_LARGE ], [322, Gfx.FONT_LARGE], [360, Gfx.FONT_XTINY], [390, Gfx.FONT_TINY], [416, Gfx.FONT_SMALL], [454, Gfx.FONT_TINY], [470, Gfx.FONT_LARGE], [486, Gfx.FONT_TINY], [800, Gfx.FONT_MEDIUM]];
-		var deviceSettings = Toybox.System.getDeviceSettings();
-		var height = deviceSettings.screenHeight;
+		var height = dc.getHeight();
 		mFontType = null;
 		for (var i = 0; i < fontByScreenSizes.size(); i++) {
 			if (height == fontByScreenSizes[i][0]) {
@@ -132,7 +131,7 @@ class BatteryMonitorView extends Ui.View {
 
 		mFontHeight = Gfx.getFontHeight(mFontType);
 
-    	mCtrX = deviceSettings.screenWidth / 2;
+    	mCtrX = dc.getWidth() / 2;
     	mCtrY = height / 2;
 
 		mNoChange = false;
