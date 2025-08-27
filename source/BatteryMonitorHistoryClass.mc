@@ -77,6 +77,7 @@ class HistoryClass  {
 			var historyArray = $.objectStoreGet("HISTORY_ARRAY", null);
 			if (historyArray != null && historyArray.size() > 0) {
 				if (mShrinkingInProgress == true || self.shrinkArraysIfNeeded(historyArray)) { // If we're already spawn a shrink (averaging) process, wait until it terminates before testing again!)
+					/*DEBUG*/ if (mShrinkingInProgress == true) { logMessage("Waiting for previous spawned shrinking to finish"); } else { logMessage("Spawned shrinking process, waiting for it to finish"); }
 					Ui.requestUpdate();
 					return; // We're coming back at the top as we have shrunk our size;
 				}
