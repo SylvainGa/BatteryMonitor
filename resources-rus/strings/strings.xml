@@ -7,6 +7,7 @@
     <string id="label_press">Нажмите Back</string>
     <string id="label_quit">для выхода</string>
 
+    <string id="LaunchApp" scope="glance">Запустить приложение</string>
     <string id="NotAvailableShort" scope="glance">Н/Д</string>
     <string id="PercentPerDay" scope="glance">%/д</string>
     <string id="PercentPerHour" scope="glance">%/ч</string>

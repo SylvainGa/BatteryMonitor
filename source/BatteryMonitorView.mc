@@ -57,13 +57,14 @@ class BatteryMonitorView extends Ui.View {
 	var mNoChange; // If we have no change to display, set this to true
 	var mTimeOffset; // The time offset (ie, pan) that we had set
 	var mTimeSpan; // The width of the displayed graph in seconds
-	var mCoord;
+	var mMinXDelta; // Maximum X delta while buidling graph. Used to determine the maximum zoom level
+	var mCoord; // [0] contains the point we touche on screen, [1] contains the timestamp at that point, [2] contains the battery at that point, [3] contains the index at that point
 	var mShowMarkerSet;
 	var mMarkerDataXPos;
 	var mOffScreenBuffer; // Points to the bit buffer that we are going to use to draw our chart
 	var mOnScreenBuffer; // Points to a completed drawn bit buffer that we'll use to display on screen
 	var mDrawLive; // We have no bit buffers (shouldn't happen with all devices being at CIQ 3.2 or above) so flag to draw directly on screen
-	var mPleaseWaitVisible; // If true, we don't need to clear the screen as it's already visible
+	var mLoadingPageCounter; // In the loading page, this is used to toggle between "???"" and ""
 	/*DEBUG*/ var mUpdateStartTime;
 	/*DEBUG*/ var mDrawChartStartTime;
 	/*DEBUG*/ var mDrawChartBuiltFullArray;
@@ -99,7 +100,6 @@ class BatteryMonitorView extends Ui.View {
 		mShowMarkerSet = false;
 		mMarkerDataXPos = [];
 		mDrawLive = false; // Assume we can draw to a bitmap. It will be set to true in drawChart if we can't
-		mPleaseWaitVisible = false; // We're not showing the please wait popup yet
 
 		// add data to ensure most recent data is shown and no time delay on the graph.
 		mStartedCharging = false;
@@ -276,6 +276,10 @@ class BatteryMonitorView extends Ui.View {
     }
 
 	function onReceiveFromDelegate(newIndex, graphSizeChange) {
+		if (mLoadingPageCounter != null) { // If we're not ready, ignore inputs
+			return;
+		}
+
 		if (newIndex == -1) {
 			mHideChargingPopup = !mHideChargingPopup;
 		}
@@ -357,9 +361,10 @@ class BatteryMonitorView extends Ui.View {
 					mGraphSizeChange = 0;
 					mGraphShowFull = !mGraphShowFull;
 				}
-				else if (mGraphSizeChange > 7) {
-					mGraphSizeChange = 7;
+				else if (graphSizeChange > 0 && mMinXDelta != null && mMinXDelta > mCtrX / 10) { // If zooming in and the minimum delta between the closer two points is more than 1/10 the screen size, no more zooming
+					mGraphSizeChange--;
 				}
+				mMinXDelta = null; // We're done, we'll need to recalc for next zoom level
 			}
 		}
 		//DEBUG*/ logMessage("mGraphSizeChange is " + mGraphSizeChange);
@@ -409,6 +414,7 @@ class BatteryMonitorView extends Ui.View {
 		mLastFullHistoryPos = mFullHistorySize; // We'll start a graph draw from the start
 		mTimeOffset = 0; //The time offset (ie, pan) that we had set
 		mTimeSpan = 0; // The width of the displayed graph in seconds
+		mMinXDelta = null; // Reset so we'll get a new min X next time we go im
 		mCoord = null; // Will make the popup disappear
 		mNoChange = false; // We'll need to redraw the graph on next pass
 		mShowMarkerSet = false; // Marker popup disappears when we switch view
@@ -426,17 +432,18 @@ class BatteryMonitorView extends Ui.View {
         /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
 		if (mHistoryClass.getHistory() == null) {
-			if (mPleaseWaitVisible == false) {  // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
+			if (mLoadingPageCounter == null) {  // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
 				/*DEBUG*/ mUpdateStartTime = Sys.getTimer();
 				/*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
-				mPleaseWaitVisible = true;
-				showPleaseWait(dc, screenFormat);
+				mLoadingPageCounter = 0;
+				showLoadingPage(dc);
+
 				Ui.requestUpdate(); // Stop now so we can show our Please Wait popup
 				return;
 			}
 
 			/*DEBUG*/ logMessage("onUpdate: Getting latest history");
-			showPleaseWait(dc, screenFormat);
+			showLoadingPage(dc);
 			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime; var startTime = endTime;
 			mHistoryClass.getLatestHistoryFromStorage();
 			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("onUpdate getLatestHistoryFromStorage took " + (endTime - startTime) + " msec");
@@ -447,7 +454,7 @@ class BatteryMonitorView extends Ui.View {
 		var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
 		if (receivedData.size() > 0 || mNowData == null) {
 			/*DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("onUpdate before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
-			showPleaseWait(dc, screenFormat);
+			showLoadingPage(dc);
 			$.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
 
 			/*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
@@ -479,7 +486,7 @@ class BatteryMonitorView extends Ui.View {
 		if (mSlopeNeedsFirstCalc == true) {
 			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 			/*DEBUG*/ logMessage("onUpdate: Doing calc of slopes");
-			showPleaseWait(dc, screenFormat);
+			showLoadingPage(dc);
 
 			/*DEBUG*/ var startTime = Sys.getTimer();
 			doDownSlope();
@@ -500,7 +507,7 @@ class BatteryMonitorView extends Ui.View {
 
 		/*DEBUG*/ if (mUpdateStartTime != null) { var endTime = Sys.getTimer(); Sys.println("onUpdate after everything took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime; }
 
-		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore
+		mLoadingPageCounter = null; // We're done with loading at this point, inputs will be honored (see onReceiveFromDelegate)
 
 		switch (mViewScreen) {
 			case SCREEN_DATA_MAIN:
@@ -625,16 +632,6 @@ class BatteryMonitorView extends Ui.View {
 		//DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate for " + mViewScreen + " took " + (endTime - updateStartTime) + " msec for " + mFullHistorySize + " elements");
     }
 
-	function showPleaseWait(dc, screenFormat) {
-		if (mPleaseWaitVisible == true && dc != null) {
-			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_BLACK);		
-			dc.clear();
-			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-			drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
-			dc.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
-		}
-	}
-
 	function doHeader(dc, whichView, battery, onlyBattery) {
 		// Start with an empty screen
 		dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_BLACK);		
@@ -718,6 +715,82 @@ class BatteryMonitorView extends Ui.View {
 			mHistoryLastPos = mHistoryClass.getHistorySize();
 			var downSlopeData = [mDownSlopeSec, mHistoryLastPos];
 			$.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
+		}
+	}
+
+	// Just like the main page but with less data, until the app has finished loading its data
+	function showLoadingPage(dc) {
+		if (mLoadingPageCounter == null) { // This happens when onUpdate has new data to process, just go out then
+			return;
+		}
+
+		if (mViewScreen == SCREEN_DATA_MAIN) {
+			var xPos = mCtrX * 2 * 3 / 5;
+			var width = mCtrX * 2 / 18;
+			var height = mCtrY * 2 * 17 / 20 / 5;
+			var yPos = mCtrY * 2 * 2 / 20 + 4 * height;
+
+			var battery = Sys.getSystemStats().battery;
+			var colorBat = getBatteryColor(battery);
+
+			// Start with an empty screen 
+			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_BLACK);		
+			dc.clear();
+			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);	
+
+			var show = (mLoadingPageCounter % 2 == 0 ? "???" : "");
+			/*DEBUG*/ logMessage("ShowLoading with \"" + show + "\"");
+			mLoadingPageCounter++;
+
+			// Draw and color charge gauge
+			dc.setPenWidth(1);
+			dc.setColor(colorBat, Gfx.COLOR_TRANSPARENT);
+			for (var i = 0; i < 5; i++) {
+				if (battery >= (i + 1) * 20) {
+					dc.fillRectangle(xPos, yPos, width, height);
+				}
+				else if (battery < (i + 1) * 20 && battery > i * 20) {
+					dc.drawRectangle(xPos, yPos, width, height);
+					var fraction = (battery - i * 20) / 20;
+					dc.fillRectangle(xPos, yPos + (1 - fraction) * height, width, height * fraction);
+				}
+				else {
+					dc.drawRectangle(xPos, yPos, width, height);
+				}
+				yPos -= height + 2;
+			}
+
+			// Draw to the left of the gauge
+			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+			yPos = mCtrY * 2 / 8;
+			xPos -= 5;
+			dc.drawText(xPos, yPos, mFontType, Ui.loadResource(Rez.Strings.BatteryLevel), Gfx.TEXT_JUSTIFY_RIGHT);
+			yPos += mFontHeight * 2;
+			dc.drawText(xPos, yPos, Gfx.FONT_NUMBER_MILD, $.stripTrailingZeros(battery.format("%0.1f")) + "%", Gfx.TEXT_JUSTIFY_RIGHT);
+			yPos += Gfx.getFontHeight(Gfx.FONT_NUMBER_MILD);
+			dc.drawText(xPos, yPos, mFontType, Ui.loadResource(Rez.Strings.TimeRemaining), Gfx.TEXT_JUSTIFY_RIGHT);
+			yPos += mFontHeight * 2;
+			dc.drawText(xPos, yPos, mFontType, show, Gfx.TEXT_JUSTIFY_RIGHT);
+
+			// Now to the right of the gauge
+			xPos = mCtrX * 2 * 165 / 200;
+			yPos = mCtrY * 2 * 5 / 16;
+
+			dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
+			dc.drawText(xPos, yPos, mFontType, show, Gfx.TEXT_JUSTIFY_CENTER);
+
+			yPos += mFontHeight * 3 / 2;
+
+			dc.drawText(xPos, yPos, mFontType, show, Gfx.TEXT_JUSTIFY_CENTER);
+		}
+		else {
+			var screenFormat = System.getDeviceSettings().screenShape;
+
+			dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_BLACK);		
+			dc.clear();
+			dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+			drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
+			dc.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
 		}
 	}
 
@@ -1063,7 +1136,6 @@ class BatteryMonitorView extends Ui.View {
 		if (mHistoryClass.getHistoryNeedsReload() == true || mHistoryClass.getFullHistoryNeedsRefesh() == true || mFullHistory == null) { // We'll have some work to do, tell the user to be patient
 			/*DEBUG*/ logMessage("onUpdate: Building full history array");
 			var screenFormat = System.getDeviceSettings().screenShape;
-			showPleaseWait(dc, screenFormat);
 
 			if (buildFullHistory(24 * 60 * 60) == true) {
 				mNoChange = false; // Tell we still need to come back to drawChart
@@ -1155,16 +1227,16 @@ class BatteryMonitorView extends Ui.View {
 		var timeMostFuturePoint = (timeLeftSecUNIX != null && whichView == SCREEN_PROJECTION) ? timeLeftSecUNIX : timeMostRecentPoint;
 		var timeLeastRecentPoint = (mGraphShowFull == true && whichView == SCREEN_HISTORY ? mFullHistory[0 + TIMESTAMP] : mFullHistory[mLastFullChargeTimeIndex * mHistoryClass.getElementSize() + TIMESTAMP]); // Try to show at least a day's worth of data if we're not showing full data
 
-		var zoomLevel = [1, 2, 4, 8, 16, 32, 64, 128];
 		var minimumTime = 60.0;
+		var zoomLevel = (Math.pow(2, mGraphSizeChange)).toNumber();
 		if (whichView == SCREEN_HISTORY) {
-			minimumTime /= zoomLevel[mGraphSizeChange];
+			minimumTime /= zoomLevel;
 			var span = timeMostRecentPoint - timeLeastRecentPoint;
 			//DEBUG*/ logMessage("span is " + span + " timeMostRecentPoint is " + timeMostRecentPoint + " timeLeastRecentPoint is " + timeLeastRecentPoint + " zoom is " + mGraphSizeChange + " pan is " + mTimeOffset);
 
 			timeMostRecentPoint -= mTimeOffset;
 			timeMostFuturePoint = timeMostRecentPoint; // In HISTORY mode, timeMostFuturePoint follows timeMostRecentPoint
-			timeLeastRecentPoint = timeMostRecentPoint - span / zoomLevel[mGraphSizeChange];
+			timeLeastRecentPoint = timeMostRecentPoint - span / zoomLevel;
 			
 			mTimeSpan = timeMostRecentPoint - timeLeastRecentPoint;
 		}
@@ -1327,11 +1399,16 @@ class BatteryMonitorView extends Ui.View {
 			}
 
 			if (mLastPoint[0] != null) {
-				if (mLastPoint[0] - x > 1) {
+				var deltaX = mLastPoint[0] - x;
+				if (deltaX > 1) {
 					targetDC.fillRectangle(x, yBat, mLastPoint[0] - x + 1, Y2 - yBat);
 				}
 				else { // If we have so much data that each rectangle is actually a line, just draw a line...
 					targetDC.drawLine(x, yBat, x, Y2);
+				}
+
+				if (deltaX > 0 && (mMinXDelta == null || deltaX < mMinXDelta)) {
+					mMinXDelta = deltaX;
 				}
 
 				if (ySolar != null) {
@@ -1481,13 +1558,13 @@ class BatteryMonitorView extends Ui.View {
 
 	function showSelectMode(dc, screenFormat) {
 		var str;
-		var zoomLevel = [1, 2, 4, 8, 16, 32, 64, 128];
+		var zoomLevel = (Math.pow(2, mGraphSizeChange)).toNumber();
 
 		if (mSelectMode == ViewMode) {
 			str = Ui.loadResource(Rez.Strings.ViewMode);
 		}
 		else if (mSelectMode == ZoomMode) {
-			str = Ui.loadResource(Rez.Strings.ZoomMode) + " " + (mGraphShowFull ? Ui.loadResource(Rez.Strings.ZoomFull) : "") +  " x" + zoomLevel[mGraphSizeChange];
+			str = Ui.loadResource(Rez.Strings.ZoomMode) + " " + (mGraphShowFull ? Ui.loadResource(Rez.Strings.ZoomFull) : "") +  " x" + zoomLevel;
 		}
 		else {
 			str = Ui.loadResource(Rez.Strings.PanMode);
