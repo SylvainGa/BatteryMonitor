@@ -65,9 +65,11 @@ class BatteryMonitorView extends Ui.View {
 	var mOnScreenBuffer; // Points to a completed drawn bit buffer that we'll use to display on screen
 	var mDrawLive; // We have no bit buffers (shouldn't happen with all devices being at CIQ 3.2 or above) so flag to draw directly on screen
 	var mLoadingPageCounter; // In the loading page, this is used to toggle between "???"" and ""
+	/*DEBUG*/ var mUpdateWholeStartTime;
 	/*DEBUG*/ var mUpdateStartTime;
 	/*DEBUG*/ var mDrawChartStartTime;
 	/*DEBUG*/ var mDrawChartBuiltFullArray;
+	/*DEBUG*/ var mFreeMemory;
 
     function initialize(isViewLoop) {
         View.initialize();
@@ -428,12 +430,13 @@ class BatteryMonitorView extends Ui.View {
 		//DEBUG*/ var updateStartTime = Sys.getTimer();
 		var screenFormat = System.getDeviceSettings().screenShape;
 
-        /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+        /*DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1000).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
+		/*DEBUG*/ if (mUpdateWholeStartTime == null) { mUpdateWholeStartTime = Sys.getTimer(); }
 
 		if (mHistoryClass.getHistory() == null) {
 			if (mLoadingPageCounter == null) {  // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
 				/*DEBUG*/ mUpdateStartTime = Sys.getTimer();
-				/*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
+				/*DEBUG*/ logMessage("Displaying first please wait");
 				mLoadingPageCounter = 0;
 				showLoadingPage(dc);
 
@@ -441,36 +444,36 @@ class BatteryMonitorView extends Ui.View {
 				return;
 			}
 
-			/*DEBUG*/ logMessage("onUpdate: Getting latest history");
+			/*DEBUG*/ logMessage("Getting latest history");
 			showLoadingPage(dc);
-			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime; var startTime = endTime;
+			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime; var startTime = endTime;
 			mHistoryClass.getLatestHistoryFromStorage();
-			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("onUpdate getLatestHistoryFromStorage took " + (endTime - startTime) + " msec");
+			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("getLatestHistoryFromStorage took " + (endTime - startTime) + " msec");
 			Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
 			return;
 		}
 
 		var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
 		if (receivedData.size() > 0 || mNowData == null) {
-			/*DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("onUpdate before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
+			/*DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
 			showLoadingPage(dc);
 			$.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
 
 			/*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
 			if (mNowData == null) {
 				mNowData = mHistoryClass.getData();
-				/*DEBUG*/ logMessage("onUpdate: tagging nowData (" + mNowData + ") to background data");
+				/*DEBUG*/ logMessage("tagging nowData (" + mNowData + ") to background data");
 				receivedData.add(mNowData);
 			}
 
 			/*DEBUG*/ var startTime = Sys.getTimer();
 			var added = mHistoryClass.analyzeAndStoreData(receivedData, receivedData.size(), false);
-			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("onUpdate analyzing data took " + (endTime - startTime) + " msec"); startTime = endTime;
+			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("analyzing data took " + (endTime - startTime) + " msec"); startTime = endTime;
 
 			if (added > 1) { // If we stored multiple data, save now in case we crash
 				/*DEBUG*/ logMessage("Saving history");
 				mHistoryClass.storeHistory(true);
-				/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("onUpdate saving history took " + (endTime - startTime) + " msec");
+				/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("saving history took " + (endTime - startTime) + " msec");
 
 				mLastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null);
 				/*DEBUG*/ logMessage("Refreshing last charge to " + mLastChargeData);
@@ -483,13 +486,13 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mSlopeNeedsFirstCalc == true) {
-			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
-			/*DEBUG*/ logMessage("onUpdate: Doing calc of slopes");
+			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+			/*DEBUG*/ logMessage("Doing calc of slopes");
 			showLoadingPage(dc);
 
 			/*DEBUG*/ var startTime = Sys.getTimer();
 			doDownSlope();
-			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("onUpdate calc of slopes took " + (endTime - startTime) + " msec");
+			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("calc of slopes took " + (endTime - startTime) + " msec");
 			mSlopeNeedsFirstCalc = false;
 
 			Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
@@ -497,14 +500,14 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mRefreshTimer == null) {
-			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before refresh timer took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before refresh timer took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 			/*DEBUG*/ logMessage("Starting refresh timer");
 			mRefreshTimer = new Timer.Timer();
 			mRefreshTimer.start(method(:onRefreshTimer), 100, true); // Runs every 100 msec to do its different tasks (at different intervals within)
 		}
 		/*DEBUG*/ else { mUpdateStartTime = null; }
 
-		/*DEBUG*/ if (mUpdateStartTime != null) { var endTime = Sys.getTimer(); Sys.println("onUpdate after everything took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime; }
+		/*DEBUG*/ if (mUpdateStartTime != null) { var endTime = Sys.getTimer(); Sys.println("after timer took " + (endTime - mUpdateWholeStartTime) + " msec"); Sys.println("**DONE** Took " + (endTime - mUpdateWholeStartTime) + " msec"); }
 
 		mLoadingPageCounter = null; // We're done with loading at this point, inputs will be honored (see onReceiveFromDelegate)
 

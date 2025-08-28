@@ -11,7 +11,7 @@ using Toybox.Time.Gregorian;
 class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mApp;
 	var mHistoryClass; // Contains the current history as well as its helper functions
-	var mTimer;
+	var mRefreshTimer;
 	var mRefreshCount;
 	var mFontType;
     var mFontHeight;
@@ -22,7 +22,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mSlopeNeedsFirstCalc;
     var mNowData;
     var mPleaseWaitVisible;
+    /*DEBUG*/ var mUpdateWholeStartTime;
 	/*DEBUG*/ var mUpdateStartTime;
+	/*DEBUG*/ var mFreeMemory;
 
     function initialize() {
         GlanceView.initialize();
@@ -35,15 +37,12 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     }
 
     function onShow() {
-		mRefreshCount = 0;
-		mTimer = new Timer.Timer();
-		mTimer.start(method(:onRefreshTimer), 5000, true); // Check every five second
     }
 
     function onHide() {
-        if (mTimer) {
-            mTimer.stop();
-            mTimer = null;
+        if (mRefreshTimer) {
+            mRefreshTimer.stop();
+            mRefreshTimer = null;
         }
     }
 
@@ -76,7 +75,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             $.objectStoreErase("STARTED_CHARGING_DATA");
         }
 
-		/*DEBUG*/ logMessage("onRefreshTimer requestUpdate");
+		//DEBUG*/ logMessage("onRefreshTimer requestUpdate");
 		Ui.requestUpdate();
     }
 
@@ -140,23 +139,24 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         dc.setColor(fgColor, bgColor);
         dc.clear();
 
-        /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+        /*DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1000).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
+		/*DEBUG*/ if (mUpdateWholeStartTime == null) { mUpdateWholeStartTime = Sys.getTimer(); }
 
         if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
-    		/*DEBUG*/ logMessage("onUpdate LAUNCH_WHOLE");
+    		//DEBUG*/ logMessage("LAUNCH_WHOLE");
             // Draw the two/three rows of text on the glance widget
             if (mHistoryClass.getHistory() == null) {
                 if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
                     /*DEBUG*/ mUpdateStartTime = Sys.getTimer();
-                    /*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
+                    /*DEBUG*/ logMessage("Displaying first please wait");
                     mPleaseWaitVisible = true;
                     showPleaseWait(dc, fgColor);
                     Ui.requestUpdate(); // Needed so we can show a 'please wait' message whlle we're reading our data
                     return;
                 }
 
-                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
-                /*DEBUG*/ logMessage("onUpdate: Getting latest history");
+                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                /*DEBUG*/ logMessage("Getting latest history");
                 showPleaseWait(dc, fgColor);
                 mHistoryClass.getLatestHistoryFromStorage();
                 Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
@@ -165,14 +165,14 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
             var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
             if (receivedData.size() > 0 || mNowData == null) {
-                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before reading background data took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                /*DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
                 showPleaseWait(dc, fgColor);
 
                 $.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
 
-                /*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
+                /*DEBUG*/ if (receivedData.size() > 0) { logMessage("Processing background data"); }
                 if (mNowData == null) {
-                    /*DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
+                    /*DEBUG*/ logMessage("tagging nowData to background data");
                     mNowData = mHistoryClass.getData();
                     receivedData.add(mNowData);
                 }
@@ -189,8 +189,8 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             }
 
             if (mSlopeNeedsFirstCalc == true) {
-                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
-                /*DEBUG*/ logMessage("onUpdate: Doing initial calc of slopes");
+                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                /*DEBUG*/ logMessage("Doing initial calc of slopes");
 
                 showPleaseWait(dc, fgColor);
 
@@ -201,7 +201,16 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 return;
             }
 
-    		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate after everything took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+            if (mRefreshTimer == null) {
+                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before refresh timer took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                /*DEBUG*/ logMessage("Starting refresh timer");
+                mRefreshCount = 0;
+                mRefreshTimer = new Timer.Timer();
+                mRefreshTimer.start(method(:onRefreshTimer), 5000, true); // Check every five second
+            }
+            /*DEBUG*/ else { mUpdateStartTime = null; }
+
+		/*DEBUG*/ if (mUpdateStartTime != null) { var endTime = Sys.getTimer(); Sys.println("after timer took " + (endTime - mUpdateStartTime) + " msec"); Sys.println("**DONE** Took " + (endTime - mUpdateWholeStartTime) + " msec"); }
         }
 
 		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore

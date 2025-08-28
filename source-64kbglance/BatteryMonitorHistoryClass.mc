@@ -62,7 +62,7 @@ class HistoryClassGlance  {
 
 				mHistory = $.objectStoreGet("HISTORY_" + historyArray[historyArray.size() - 1], null);
 				if (mHistory != null && mHistory.size() == HISTORY_MAX * mElementSize) {
-					/*DEBUG*/ recalcHistorySize(); logMessage("getLatest.. Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
+					/*DEBUG*/ recalcHistorySize(); logMessage("Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
 					//DEBUG*/ Sys.println(historyArray); var start = mHistory[0 + TIMESTAMP]; Sys.println(start); Sys.print("["); for (var i = 0; i < mHistorySize; i++) { Sys.print(mHistory[i*3 + TIMESTAMP] - start + "," + mHistory[i*3 + BATTERY] + "," + mHistory[i*3 + SOLAR]); if (i < mHistorySize - 1) { Sys.print(","); } } Sys.println("];");
 					break;
 				 }
@@ -121,6 +121,7 @@ class HistoryClassGlance  {
 		}
 
 		recalcHistorySize();
+		/*DEBUG*/ logMessage("mHistoryModified set to false in getLatestHistoryFromStorage");
 		mHistoryModified = false;
 		mHistoryNeedsReload = true;
 	}
@@ -154,6 +155,7 @@ class HistoryClassGlance  {
 		}
 		/*DEBUG*/ else if (index != historyArray.size() - 1) { logMessage("storeHistory: HISTORY_" + timestamp + " found at position #" + index + " instead of " + (historyArray.size() - 1) + " of " + historyArray); }
 
+		/*DEBUG*/ logMessage("mHistoryModified set to false in storeHistory");
 		mHistoryModified = false;
 	}
 
@@ -401,6 +403,7 @@ class HistoryClassGlance  {
         if (added > 0) {
             /*DEBUG*/ logMessage("Added " + added + ". history now " + mHistorySize);
             objectStorePut("LAST_HISTORY_KEY", lastHistory);
+    		/*DEBUG*/ logMessage("mHistoryModified set to true in analyzeAndStoreData");
             mHistoryModified = true;
         }
 
@@ -712,6 +715,7 @@ class HistoryClassGlance  {
 	}
 
 	function getHistoryModified() {
+        /*DEBUG*/ logMessage("mHistoryModified seen as " + mHistoryModified + " in getHistoryModified");
 		return mHistoryModified;
 	}
 

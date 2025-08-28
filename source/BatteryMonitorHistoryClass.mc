@@ -84,7 +84,7 @@ class HistoryClass  {
 
 				mHistory = $.objectStoreGet("HISTORY_" + historyArray[historyArray.size() - 1], null);
 				if (mHistory != null && mHistory.size() == HISTORY_MAX * mElementSize) {
-					/*DEBUG*/ recalcHistorySize(); logMessage("getLatest.. Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
+					/*DEBUG*/ recalcHistorySize(); logMessage("Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
 					//DEBUG*/ Sys.println(historyArray); var start = mHistory[0 + TIMESTAMP]; Sys.println(start); Sys.print("["); for (var i = 0; i < mHistorySize; i++) { Sys.print(mHistory[i*3 + TIMESTAMP] - start + "," + mHistory[i*3 + BATTERY] + "," + mHistory[i*3 + SOLAR]); if (i < mHistorySize - 1) { Sys.print(","); } } Sys.println("];");
 					break;
 				 }

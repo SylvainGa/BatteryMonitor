@@ -66,7 +66,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onStart() is called on application start up
     function onStart(state) {
-		/*DEBUG*/ logMessage("onStart: state is " + state);
+		//DEBUG*/ logMessage("onStart: state is " + state);
 
         if (state != null) {
             if (state.get(:launchedFromComplication) != null) {
@@ -95,22 +95,23 @@ class BatteryMonitorApp extends App.AppBase {
 			$.objectStorePut("RECEIVED_DATA", data);
 		}
 
-		/*DEBUG*/ logMessage("onBackgroundData requestUpdate");
+		//DEBUG*/ logMessage("onBackgroundData requestUpdate");
 		Ui.requestUpdate();
     }    
 
     // onStop() is called when your application is exiting
     function onStop(state) {
-		/*DEBUG*/ logMessage("onStop (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onStop (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 
 		// Was in onHide
 		if (mService == null) { // Not for the background service
+			/*DEBUG*/ logMessage("onStop (" + (mGlance == null ? "VW)" : "GL)"));
 			if (mGlance == null) { // and not for the Glance view
 				mView.mHistoryClass.saveLastData();
 			}
 
 			// Now this is for both glance and main view (mView is used for both Glance and Main view)
-			if (mView.mHistoryClass != null) {
+			if (mView.mHistoryClass != null && mView.mHistoryClass.getHistory() != null) {
 				mView.mHistoryClass.storeHistory(mView.mHistoryClass.getHistoryModified());
 			}
 		}
@@ -152,8 +153,8 @@ class BatteryMonitorApp extends App.AppBase {
             mTheme = THEME_LIGHT;
         }
         // Force a screen update.
-		/*DEBUG*/ logMessage("onNightModeChanged requestUpdate");
-        WatchUi.requestUpdate();
+		//DEBUG*/ logMessage("onNightModeChanged requestUpdate");
+        Ui.requestUpdate();
     }
 
 	// Start the background process if it hasn't yet
