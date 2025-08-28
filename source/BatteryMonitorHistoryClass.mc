@@ -309,10 +309,10 @@ class HistoryClass  {
 	}
 
     function getData() {
+        var now = Time.now().value(); //in seconds from UNIX epoch in UTC
         var stats = Sys.getSystemStats();
         var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
         var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
-        var now = Time.now().value(); //in seconds from UNIX epoch in UTC
         var nowData = [now, battery, solar];
 
         if (Sys.getSystemStats().charging) {

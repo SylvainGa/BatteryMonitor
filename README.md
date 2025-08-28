@@ -83,10 +83,12 @@ If you would like to translate the language file in your own language, contact m
 
 ## Changelog
 **V1.10.0 Added the following**
+- Removed devices DescentG1, Enduro, Fenix6, Fenix6S, FR245, FR55 and VenusQ from the supported list as they differiate Apps from Widgets and don't have enough allocated Widget memory to run the app. Since this app has Glance support, they can't be an App on those devices. It's limited to Widgets.
 - History data now uses its own class so devices with just 32KB of Glance memory no longer crashes with a Out Of Memory error in the crash log. However, only the FAST Launch is available now for those devices. Sorry, too much stuff was added for 32KB is enough for the full experience.
-- Instead of showing a "Please wait" while the main view is loading, it will show the Summary view but with a flashing "???" in the fields other than the battery level.
+- Instead of showing a "Please wait" while the Summary view is loading, it will show the Summary view but with a flashing "???" in the fields other than the battery level. This will allow to see the battery level without waiting for the other fields to be read/calculated.
 - Inputs are no longer being accepted until the view is showing.
-- Graph zooming level is no loger limited to 128x but dependant on the resolution of what's on display. It will stop when the minimum distance between two points is 10 of the screen size. This will help on precisely select where to mark a point.
+- Graph zooming level is no loger limited to 128x but dependant on the resolution of what's on display. It will stop when the minimum distance between two points is 1/10 of the screen size. This will help to precisely select where to mark a point.
+- Bug fix when activities were't being flagged in the history array.
 
 **V1.9.3 Fixed the following**
 - Switched the default to use the builtin page indicator from On to Off since devices with CIQ 3.4 crashes at launch with this setting enabled. It shouldn't, but it does so unless I find why (which I haven't after several hours of troubleshooting), those devices should restrain from using the builtin page indicator, sorry. This is settable in Settings.
