@@ -53,7 +53,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             }
 
             data.add(nowData);
-            /*DEBUG*/ logMessage("TE: " + nowData);
+            //DEBUG*/ logMessage("TE: " + nowData);
 
             var success;
             do {
@@ -70,7 +70,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
                     for (var i = 0; i < newSize; i++) {
                         retryData[i] = data[i * 2]; // Mo averaging, here, just take every second data. We've been away from the app for very long, no need to be this precise.
                     }
-                    /*DEBUG*/ logMessage("onTE: Exit failed. Had " + (newSize * 2) + " elements. Retrying with just " + newSize + " elements" + data);
+                    //DEBUG*/ logMessage("onTE: Exit failed. Had " + (newSize * 2) + " elements. Retrying with just " + newSize + " elements" + data);
                     data = retryData;
                 }
             } while (success == false);

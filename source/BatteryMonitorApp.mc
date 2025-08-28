@@ -82,11 +82,11 @@ class BatteryMonitorApp extends App.AppBase {
 
     function onBackgroundData(data) {
 		//DEBUG*/ logMessage("onBackgroundData: " + data);
-		/*DEBUG*/ logMessage("onBackgroundData: " + data.size());
+		//DEBUG*/ logMessage("onBackgroundData: " + data.size());
 
 		if (mGlanceLaunchMode == LAUNCH_FAST) { // If we're launching Glance fast, we aren't reading and clearing RECEIVED_DATA in the Glance code so keep adding to it. It will be read once we finally launch the main view
 			var oldData = $.objectStoreGet("RECEIVED_DATA", []);
-			/*DEBUG*/ logMessage("onBackgroundData: Adding " + data + " to " + oldData);
+			//DEBUG*/ logMessage("onBackgroundData: Adding " + data + " to " + oldData);
 			oldData.addAll(data);
 			$.objectStorePut("RECEIVED_DATA", oldData);	
 		}
@@ -105,7 +105,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		// Was in onHide
 		if (mService == null) { // Not for the background service
-			/*DEBUG*/ logMessage("onStop (" + (mGlance == null ? "VW)" : "GL)"));
+			//DEBUG*/ logMessage("onStop (" + (mGlance == null ? "VW)" : "GL)"));
 			if (mGlance == null) { // and not for the Glance view
 				mView.mHistoryClass.saveLastData();
 			}
@@ -119,13 +119,13 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onAppInstall() is called when your application is installed
     function onAppInstall() {
-		/*DEBUG*/ logMessage("onAppInstall (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onAppInstall (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 		startBackgroundService(false);
     }
 
     // onAppUpdate() is called when your application is Updated
     function onAppUpdate() {
-		/*DEBUG*/ logMessage("onAppUpdate (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onAppUpdate (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 		startBackgroundService(false);
 	}
 
@@ -186,7 +186,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 	(:can_glance)
     function getGlanceView() {
-		/*DEBUG*/ logMessage("getGlanceView");
+		//DEBUG*/ logMessage("getGlanceView");
 
 		// Tell the 'Main View' that we launched from Glance
         Storage.setValue("fromGlance", true);
@@ -198,7 +198,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {	
-		/*DEBUG*/ logMessage("getInitialView");
+		//DEBUG*/ logMessage("getInitialView");
 
 		//DEBUG*/ var historyArray = $.objectStoreGet("HISTORY_ARRAY", null); $.dumpHistory(historyArray.size() - 1); return;
 		//DEBUG*/ logMessage("Building fake history"); buildFakeHistory();
@@ -233,7 +233,7 @@ class BatteryMonitorApp extends App.AppBase {
 				var viewLoop = new WatchUi.ViewLoop(factory, {:page => mView.getPanelSize() - 1, :wrap => true /*, :color => Graphics.COLOR_BLACK */});
 				return [viewLoop, new PageIndicatorDelegate(viewLoop)];
 			} else {
-				/*DEBUG*/ logMessage(("Launching no glance view"));
+				//DEBUG*/ logMessage(("Launching no glance view"));
 				mView = new NoGlanceView();
 				mDelegate = new NoGlanceDelegate();
 				return [mView , mDelegate];
