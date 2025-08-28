@@ -86,6 +86,7 @@ If you would like to translate the language file in your own language, contact m
 - Removed devices DescentG1, Enduro, Fenix6, Fenix6S, FR245, FR55 and VenuSQ from the supported list as they differiate Apps from Widgets and don't have enough allocated Widget memory to run the app. Since this app has Glance support, they can't be an App on those devices. It's limited to Widgets.
 - History data now uses its own class so devices with just 32KB of Glance memory no longer crashes with a Out Of Memory error in the crash log. However, only the FAST Launch is available now for those devices. Sorry, too much stuff was added for 32KB is enough for the full experience.
 - Instead of showing a "Please wait" while the Summary view is loading, it will show the Summary view but with a flashing "???" in the fields other than the battery level. This will allow to see the battery level without waiting for the other fields to be read/calculated.
+- When in Glance view and Fast mode or for devices with just 32KB of Glance memory, if there is no calculated slopes yet (ie, less than 3 data points), the Glance will display "Launch app" as it's the only time slopes is going to be calculated.
 - Inputs are no longer being accepted until the view is showing.
 - Graph zooming level is no loger limited to 128x but dependant on the resolution of what's on display. It will stop when the minimum distance between two points is 1/10 of the screen size. This will help to precisely select where to mark a point.
 - Bug fix when activities were't being flagged in the history array.
