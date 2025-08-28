@@ -83,7 +83,7 @@ If you would like to translate the language file in your own language, contact m
 
 ## Changelog
 **V1.10.0 Added the following**
-- Removed devices DescentG1, Enduro, Fenix6, Fenix6S, FR245, FR55 and VenusQ from the supported list as they differiate Apps from Widgets and don't have enough allocated Widget memory to run the app. Since this app has Glance support, they can't be an App on those devices. It's limited to Widgets.
+- Removed devices DescentG1, Enduro, Fenix6, Fenix6S, FR245, FR55 and VenuSQ from the supported list as they differiate Apps from Widgets and don't have enough allocated Widget memory to run the app. Since this app has Glance support, they can't be an App on those devices. It's limited to Widgets.
 - History data now uses its own class so devices with just 32KB of Glance memory no longer crashes with a Out Of Memory error in the crash log. However, only the FAST Launch is available now for those devices. Sorry, too much stuff was added for 32KB is enough for the full experience.
 - Instead of showing a "Please wait" while the Summary view is loading, it will show the Summary view but with a flashing "???" in the fields other than the battery level. This will allow to see the battery level without waiting for the other fields to be read/calculated.
 - Inputs are no longer being accepted until the view is showing.
