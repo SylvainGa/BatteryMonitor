@@ -269,9 +269,9 @@ class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 			var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
 			//Erase
-			App.getApp().setHistoryNeedsReload(true);
-			App.getApp().setHistoryModified(true);
-			App.getApp().setHistory(new [HISTORY_MAX * elementSize]);
+			mView.mHistoryClass.setHistoryNeedsReload(true);
+			mView.mHistoryClass.setHistoryModified(true);
+			mView.mHistoryClass.setHistory(new [HISTORY_MAX * elementSize]);
 
 			var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 			var historyArraySize = historyArray.size();

@@ -10,12 +10,11 @@ using Toybox.Time.Gregorian;
 (:glance, :can_glance)
 class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mApp;
+	var mHistoryClass; // Contains the current history as well as its helper functions
 	var mTimer;
 	var mRefreshCount;
 	var mFontType;
     var mFontHeight;
-	var mIsSolar;
-	var mElementSize;
 	var mSummaryMode;
     var mProjectionType;
 	var mHistoryLastPos;
@@ -27,14 +26,15 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
     function initialize() {
         GlanceView.initialize();
+
+        if (self has :HistoryClassGlance) {
+    		mHistoryClass = new HistoryClassGlance();
+        }
+
+        onSettingsChanged(true);
     }
 
     function onShow() {
-        onSettingsChanged();
-
-		mIsSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
-		mElementSize = mIsSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
-
 		mRefreshCount = 0;
 		mTimer = new Timer.Timer();
 		mTimer.start(method(:onRefreshTimer), 5000, true); // Check every five second
@@ -50,11 +50,11 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 	function onRefreshTimer() as Void {
 		mRefreshCount++;
         
-        if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
+        if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
             if (mRefreshCount % 12 == 0) { // Every minute, read a new set of data
-                var data = $.getData();
+                var data = mHistoryClass.getData();
                 /*DEBUG*/ logMessage("onRefreshTimer Read data " + data);
-                $.analyzeAndStoreData([data], 1, false);
+                mHistoryClass.analyzeAndStoreData([data], 1, false);
             }
         }
 
@@ -104,7 +104,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         mApp = App.getApp();
     }
 
-    function onSettingsChanged() {
+    function onSettingsChanged(fromInit) {
         mSummaryMode = 0;
 		try {
 			mSummaryMode = Properties.getValue("SummaryMode");
@@ -120,6 +120,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         }
         catch (e) {
 			mProjectionType = 0;
+        }
+
+        if (mHistoryClass != null) {
+    		mHistoryClass.onSettingsChanged(fromInit);
         }
     }
 
@@ -138,10 +142,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
         /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 
-        if (mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
+        if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
     		/*DEBUG*/ logMessage("onUpdate LAUNCH_WHOLE");
             // Draw the two/three rows of text on the glance widget
-            if (mApp.mHistory == null) {
+            if (mHistoryClass.getHistory() == null) {
                 if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
                     /*DEBUG*/ mUpdateStartTime = Sys.getTimer();
                     /*DEBUG*/ logMessage("onUpdate: Displaying first please wait");
@@ -154,7 +158,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("onUpdate before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
                 /*DEBUG*/ logMessage("onUpdate: Getting latest history");
                 showPleaseWait(dc, fgColor);
-                mApp.getLatestHistoryFromStorage();
+                mHistoryClass.getLatestHistoryFromStorage();
                 Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
                 return;
             }
@@ -169,17 +173,16 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 /*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
                 if (mNowData == null) {
                     /*DEBUG*/ logMessage("onUpdate: tagging nowData to background data");
-                    mNowData = $.getData();
+                    mNowData = mHistoryClass.getData();
                     receivedData.add(mNowData);
                 }
 
-                var added = $.analyzeAndStoreData(receivedData, receivedData.size(), false);
+                var added = mHistoryClass.analyzeAndStoreData(receivedData, receivedData.size(), false);
                 if (added > 1) {
                     /*DEBUG*/ logMessage("Saving history");
-                    $.objectStorePut("HISTORY_" + mApp.mHistory[0 + TIMESTAMP], mApp.mHistory);
-                    mApp.setHistoryModified(false);
+    				mHistoryClass.storeHistory(true);
                 }
-                if (added > 0 && mApp.getHistoryNeedsReload() == true) {
+                if (added > 0 && mHistoryClass.getHistoryNeedsReload() == true) {
                     Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
                     return;
                 }
@@ -191,7 +194,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
                 showPleaseWait(dc, fgColor);
 
-                $.initDownSlope();
+                mHistoryClass.initDownSlope();
                 mSlopeNeedsFirstCalc = false;
 
                 Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
@@ -267,12 +270,12 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 mHistoryLastPos = downSlopeData[1];
             }
 
-            if (mApp.getGlanceLaunchMode == LAUNCH_WHOLE && (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mApp.mHistorySize)) { // ONLY do if we read mHistory (ie, LAUNCH_WHOLE) 
+            if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE && (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mHistoryClass.getHistorySize())) { // ONLY do if we read mHistory (ie, LAUNCH_WHOLE) 
                 // Calculate projected usage slope
-                var downSlopeResult = $.downSlope(false);
+                var downSlopeResult = mHistoryClass.downSlope(false);
                 downSlopeSec = downSlopeResult[0];
                 mSlopeNeedsCalc = downSlopeResult[1];
-                mHistoryLastPos = mApp.mHistorySize;
+                mHistoryLastPos = mHistoryClass.getHistorySize();
                 downSlopeData = [downSlopeSec, mHistoryLastPos];
                 $.objectStorePut("LAST_SLOPE_DATA", downSlopeData);
             }
@@ -289,7 +292,11 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 else {
                     dischargeStr = $.stripTrailingZeros((downSlopeHours).format("%0.2f")) + Ui.loadResource(Rez.Strings.PercentPerHour);
                 }	
-            } 
+            }
+            else if (mHistoryClass == null || mApp.getGlanceLaunchMode() == LAUNCH_FAST) { //If one of these are true, we need to launch the app to get the first value
+                remainingStr = Ui.loadResource(Rez.Strings.LaunchApp);
+                dischargeStr = "";
+            }
         }
 
         dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);

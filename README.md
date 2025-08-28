@@ -52,15 +52,18 @@ The app can auto select between %/hour and %/day depending on which one makes mo
 *Which projection to show in Glance:*
 On the bottom line of the Glance view, it shows the projection. This projection can either be either a simple battery usage/time since last charge or calculated using the data history it has gathered.
 
+*What mode to launch Glance in*
+Options are Fast and Whole. Fast (default) shows the charge level and the projected range was seen the last time the main app ran and no new data will be processed. In the Whole mode, the projected mode is calculated on the fly and new data are processed by the glance code itself instead of waiting for the main app to run.
+
 *Use built-in page indicator (devices with CIQ 3.4 and above)*
-Newer devices have a built-in page indicator, which I find quite intrusive on my watch, but quite usable on my Edge, so you have a choice of using the built-in one or the one I added. On older device, it only uses the one I added.
+Newer devices have a built-in page indicator, which I find quite intrusive on my watch, but quite usable on my Edge, so you have a choice of using the built-in one or the one I added. On older device, it only uses the one I added. Default is to use the page indicated I added (a workaround for CIQ 3.4 device that doesn't like reusing a view, I think)
 
 *What to do when history is full:*
 The app can store up to 2,500 data points, at 5 minutes per data point, that's enough data for about 3.5 days, but since the battery doesn't usually drain 0.1% (resolution of the app) per 5 minutes, this can extend for quite some time. On my 7S Pro, I had 14 days of data before reaching 2,500!
 However, once that limit is reached, the app can either drop the earliest 500 data points to make room for 500 more, or down sample the last 1,000 data points (ie, average two consecutive data points into one) to again, make room for 500 new data points. Using this method, you don't loose your previous data, just its granularity.
 
 *How many elements to store:*
-This app can be quite CPU intensive, especially when showing the graphs with lots of data. It's intensive enought that on some devices, at the max stored elements (2500, configurable in Settings), the app might crash with the line "Watchdog Tripped Error - Code Executed Too Long" in CIQ_LOG file. Lowering this value should help.
+This app can be quite CPU intensive, especially when showing the graphs with lots of data. It's intensive enought that on some devices, at the max stored elements (5000, configurable in Settings), the app might crash with the line "Watchdog Tripped Error - Code Executed Too Long" or 'Out of Memory" in CIQ_LOG file. Lowering this value should help.
 
 *Maximum time in msec before having to relinquish control when drawing (from 250 to 900):*
 Like mentionned above, the app might crash because it took too long to do its work. This is more prevalent while drawing the graph with lots of data points. This field tells it to stop drawing and relinquish control and continue drawing when we have the control back. You'll notice when that time is reached by a small pause while drawing the graph. 
@@ -79,7 +82,15 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
-**V1.9.3 Added the following**
+**V1.10.0 Added the following**
+- Removed devices DescentG1, Enduro, Fenix6, Fenix6S, FR245, FR55 and VenusQ from the supported list as they differiate Apps from Widgets and don't have enough allocated Widget memory to run the app. Since this app has Glance support, they can't be an App on those devices. It's limited to Widgets.
+- History data now uses its own class so devices with just 32KB of Glance memory no longer crashes with a Out Of Memory error in the crash log. However, only the FAST Launch is available now for those devices. Sorry, too much stuff was added for 32KB is enough for the full experience.
+- Instead of showing a "Please wait" while the Summary view is loading, it will show the Summary view but with a flashing "???" in the fields other than the battery level. This will allow to see the battery level without waiting for the other fields to be read/calculated.
+- Inputs are no longer being accepted until the view is showing.
+- Graph zooming level is no loger limited to 128x but dependant on the resolution of what's on display. It will stop when the minimum distance between two points is 1/10 of the screen size. This will help to precisely select where to mark a point.
+- Bug fix when activities were't being flagged in the history array.
+
+**V1.9.3 Fixed the following**
 - Switched the default to use the builtin page indicator from On to Off since devices with CIQ 3.4 crashes at launch with this setting enabled. It shouldn't, but it does so unless I find why (which I haven't after several hours of troubleshooting), those devices should restrain from using the builtin page indicator, sorry. This is settable in Settings.
 
 **V1.9.2 Added the following**

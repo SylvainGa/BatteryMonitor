@@ -7,6 +7,7 @@
     <string id="label_press">Appuyer sur Back</string>
     <string id="label_quit">pour quitter</string>
 
+    <string id="LaunchApp" scope="glance">Lancer l'appli</string>
     <string id="NotAvailableShort" scope="glance">N/D</string>
     <string id="PercentPerDay" scope="glance">%/j</string>
     <string id="PercentPerHour" scope="glance">%/h</string>

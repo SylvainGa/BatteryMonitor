@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.9.2.b27</string>
+    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.10.0.b5</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -8,6 +8,7 @@
     <string id="label_press">Press Back</string>
     <string id="label_quit">to quit</string>
 
+    <string id="LaunchApp" scope="glance">Launch app</string>
     <string id="NotAvailableShort" scope="glance">N/A</string>
     <string id="PercentPerDay" scope="glance">%/d</string>
     <string id="PercentPerHour" scope="glance">%/h</string>

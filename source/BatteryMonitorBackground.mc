@@ -26,10 +26,11 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             //DEBUG*/ logMessage("onTE: BG previous data (" + data.size() + ") last: " + data[data.size() - 1]);
         }
 
+        var now = Time.now().value(); //in seconds from UNIX epoch in UTC
         var stats = Sys.getSystemStats();
         var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
         var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
-        var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+
         var nowData = [now, battery, solar];
 
         if (Sys.getSystemStats().charging) {
@@ -43,14 +44,14 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             $.objectStoreErase("STARTED_CHARGING_DATA");
         }
 
-        var activityStartTime = Activity.getActivityInfo().startTime;
-        if (activityStartTime != null) { // we"ll hack the battery level to flag the start and end of the activity. We'll 'or' 4096 (0x1000) to the battery level to flag when an activity is running.
-            battery |= 0x1000;
-        }
-
         // Only add if it's newer to prevent passing data that are not going to be consumed
         var dataSize = data.size();
         if (dataSize == 0 || data[dataSize - 1][BATTERY] != battery) {
+            var activityStartTime = Activity.getActivityInfo().startTime;
+            if (activityStartTime != null) { // we"ll hack the battery level to flag the start and end of the activity. We'll 'or' 4096 (0x1000) to the battery level to flag when an activity is running.
+                nowData[BATTERY] |= 0x1000;
+            }
+
             data.add(nowData);
             /*DEBUG*/ logMessage("TE: " + nowData);
 
@@ -61,7 +62,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
                 try {
                     Background.exit(data);
                 }
-                catch (e instanceof Background.ExitDataSizeLimitException) { // We are trying to pass to much data! Shrink it down!
+                catch (e instanceof Background.ExitDataSizeLimitException) { // We are trying to pass too much data! Shrink it down!
                     success = false; // We didn't :-( Half the data and retry
                     var newSize = data.size() / 2;
                     var retryData = new [newSize];
