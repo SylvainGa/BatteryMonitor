@@ -91,7 +91,7 @@ class HistoryClassGlance  {
 			var history = $.objectStoreGet("HISTORY_KEY", null);
 			if (history != null) {
 				//DEBUG*/ logMessage("Old HISTORY_KEY format found, dropping it");
-				$.objectStoreErase("HISTORY_KEY", null);
+				$.objectStoreErase("HISTORY_KEY");
 			}
 		
 			history = $.objectStoreGet("HISTORY", null);
@@ -337,7 +337,7 @@ class HistoryClassGlance  {
         else { // We have a history and a last history, see if the battery value is different than the last and if so, store it but ignore this is we ask to always store
             var dataIndex;
             for (dataIndex = 0; dataIndex < dataSize && storeAlways == false; dataIndex++) {
-                if ($.stripMarkers(lastHistory[BATTERY]) != $.stripMarkers(data[dataIndex][BATTERY])) { // Look for the first new battery level since last time
+                if (lastHistory[BATTERY] != data[dataIndex][BATTERY]) { // Look for the first new battery level since last time (don't use stripMarkers here as we want to keep if an activity was started/stop too)
                     break; // Found it!
                 }
                 else {
@@ -359,8 +359,8 @@ class HistoryClassGlance  {
                     mHistoryNeedsReload = true; // Flag so we can rebuild our full history based on the new history arrays
                 }
 
-                if (lastHistory != null && lastHistory[BATTERY] < data[dataIndex][BATTERY]) { // If our last battery value is less than the current one, we were charging
-                    if (chargeData == null || chargeData[BATTERY] < data[dataIndex][BATTERY]) { // Keep the highest battery level
+                if (lastHistory != null && $.stripMarkers(lastHistory[BATTERY]) < $.stripMarkers(data[dataIndex][BATTERY])) { // If our last battery value is less than the current one, we were charging
+                    if (chargeData == null || $.stripMarkers(chargeData[BATTERY]) < $.stripMarkers(data[dataIndex][BATTERY])) { // Keep the highest battery level
                         chargeData = data[dataIndex];
                     }
                 }

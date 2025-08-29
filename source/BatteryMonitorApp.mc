@@ -88,10 +88,13 @@ class BatteryMonitorApp extends App.AppBase {
 			var oldData = $.objectStoreGet("RECEIVED_DATA", []);
 			//DEBUG*/ logMessage("onBackgroundData: Adding " + data + " to " + oldData);
 			oldData.addAll(data);
+			data = null; // Clean up to help not crashing
+			$.objectStoreErase("RECEIVED_DATA"); // and also here for some reason
 			$.objectStorePut("RECEIVED_DATA", oldData);	
 		}
 		else {
 			// Store the data so the View's onUpdate function can process it
+			$.objectStoreErase("RECEIVED_DATA");	
 			$.objectStorePut("RECEIVED_DATA", data);
 		}
 
