@@ -172,7 +172,7 @@ class BatteryMonitorView extends Ui.View {
 			}
 
 			if (Sys.getSystemStats().charging) {
-				if (mLastChargeData == null || mLastChargeData[BATTERY] != mNowData[BATTERY]) { // If we're charging and we have a different charge value than last time, store it
+				if (mLastChargeData == null || $.stripMarkers(mLastChargeData[BATTERY]) != $.stripMarkers(mNowData[BATTERY])) { // If we're charging and we have a different charge value than last time, store it
 					mLastChargeData = mNowData;
 					/*DEBUG*/ logMessage("onRefreshTimer: Charging " + mNowData);
 		            $.objectStorePut("LAST_CHARGE_DATA", mNowData);
@@ -855,9 +855,9 @@ class BatteryMonitorView extends Ui.View {
             if (Sys.getSystemStats().charging == false) { // There won't be a since last charge if we're charging...
                 if (mLastChargeData != null ) {
                     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
-                    var timeDiff = now - mLastChargeData[0];
+                    var timeDiff = now - mLastChargeData[TIMESTAMP];
                     if (timeDiff != 0) { // Sanity check
-                        var batAtLastCharge = $.stripMarkers(mLastChargeData[1]) / 10.0;
+                        var batAtLastCharge = $.stripMarkers(mLastChargeData[BATTERY]) / 10.0;
                         if (batAtLastCharge > battery) { // Sanity check
                             var batDiff = batAtLastCharge - battery;
                             var dischargePerMin = batDiff * 60.0 / timeDiff;
@@ -905,9 +905,9 @@ class BatteryMonitorView extends Ui.View {
             if (Sys.getSystemStats().charging == false) { // There won't be a since last charge if we're charging...
                 if (mLastChargeData != null ) {
                     var now = Time.now().value(); //in seconds from UNIX epoch in UTC
-                    var timeDiff = now - mLastChargeData[0];
+                    var timeDiff = now - mLastChargeData[TIMESTAMP];
                     if (timeDiff != 0) { // Sanity check
-                        var batAtLastCharge = $.stripMarkers(mLastChargeData[1]) / 10.0;
+                        var batAtLastCharge = $.stripMarkers(mLastChargeData[BATTERY]) / 10.0;
 
                         if (batAtLastCharge > battery) { // Sanity check
                             var batDiff = batAtLastCharge - battery;
@@ -1039,7 +1039,7 @@ class BatteryMonitorView extends Ui.View {
 			dc.drawText(mCtrX, yPos, mFontType,  timestampStr[0] + " " + timestampStr[1], Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 
-			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + $.stripTrailingZeros((mLastChargeData[BATTERY] / 10.0).format("%0.1f")) + "%" , Gfx.TEXT_JUSTIFY_CENTER);
+			dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.At) + " " + $.stripTrailingZeros(($.stripMarkers(mLastChargeData[BATTERY]) / 10.0).format("%0.1f")) + "%" , Gfx.TEXT_JUSTIFY_CENTER);
 			yPos += mFontHeight;
 		}
 		else if (mStartedCharging == true) {

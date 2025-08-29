@@ -82,6 +82,11 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.10.1 Added the following**
+- Bug fix in handling markers while adding data to the history array and showing last charge
+- Bug fix when converting old array style prior to V1.4
+- Bug fix to try to avert an out of memory error
+
 **V1.10.0 Added the following**
 - Removed devices DescentG1, Enduro, Fenix6, Fenix6S, FR245, FR55 and VenuSQ from the supported list as they differiate Apps from Widgets and don't have enough allocated Widget memory to run the app. Since this app has Glance support, they can't be an App on those devices. It's limited to Widgets.
 - History data now uses its own class so devices with just 32KB of Glance memory no longer crashes with a Out Of Memory error in the crash log. However, only the FAST Launch is available now for those devices. Sorry, too much stuff was added for 32KB is enough for the full experience.

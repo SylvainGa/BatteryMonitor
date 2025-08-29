@@ -19,7 +19,6 @@
             <iq:product id="vivoactive4s"/>
             <iq:product id="vivoactive5"/>-->
             <iq:product id="edge840"/>
-            <iq:product id="fenix6pro"/>
             <iq:product id="fenix7spro"/>
         </iq:products>
         <iq:permissions>
