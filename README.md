@@ -82,7 +82,7 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
-**V1.10.1 Added the following**
+**V1.10.1 Is about bug fix reported through Garmin's Exception Reporting Application (ERA) viewer**
 - Bug fix in handling markers while adding data to the history array and showing last charge
 - Bug fix when converting old array style prior to V1.4
 - Attempt to prevent an out of memory when processing lots of data from the background process

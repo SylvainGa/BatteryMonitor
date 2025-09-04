@@ -430,7 +430,7 @@ class BatteryMonitorView extends Ui.View {
 		//DEBUG*/ var updateStartTime = Sys.getTimer();
 		var screenFormat = System.getDeviceSettings().screenShape;
 
-        /*DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1000).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
+        /*DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1024).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
 		/*DEBUG*/ if (mUpdateWholeStartTime == null) { mUpdateWholeStartTime = Sys.getTimer(); }
 
 		if (mHistoryClass.getHistory() == null) {

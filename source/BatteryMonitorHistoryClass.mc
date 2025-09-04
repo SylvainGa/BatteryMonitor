@@ -29,7 +29,7 @@ enum {
 
 const HISTORY_ELEMENT_SIZE_SOLAR = 3; // Solar watches have three fields of 4 bytes (signed 32 bits) each, TIMESTAMP, BATTERY and SOLAR
 const HISTORY_ELEMENT_SIZE = 2; // Non solar watches have two fields of 4 bytes (signed 32 bits) each, TIMESTAMP and BATTERY
-
+(:glance)
 class HistoryClass  {
     private var mIsSolar;
     private var mElementSize;

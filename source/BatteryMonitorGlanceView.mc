@@ -9,7 +9,6 @@ using Toybox.Time.Gregorian;
 
 (:glance, :can_glance)
 class BatteryMonitorGlanceView extends Ui.GlanceView {
-    var mApp;
 	var mHistoryClass; // Contains the current history as well as its helper functions
 	var mRefreshTimer;
 	var mRefreshCount;
@@ -27,13 +26,17 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 	/*DEBUG*/ var mFreeMemory;
 
     function initialize() {
+        /*DEBUG */ logMessage("Init1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
         GlanceView.initialize();
+        /*DEBUG */ logMessage("Init2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
         if (self has :HistoryClassGlance) {
-    		mHistoryClass = new HistoryClassGlance();
+    		mHistoryClass = new HistoryClass();
         }
+        /*DEBUG */ logMessage("Init3 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
         onSettingsChanged(true);
+        /*DEBUG */ logMessage("Init4 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
     }
 
     function onShow() {
@@ -49,7 +52,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 	function onRefreshTimer() as Void {
 		mRefreshCount++;
         
-        if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
+        if (mHistoryClass != null && App.getApp().getGlanceLaunchMode() == LAUNCH_WHOLE) {
             if (mRefreshCount % 12 == 0) { // Every minute, read a new set of data
                 var data = mHistoryClass.getData();
                 /*DEBUG*/ logMessage("onRefreshTimer Read data " + data);
@@ -80,12 +83,13 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     }
 
     function onLayout(dc) {
+        /*DEBUG */ logMessage("Layout1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 		var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE];
 
-		// The right font is about 10% of the screen size
-		for (var i = 0; i < fonts.size(); i++) {
+        // FInd the right font to draw two lines on screen
+		for (var i = fonts.size() - 1; i >= 0 ; i--) {
 			var fontHeight = Gfx.getFontHeight(fonts[i]);
-			if (dc.getHeight() / fontHeight < 3) {
+			if (dc.getHeight() / fontHeight == 2) {
 				mFontType = fonts[i];
 				break;
 			}
@@ -100,9 +104,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         mSlopeNeedsFirstCalc = true;
         mPleaseWaitVisible = false;
 
-        mApp = App.getApp();
+        /*DEBUG */ logMessage("Layout2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
     }
 
+    (:glance_64kb)
     function onSettingsChanged(fromInit) {
         mSummaryMode = 0;
 		try {
@@ -131,7 +136,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var bgColor = Gfx.COLOR_TRANSPARENT;
 
         // Clear the screen with a black background so devices like my Edge 840 (usually a white background during daytime) can actually show something
-        if (mApp.getTheme() == THEME_LIGHT) {
+        if (App.getApp().getTheme() == THEME_LIGHT) {
             fgColor = Gfx.COLOR_BLACK;
             bgColor = Gfx.COLOR_TRANSPARENT;
         }
@@ -139,10 +144,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         dc.setColor(fgColor, bgColor);
         dc.clear();
 
-        /*DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1000).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
+        /*DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1024).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
 		/*DEBUG*/ if (mUpdateWholeStartTime == null) { mUpdateWholeStartTime = Sys.getTimer(); }
 
-        if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE) {
+        if (mHistoryClass != null && App.getApp().getGlanceLaunchMode() == LAUNCH_WHOLE) {
     		//DEBUG*/ logMessage("LAUNCH_WHOLE");
             // Draw the two/three rows of text on the glance widget
             if (mHistoryClass.getHistory() == null) {
@@ -279,7 +284,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 mHistoryLastPos = downSlopeData[1];
             }
 
-            if (mHistoryClass != null && mApp.getGlanceLaunchMode() == LAUNCH_WHOLE && (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mHistoryClass.getHistorySize())) { // ONLY do if we read mHistory (ie, LAUNCH_WHOLE) 
+            if (mHistoryClass != null && App.getApp().getGlanceLaunchMode() == LAUNCH_WHOLE && (downSlopeSec == null || mSlopeNeedsCalc == true || mHistoryLastPos != mHistoryClass.getHistorySize())) { // ONLY do if we read mHistory (ie, LAUNCH_WHOLE) 
                 // Calculate projected usage slope
                 var downSlopeResult = mHistoryClass.downSlope(false);
                 downSlopeSec = downSlopeResult[0];
@@ -302,7 +307,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                     dischargeStr = $.stripTrailingZeros((downSlopeHours).format("%0.2f")) + Ui.loadResource(Rez.Strings.PercentPerHour);
                 }	
             }
-            else if (mHistoryClass == null || mApp.getGlanceLaunchMode() == LAUNCH_FAST) { //If one of these are true, we need to launch the app to get the first value
+            else if (mHistoryClass == null || App.getApp().getGlanceLaunchMode() == LAUNCH_FAST) { //If one of these are true, we need to launch the app to get the first value
                 remainingStr = Ui.loadResource(Rez.Strings.LaunchApp);
                 dischargeStr = "";
             }
@@ -314,6 +319,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         dc.drawText(xPos, mFontHeight / 2, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
     }
 
+    (:glance_64kb)
 	function showPleaseWait(dc, fgColor) {
         if (mPleaseWaitVisible == true) {
             dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);

@@ -81,19 +81,61 @@ class BatteryMonitorApp extends App.AppBase {
     }
 
     function onBackgroundData(data) {
+        /*DEBUG */ logMessage("onBackgroundData1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 		//DEBUG*/ logMessage("onBackgroundData: " + data);
-		/*DEBUG*/ logMessage("onBackgroundData: " + data.size());
+		var dataSize = data.size();
+		/*DEBUG*/ logMessage("onBackgroundData: " + dataSize);
 
-		if (mGlanceLaunchMode == LAUNCH_FAST) { // If we're launching Glance fast, we aren't reading and clearing RECEIVED_DATA in the Glance code so keep adding to it. It will be read once we finally launch the main view
+		if (mGlanceLaunchMode == LAUNCH_FAST && dataSize < HISTORY_MAX) { // If we're launching Glance fast and we're not already having too much data, we aren't reading and clearing RECEIVED_DATA in the Glance code so keep adding to it. It will be read once we finally launch the main view
 			var oldData = $.objectStoreGet("RECEIVED_DATA", []);
-			/*DEBUG*/ logMessage("onBackgroundData: Adding " + data + " to " + oldData);
-			oldData.addAll(data);
+			var oldDataSize = oldData.size();
+			var shrinkBy = oldDataSize + dataSize - HISTORY_MAX;
+	        /*DEBUG */ logMessage("onBackgroundData2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			/*DEBUG*/ logMessage("Adding to size " + oldDataSize);
+			if (shrinkBy > 0) { // If we have too much data, shrink down old data similar to what we do in background when too much data is passed, except we shrink until we made enough room for the new data. 
+				// Shrink by two
+				/*DEBUG*/ logMessage("Above " + HISTORY_MAX + ", shrinking");
+				var i, j;
+				// for (i = 0, j = 0; i < shrinkBy && i < dataSize && j < oldDataSize && j < HISTORY_MAX; i++, j = i * 2) {
+				// 	oldData[i] = oldData[j];
+				// }
+
+				// // Copy old data until we have just enough room for the new data
+				// /*DEBUG*/ logMessage("Done shrinking at index " + i + " oldData index " + j);
+				/*DEBUG*/ logMessage("Keeping " + (oldDataSize - shrinkBy) + " from oldData, starting at index " + shrinkBy);
+				for (i = 0, j = shrinkBy; j < oldDataSize && j < HISTORY_MAX; i++, j++) {
+					oldData[i] = oldData[j];
+				}
+
+				// Fill what we freed from oldData with new data until oldData is full
+				/*DEBUG*/ logMessage("Now filling oldData starting at index " + i + " with data");
+				for (j = 0; j < dataSize && i < oldDataSize && i < HISTORY_MAX; i++, j++) {
+					oldData[i] = data[j];
+				}
+
+				// Add what's left of data to oldData until we processed the all the new data (failsafe for not going over HISTORY_MAX)
+				/*DEBUG*/ logMessage("OldIndex full at index " + i + ". Adding data starting at index " + j);
+				for (; j < dataSize && i < HISTORY_MAX; i++, j++) {
+					oldData.add(data[j]);
+				}
+
+				/*DEBUG*/ logMessage("Finished. oldData is now " + oldData.size());
+			}
+			else { // We have enough room, simply tag the new data at the end of what we currently have
+				oldData.addAll(data);
+				/*DEBUG*/ logMessage("Had enough room. oldData is now " + oldData.size());
+		        /*DEBUG */ logMessage("onBackgroundData3 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			}
+
+	        /*DEBUG */ logMessage("onBackgroundData3 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			data = null; // Clean up to help not crashing
+			/*DEBUG */ logMessage("onBackgroundData4 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			$.objectStoreErase("RECEIVED_DATA"); // Also help not crashing for some reason
 			$.objectStorePut("RECEIVED_DATA", oldData);	
 		}
 		else {
 			// Store the data so the View's onUpdate function can process it
+	        /*DEBUG */ logMessage("onBackgroundData1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			$.objectStoreErase("RECEIVED_DATA");
 			$.objectStorePut("RECEIVED_DATA", data);
 		}
@@ -148,6 +190,7 @@ class BatteryMonitorApp extends App.AppBase {
 	}
 
     // Application handler for changes in day/night mode
+	(:glance_64kb) // No need to include that on devices that only have 32KB of Glance as they won't have night mode either
     public function onNightModeChanged() {
         // Handle a change in night mode
         if (System.DeviceSettings has :isNightModeEnabled) {
@@ -193,7 +236,6 @@ class BatteryMonitorApp extends App.AppBase {
 
 		// Tell the 'Main View' that we launched from Glance
         Storage.setValue("fromGlance", true);
-
 		mGlance = new BatteryMonitorGlanceView();
 		mView = mGlance; // So onSettingsChanged can call the view or glance onSettingsChanged code without needing to check for both
         return [mGlance];
@@ -251,10 +293,12 @@ class BatteryMonitorApp extends App.AppBase {
     }
 
     // Theme accessor
+	(:can_glance, :glance_64kb)
     public function getTheme() as Theme {
         return mTheme;
     }
 
+	(:can_glance, :glance_64kb)
 	public function getGlanceLaunchMode() as GlanceLaunchMode {
 		return mGlanceLaunchMode;
 	}
