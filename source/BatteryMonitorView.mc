@@ -1139,8 +1139,6 @@ class BatteryMonitorView extends Ui.View {
 
 		if (mHistoryClass.getHistoryNeedsReload() == true || mHistoryClass.getFullHistoryNeedsRefesh() == true || mFullHistory == null) { // We'll have some work to do, tell the user to be patient
 			/*DEBUG*/ logMessage("onUpdate: Building full history array");
-			var screenFormat = System.getDeviceSettings().screenShape;
-
 			if (buildFullHistory(24 * 60 * 60) == true) {
 				mNoChange = false; // Tell we still need to come back to drawChart
 				Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
