@@ -86,6 +86,8 @@ If you would like to translate the language file in your own language, contact m
 - Bug fix in handling markers while adding data to the history array and showing last charge
 - Bug fix when converting old array style prior to V1.4
 - Attempt to prevent an out of memory when processing lots of data from the background process
+- Unfortunately, because of the limited memory capacity of the Glance code for some not so old devices, I had to remove the following devices from the supported list: descentmk2, descentmk2s, fenix6pro, fenix6spro, fenix6xpro, fr245m, fr745, fr945, fr945lte, marqadventurer, marqathlete, marqaviator, marqcaptain, marqcommander, marqdriver, marqexpedition, 
+marqgolfer
 
 **V1.10.0 Added the following**
 - Removed devices DescentG1, Enduro, Fenix6, Fenix6S, FR245, FR55 and VenuSQ from the supported list as they differiate Apps from Widgets and don't have enough allocated Widget memory to run the app. Since this app has Glance support, they can't be an App on those devices. It's limited to Widgets.
