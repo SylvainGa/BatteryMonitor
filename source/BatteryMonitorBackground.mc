@@ -2,6 +2,7 @@ using Toybox.Background;
 using Toybox.Activity;
 using Toybox.System as Sys;
 using Toybox.Time;
+using Toybox.Lang;
 
 // The Service Delegate is the main entry point for background processes
 // our onTemporalEvent() method will get run each time our periodic event
@@ -17,6 +18,9 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
     // and the main application is not open. Prompt the user to let them
     // know the timer expired.
     function onTemporalEvent() {
+		var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+
         var data = Background.getBackgroundData();
         if (data == null) {
             data = [];
@@ -24,6 +28,9 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         }
         else {
             //DEBUG*/ logMessage("onTE: BG previous data (" + data.size() + ") last: " + data[data.size() - 1]);
+            if (data[0] instanceof Toybox.Lang.Array) {
+                data = null; // If we have the old array format, drop it. Yeah, sucks but no point to add code just for one time when space is already limited
+            }
         }
 
         var now = Time.now().value(); //in seconds from UNIX epoch in UTC
@@ -44,18 +51,22 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             $.objectStoreErase("STARTED_CHARGING_DATA");
         }
 
+        // Flag if an activity is currently going
+        var activityStartTime = Activity.getActivityInfo().startTime;
+        if (activityStartTime != null) { // we"ll hack the battery level to flag the start and end of the activity. We'll 'or' 4096 (0x1000) to the battery level to flag when an activity is running.
+            nowData[BATTERY] |= 0x1000;
+        }
+
         // Only add if it's newer to prevent passing data that are not going to be consumed
         var dataSize = data.size();
-        if (dataSize == 0 || data[dataSize - 1][BATTERY] != battery) {
-            var activityStartTime = Activity.getActivityInfo().startTime;
-            if (activityStartTime != null) { // we"ll hack the battery level to flag the start and end of the activity. We'll 'or' 4096 (0x1000) to the battery level to flag when an activity is running.
-                nowData[BATTERY] |= 0x1000;
-            }
-
-            data.add(nowData);
+        if (dataSize == 0 || data[dataSize / elementSize + BATTERY] != battery) {
+            data.addAll(nowData);
             /*DEBUG*/ logMessage("TE: " + nowData);
 
             var success;
+
+            /*DEBUG TODO*/ data = new [500 * 3]; for (var i = 0; i < 500 * 3; i++) {  data[i] = i; }
+
             do {
                 //DEBUG*/ logMessage("onTE: Exit with " + data.size() + " elements");
                 success = true; // Assume we'll succeed
@@ -64,14 +75,13 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
                 }
                 catch (e instanceof Background.ExitDataSizeLimitException) { // We are trying to pass too much data! Shrink it down!
                     success = false; // We didn't :-( Half the data and retry
-                    var newSize = data.size() / 2;
-                    var retryData = new [newSize];
-                    
-                    for (var i = 0; i < newSize; i++) {
-                        retryData[i] = data[i * 2]; // Mo averaging, here, just take every second data. We've been away from the app for very long, no need to be this precise.
+                    var newSize = ((data.size() / elementSize) / 2); // Doing it this way so precision error doesn't truncate it too short
+                    var i;
+                    for (i = 0; i < newSize; i++) {
+                        data[i * elementSize] = data[(i * elementSize) * 2]; // No averaging, here, just take every second data. We've been away from the app for very long, no need to be this precise.
                     }
                     /*DEBUG*/ logMessage("onTE: Exit failed. Had " + (newSize * 2) + " elements. Retrying with just " + newSize + " elements" + data);
-                    data = retryData;
+                    data = data.slice(0, i);
                 }
             } while (success == false);
         }

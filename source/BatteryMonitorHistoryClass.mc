@@ -347,21 +347,22 @@ class HistoryClass  {
 
         if (lastHistory == null) { // no data yet (if we haven't got a last history, we can safely assume history was also empty)
             for (var dataIndex = 0; dataIndex < dataSize && mHistorySize < HISTORY_MAX; dataIndex++, mHistorySize++) { // Now add the new ones (if any)
-                mHistory[mHistorySize * mElementSize + TIMESTAMP] = data[dataIndex][TIMESTAMP];
-                mHistory[mHistorySize * mElementSize + BATTERY] = data[dataIndex][BATTERY];
+                mHistory[mHistorySize * mElementSize + TIMESTAMP] = data[dataIndex * 3 + TIMESTAMP]; // data is always made of 3 elements, SOLAR is simply always 0 on non solar devices and ignored in history
+                mHistory[mHistorySize * mElementSize + BATTERY] = data[dataIndex * 3 + BATTERY];
                 if (mIsSolar) {
-                    mHistory[mHistorySize * mElementSize + SOLAR] = data[dataIndex][SOLAR];
+                    mHistory[mHistorySize * mElementSize + SOLAR] = data[dataIndex * 3 + SOLAR];
                 }
             }
 
-            lastHistory = data[dataSize - 1];
+			var lastEntry = (dataSize - 1) * 3;
+            lastHistory = [data[lastEntry + TIMESTAMP], data[lastEntry + BATTERY], data[lastEntry + SOLAR]];
             added = dataSize;
             /*DEBUG*/ logMessage("analyze: First addition (" + added + ") " + data);
         }
         else { // We have a history and a last history, see if the battery value is different than the last and if so, store it but ignore this is we ask to always store
             var dataIndex;
             for (dataIndex = 0; dataIndex < dataSize && storeAlways == false; dataIndex++) {
-                if (lastHistory[BATTERY] != data[dataIndex][BATTERY]) { // Look for the first new battery level since last time (don't use stripMarkers here as we want to keep if an activity was started/stop too)
+                if (lastHistory[BATTERY] != data[dataIndex * 3 + BATTERY]) { // Look for the first new battery level since last time (don't use stripMarkers here as we want to keep if an activity was started/stop too)
                     break; // Found it!
                 }
                 else {
@@ -373,6 +374,7 @@ class HistoryClass  {
             
             /*DEBUG*/ var addedData = []; logMessage("analyze: mHistorySize " + mHistorySize + " dataSize " + dataSize);
             for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
+				var dataPos = dataIndex * 3;
                 if (mHistorySize >= HISTORY_MAX) { // We've reached 500 (HISTORY_MAX), start a new array
                     self.storeHistory(added > 0 || mHistoryModified == true); // Store the current history if modified and create a new one based on the latest time stamp
 
@@ -383,27 +385,27 @@ class HistoryClass  {
                     mHistoryNeedsReload = true; // Flag so we can rebuild our full history based on the new history arrays
                 }
 
-                if (lastHistory != null && $.stripMarkers(lastHistory[BATTERY]) < $.stripMarkers(data[dataIndex][BATTERY])) { // If our last battery value is less than the current one, we were charging
-                    if (chargeData == null || $.stripMarkers(chargeData[BATTERY]) < $.stripMarkers(data[dataIndex][BATTERY])) { // Keep the highest battery level
-                        chargeData = data[dataIndex];
+                if (lastHistory != null && $.stripMarkers(lastHistory[BATTERY]) < $.stripMarkers(data[dataPos + BATTERY])) { // If our last battery value is less than the current one, we were charging
+                    if (chargeData == null || $.stripMarkers(chargeData[BATTERY]) < $.stripMarkers(data[dataPos + BATTERY])) { // Keep the highest battery level
+                        chargeData = [data[dataPos + TIMESTAMP], data[dataPos + BATTERY], data[dataPos + SOLAR]];
                     }
                 }
 
                 // No history or we asked to always store (for markers) or the battery value is diffenrent than the previous one, store
-                if (mHistorySize == 0 || storeAlways || mHistory[((mHistorySize - 1) * mElementSize) + BATTERY] != data[dataIndex][BATTERY]) {
-                    mHistory[mHistorySize * mElementSize + TIMESTAMP] = data[dataIndex][TIMESTAMP];
-                    mHistory[mHistorySize * mElementSize + BATTERY] = data[dataIndex][BATTERY];
+                if (mHistorySize == 0 || storeAlways || mHistory[((mHistorySize - 1) * mElementSize) + BATTERY] != data[dataPos + BATTERY]) {
+                    mHistory[mHistorySize * mElementSize + TIMESTAMP] = data[dataPos + TIMESTAMP];
+                    mHistory[mHistorySize * mElementSize + BATTERY] = data[dataPos + BATTERY];
                     if (mIsSolar) {
-                        mHistory[mHistorySize * mElementSize + SOLAR] = data[dataIndex][SOLAR];
+                        mHistory[mHistorySize * mElementSize + SOLAR] = data[dataPos + SOLAR];
                     }
 
                     mHistorySize++;
                     added++;
 
-                    /*DEBUG*/ addedData.add(data[dataIndex]);
+                    /*DEBUG*/ addedData.addAll([data[dataPos + TIMESTAMP], data[dataPos + BATTERY], data[dataPos + SOLAR]]);
                 }
                 else {
-                    /*DEBUG*/ logMessage("Ignored " + data[dataIndex]);
+                    /*DEBUG*/ logMessage("Ignored " + [data[dataPos + TIMESTAMP], data[dataPos + BATTERY], data[dataPos + SOLAR]]);
                 }
             }
 
@@ -415,11 +417,12 @@ class HistoryClass  {
 
             //DEBUG*/ logMessage("Added (" + added + ") " + addedData);
             if (added > 0) {
+				var lastHistoryPos = (mHistorySize - 1) * mElementSize;
                 if (mIsSolar) {
-                    lastHistory = [mHistory[(mHistorySize - 1) * mElementSize + TIMESTAMP], mHistory[(mHistorySize - 1) * mElementSize + BATTERY], mHistory[(mHistorySize - 1) * mElementSize + SOLAR]]; // TIMESTAMP, BATTERY, SOLAR
+                    lastHistory = [mHistory[lastHistoryPos + TIMESTAMP], mHistory[lastHistoryPos + BATTERY], mHistory[lastHistoryPos + SOLAR]]; // TIMESTAMP, BATTERY, SOLAR
                 }
                 else {
-                    lastHistory = [mHistory[(mHistorySize - 1) * mElementSize + TIMESTAMP], mHistory[(mHistorySize - 1) * mElementSize + BATTERY]]; // TIMESTAMP, BATTERY
+                    lastHistory = [mHistory[lastHistoryPos + TIMESTAMP], mHistory[lastHistoryPos + BATTERY], 0]; // TIMESTAMP, BATTERY, 0 for SOLAR
                 }
             }
         }
@@ -692,7 +695,7 @@ class HistoryClass  {
 	function saveLastData() {
         var lastData = self.getData();
         /*DEBUG*/ logMessage("Saving last viewed data " + lastData);
-        self.analyzeAndStoreData([lastData], 1, false);
+        self.analyzeAndStoreData(lastData, 1, false);
         $.objectStorePut("LAST_VIEWED_DATA", lastData);
     }
 

@@ -81,61 +81,55 @@ class BatteryMonitorApp extends App.AppBase {
     }
 
     function onBackgroundData(data) {
-        /*DEBUG */ logMessage("onBackgroundData1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 		//DEBUG*/ logMessage("onBackgroundData: " + data);
 		var dataSize = data.size();
-		/*DEBUG*/ logMessage("onBackgroundData: " + dataSize);
+		//DEBUG*/ logMessage("onBackgroundData: " + dataSize);
 
-		if (mGlanceLaunchMode == LAUNCH_FAST && dataSize < HISTORY_MAX) { // If we're launching Glance fast and we're not already having too much data, we aren't reading and clearing RECEIVED_DATA in the Glance code so keep adding to it. It will be read once we finally launch the main view
+		if (mGlanceLaunchMode == LAUNCH_FAST) { // If we're launching Glance fast, we aren't reading and clearing RECEIVED_DATA in the Glance code so keep adding to it. It will be read once we finally launch the main view
+			/*DEBUG*/ logMessage("onBackgroundData Fast Launch, data is " + dataSize + " elements");
+	        /*DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			var oldData = $.objectStoreGet("RECEIVED_DATA", []);
+	        /*DEBUG*/ logMessage("Free memory 2 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			var oldDataSize = oldData.size();
-			var shrinkBy = oldDataSize + dataSize - HISTORY_MAX;
-	        /*DEBUG */ logMessage("onBackgroundData2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
-			/*DEBUG*/ logMessage("Adding to size " + oldDataSize);
-			if (shrinkBy > 0) { // If we have too much data, shrink down old data similar to what we do in background when too much data is passed, except we shrink until we made enough room for the new data. 
-				// Shrink by two
-				/*DEBUG*/ logMessage("Above " + HISTORY_MAX + ", shrinking");
-				var i, j;
-				// for (i = 0, j = 0; i < shrinkBy && i < dataSize && j < oldDataSize && j < HISTORY_MAX; i++, j = i * 2) {
-				// 	oldData[i] = oldData[j];
-				// }
-
-				// // Copy old data until we have just enough room for the new data
-				// /*DEBUG*/ logMessage("Done shrinking at index " + i + " oldData index " + j);
-				/*DEBUG*/ logMessage("Keeping " + (oldDataSize - shrinkBy) + " from oldData, starting at index " + shrinkBy);
-				for (i = 0, j = shrinkBy; j < oldDataSize && j < HISTORY_MAX; i++, j++) {
-					oldData[i] = oldData[j];
-				}
-
-				// Fill what we freed from oldData with new data until oldData is full
-				/*DEBUG*/ logMessage("Now filling oldData starting at index " + i + " with data");
-				for (j = 0; j < dataSize && i < oldDataSize && i < HISTORY_MAX; i++, j++) {
-					oldData[i] = data[j];
-				}
-
-				// Add what's left of data to oldData until we processed the all the new data (failsafe for not going over HISTORY_MAX)
-				/*DEBUG*/ logMessage("OldIndex full at index " + i + ". Adding data starting at index " + j);
-				for (; j < dataSize && i < HISTORY_MAX; i++, j++) {
-					oldData.add(data[j]);
-				}
-
-				/*DEBUG*/ logMessage("Finished. oldData is now " + oldData.size());
-			}
-			else { // We have enough room, simply tag the new data at the end of what we currently have
-				oldData.addAll(data);
-				/*DEBUG*/ logMessage("Had enough room. oldData is now " + oldData.size());
-		        /*DEBUG */ logMessage("onBackgroundData3 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			if (oldDataSize > 0 && oldData[0] instanceof Toybox.Lang.Array) {
+				/*DEBUG*/ logMessage("Old format, clearing oldData");
+				oldData = []; // If what we have is an array of arrays (old format), unfortunately, we'll ignore that data
+				oldDataSize = 0;
 			}
 
-	        /*DEBUG */ logMessage("onBackgroundData3 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
-			data = null; // Clean up to help not crashing
-			/*DEBUG */ logMessage("onBackgroundData4 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			/*DEBUG*/ logMessage("Adding to " + oldDataSize + " elements");
+			oldData.addAll(data);
+	        /*DEBUG*/ logMessage("Free memory 3 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			data = null; // We don't need it anymore, reclaim its space
+	        /*DEBUG*/ logMessage("Free memory 4 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			var newDataSize = oldData.size();
+			/*DEBUG*/ logMessage("Now has " + newDataSize + " elements");
+			var shrinkSteps = (newDataSize.toFloat() / (HISTORY_MAX * 3) + 1.0).toNumber(); // By how much data we'll skip to make it fit into a HISTORY_MAX size. Best case is a 2 to 1 shrink and we start shrinking at 50% over HISTORY_MAX
+			/*DEBUG*/ logMessage("Shrink steps is " + shrinkSteps);
+			if (shrinkSteps > 1) {
+				var i;
+				var newSize = newDataSize / shrinkSteps;
+				for (i = 0; i < newSize; i += 3) {
+					var j = i * shrinkSteps; 
+					oldData[i + TIMESTAMP] = oldData[j + TIMESTAMP];
+					oldData[i + BATTERY] = oldData[j + BATTERY];
+					oldData[i + SOLAR] = oldData[j + SOLAR];
+				}
+
+				oldData = oldData.slice(0, i); // Only keep the section we copied, disregarding what's after
+
+		        /*DEBUG*/ logMessage("Free memory 4.5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+				/*DEBUG*/ logMessage("Finished. oldData is now " + oldData.size() + " elememts");
+			}
+
+	        /*DEBUG*/ logMessage("Free memory 5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			$.objectStoreErase("RECEIVED_DATA"); // Also help not crashing for some reason
-			$.objectStorePut("RECEIVED_DATA", oldData);	
+			$.objectStorePut("RECEIVED_DATA", oldData);
 		}
 		else {
+			/*DEBUG*/ logMessage("onBackgroundData whole Launch, data is " +  + dataSize + " elements");
+	        /*DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			// Store the data so the View's onUpdate function can process it
-	        /*DEBUG */ logMessage("onBackgroundData1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			$.objectStoreErase("RECEIVED_DATA");
 			$.objectStorePut("RECEIVED_DATA", data);
 		}
@@ -248,6 +242,7 @@ class BatteryMonitorApp extends App.AppBase {
 		//DEBUG*/ var historyArray = $.objectStoreGet("HISTORY_ARRAY", null); $.dumpHistory(historyArray.size() - 1); return;
 		//DEBUG*/ logMessage("Building fake history"); buildFakeHistory();
 		//DEBUG*/ logMessage("Building copied history"); $.buildCopiedHistory(); logMessage("History built from a copy"); return;
+		//DEBUG*/$.objectStorePut("RECEIVED_DATA", $.buildCopiedData()); return;
 
 		var useBuiltinPageIndicator = true;
 		try {

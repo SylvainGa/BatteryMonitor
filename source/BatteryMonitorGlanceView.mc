@@ -56,7 +56,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             if (mRefreshCount % 12 == 0) { // Every minute, read a new set of data
                 var data = mHistoryClass.getData();
                 /*DEBUG*/ logMessage("onRefreshTimer Read data " + data);
-                mHistoryClass.analyzeAndStoreData([data], 1, false);
+                mHistoryClass.analyzeAndStoreData(data, 1, false);
             }
         }
 
@@ -179,7 +179,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 if (mNowData == null) {
                     /*DEBUG*/ logMessage("tagging nowData to background data");
                     mNowData = mHistoryClass.getData();
-                    receivedData.add(mNowData);
+                    receivedData.addAll(mNowData);
                 }
 
                 var added = mHistoryClass.analyzeAndStoreData(receivedData, receivedData.size(), false);

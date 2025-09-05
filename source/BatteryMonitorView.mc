@@ -167,7 +167,7 @@ class BatteryMonitorView extends Ui.View {
 			//DEBUG*/ logMessage("Every minute event");
 			mNowData = mHistoryClass.getData();
 			//DEBUG*/ logMessage("refreshTimer Read data " + mNowData);
-			if (mHistoryClass.analyzeAndStoreData([mNowData], 1, false) > 0) {
+			if (mHistoryClass.analyzeAndStoreData(mNowData, 1, false) > 0) {
 				mNoChange = false;
 			}
 
@@ -399,8 +399,8 @@ class BatteryMonitorView extends Ui.View {
 			mMarkerData = markerData;
 		}
 
-		if (add) {
-			mHistoryClass.analyzeAndStoreData(markerData, 1, true); // analyseAndStoreData deals with a null data so blindly call it even if we're null
+		if (add && markerData != null) {
+			mHistoryClass.analyzeAndStoreData([markerData[TIMESTAMP], markerData[BATTERY], markerData[SOLAR]], 1, true);
 		}
 
 		mNoChange = false;
@@ -463,7 +463,7 @@ class BatteryMonitorView extends Ui.View {
 			if (mNowData == null) {
 				mNowData = mHistoryClass.getData();
 				/*DEBUG*/ logMessage("tagging nowData (" + mNowData + ") to background data");
-				receivedData.add(mNowData);
+				receivedData.addAll(mNowData);
 			}
 
 			/*DEBUG*/ var startTime = Sys.getTimer();
@@ -575,7 +575,7 @@ class BatteryMonitorView extends Ui.View {
 		if (System.getSystemStats().charging) {
 			if (mStartedCharging == false) {
 				mStartedCharging = true;
-				if (mHistoryClass.analyzeAndStoreData([mHistoryClass.getData()], 1, false) > 0) {
+				if (mHistoryClass.analyzeAndStoreData(mHistoryClass.getData(), 1, false) > 0) {
 					mNoChange = false;
 				}
 			}
