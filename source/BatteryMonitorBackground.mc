@@ -18,9 +18,6 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
     // and the main application is not open. Prompt the user to let them
     // know the timer expired.
     function onTemporalEvent() {
-		var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
-		var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
-
         var data = Background.getBackgroundData();
         if (data == null) {
             data = [];
@@ -59,29 +56,33 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
 
         // Only add if it's newer to prevent passing data that are not going to be consumed
         var dataSize = data.size();
-        if (dataSize == 0 || data[dataSize / elementSize + BATTERY] != battery) {
+        if (dataSize == 0 || data[dataSize - 3 + BATTERY] != nowData[BATTERY]) { // We use '3' here and not elementSize as data is ALWAYS three fields (TIMESTANP, BATTERY AND SOLAR)
             data.addAll(nowData);
-            /*DEBUG*/ logMessage("TE: " + nowData);
+            //DEBUG*/ logMessage("TE: " + nowData);
 
             var success;
 
-            /*DEBUG TODO*/ data = new [500 * 3]; for (var i = 0; i < 500 * 3; i++) {  data[i] = i; }
+            //DEBUG*/  data = new [2001]; for (var i = 0; i < 2001; i++) {  data[i] = i; }
 
             do {
-                //DEBUG*/ logMessage("onTE: Exit with " + data.size() + " elements");
+                /*DEBUG*/ logMessage("onTE: Exit with " + (dataSize / 3) + " elements");
                 success = true; // Assume we'll succeed
                 try {
                     Background.exit(data);
                 }
                 catch (e instanceof Background.ExitDataSizeLimitException) { // We are trying to pass too much data! Shrink it down!
+                    /*DEBUG*/ logMessage("Exit failed.");
                     success = false; // We didn't :-( Half the data and retry
-                    var newSize = ((data.size() / elementSize) / 2); // Doing it this way so precision error doesn't truncate it too short
-                    var i;
-                    for (i = 0; i < newSize; i++) {
-                        data[i * elementSize] = data[(i * elementSize) * 2]; // No averaging, here, just take every second data. We've been away from the app for very long, no need to be this precise.
+                    dataSize = (data.size() / 2); // Doing it this way so precision error doesn't truncate it too short
+                    for (var i = 0; i < dataSize; i += 3) {  // No averaging, here, just take every second data. We've been away from the app for very long, no need to be this precise.
+                        var j = i * 2;
+                        data[i + TIMESTAMP] = data[j + TIMESTAMP];
+                        data[i + BATTERY] =   data[j + BATTERY];
+                        data[i + SOLAR] =     data[j + SOLAR];
                     }
-                    /*DEBUG*/ logMessage("onTE: Exit failed. Had " + (newSize * 2) + " elements. Retrying with just " + newSize + " elements" + data);
-                    data = data.slice(0, i);
+
+                    /*DEBUG*/ logMessage("Had " + ((dataSize * 2) / 3) + " elements. Retrying with just " + (dataSize / 3) + " elements");
+                    data = data.slice(0, dataSize);
                 }
             } while (success == false);
         }

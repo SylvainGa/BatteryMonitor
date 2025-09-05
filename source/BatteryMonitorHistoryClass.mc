@@ -43,7 +43,7 @@ class HistoryClass  {
 	private var mShrinkingInProgress;
 
     function initialize() {
-		/*DEBUG*/ logMessage("HistoryClass.initialize");
+		//DEBUG*/ logMessage("HistoryClass.initialize");
 		mIsSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
 		mElementSize = mIsSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
         mHistorySize = 0;
@@ -112,13 +112,13 @@ class HistoryClass  {
 			var historyArray = [];
 			var history = $.objectStoreGet("HISTORY_KEY", null);
 			if (history != null) {
-				/*DEBUG*/ logMessage("Old HISTORY_KEY format found, dropping it");
+				//DEBUG*/ logMessage("Old HISTORY_KEY format found, dropping it");
 				$.objectStoreErase("HISTORY_KEY");
 			}
 		
 			history = $.objectStoreGet("HISTORY", null);
 			if (history != null) {
-				/*DEBUG*/ logMessage("Converting old history format to new one");
+				//DEBUG*/ logMessage("Converting old history format to new one");
 				var i = 0;
 				while (i < history.size()) {
 					mHistory = null;
@@ -161,8 +161,8 @@ class HistoryClass  {
 		}
 
 		if (modified == true) {
-			/*DEBUG */ logMessage("(storeHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
 			/*DEBUG */ logMessage("storeHistory: Saving HISTORY_" + timestamp);
+			/*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			$.objectStoreErase("HISTORY_" + timestamp); // Remove it first as it seems to drop the memory used by objectStorePut
 			$.objectStorePut("HISTORY_" + timestamp, mHistory); // Store our history using the first timestamp for a key
 		}
@@ -193,7 +193,7 @@ class HistoryClass  {
 				return true;
 			}
 			else { // Average earliest one with the one before (but do that in its own timer thread and yes, we'll have an extra array until this merge is completed)
-				/*DEBUG*/ logMessage("Too many history arrays, spawning averageHistoryTimer in 100 msec");
+				/*DEBUG*/ logMessage("Too many history arrays, spawning averageHistoryTimer in 50 msec");
 				mShrinkingInProgress = true;
 				var timer = new Timer.Timer();
 				timer.start(method(:averageHistoryTimer), 50, false);
@@ -210,10 +210,10 @@ class HistoryClass  {
 		var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 		if (historyArray.size() > 1) { // Can't average if we have less than two arrays...
 			/*DEBUG*/ logMessage("Too many history arrays, averaging HISTORY_" + historyArray[0] + " and HISTORY_" + historyArray[1] + " into HISTORY_" + historyArray[0]);
-	        /*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+	        /*DEBUG */ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
 			var destHistory = $.objectStoreGet("HISTORY_" + historyArray[0], null); // First the first pass, source and destination is the same as we're shrinking by two
-			/*DEBUG */ logMessage("(destHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+			/*DEBUG */ logMessage("Free memory 2 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			if (destHistory != null && destHistory.size() == HISTORY_MAX * mElementSize) { // Make sure both arrays are fine
 				for (var i = 0; i < HISTORY_MAX; i += 2) {
 					var destIndex = i / 2 * mElementSize;
@@ -241,7 +241,7 @@ class HistoryClass  {
 			}
 
 			var srcHistory = $.objectStoreGet("HISTORY_" + historyArray[1], null);
-			/*DEBUG */ logMessage("(srcHistory) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+			/*DEBUG */ logMessage("Free memory 3 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			if (srcHistory != null && srcHistory.size() == HISTORY_MAX * mElementSize) { // Make sure both arrays are fine
 				for (var i = 0; i < HISTORY_MAX; i += 2) {
 					var destIndex = ((HISTORY_MAX + i) / 2) * mElementSize;
@@ -256,20 +256,20 @@ class HistoryClass  {
 					}
 				}
 
-				/*DEBUG */ logMessage("(before clear src) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				/*DEBUG */ logMessage("Free memory 4 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 				srcHistory = null; // Clear up the memory used by the source as we don't use it anymore
-				/*DEBUG */ logMessage("(before put) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				/*DEBUG */ logMessage("Free memory 5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 				$.objectStoreErase("HISTORY_" + historyArray[0]); // Remove it first as it seems to drop the memory used by objectStorePut
 				$.objectStorePut("HISTORY_" + historyArray[0], destHistory);
-				/*DEBUG */ logMessage("(after put) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				/*DEBUG */ logMessage("Free memory 6 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
 				destHistory = null; // Clear up the memory used by the destination as we don't use it anymore
-				/*DEBUG */ logMessage("(after clear dest) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				/*DEBUG */ logMessage("Free memory 7 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
 				// Now add the slopes
 				var slopes0 = $.objectStoreGet("SLOPES_" + historyArray[0], []);
 				var slopes1 = $.objectStoreGet("SLOPES_" + historyArray[1], []);
-				/*DEBUG */ logMessage("(slopes) Free memory " + (Sys.getSystemStats().freeMemory / 1000).toNumber() + " KB");
+				/*DEBUG */ logMessage("Free memory 8 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 				if (slopes0.size() != 0 && slopes1.size() != 0) {
 					slopes0[0].addAll(slopes1[0]);
 					for (var i = 0; i < slopes0[0].size() - 1 && slopes0[0].size() > 10 ; i++) { // Average the earliest slopes until we have have a max of 10 slopes (size is going down by one because of the .remove within)

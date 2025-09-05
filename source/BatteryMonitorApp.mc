@@ -86,7 +86,7 @@ class BatteryMonitorApp extends App.AppBase {
 		//DEBUG*/ logMessage("onBackgroundData: " + dataSize);
 
 		if (mGlanceLaunchMode == LAUNCH_FAST) { // If we're launching Glance fast, we aren't reading and clearing RECEIVED_DATA in the Glance code so keep adding to it. It will be read once we finally launch the main view
-			/*DEBUG*/ logMessage("onBackgroundData Fast Launch, data is " + dataSize + " elements");
+			/*DEBUG*/ logMessage("onBackgroundData Fast Launch, data is " + (dataSize / 3) + " elements");
 	        /*DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			var oldData = $.objectStoreGet("RECEIVED_DATA", []);
 	        /*DEBUG*/ logMessage("Free memory 2 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
@@ -97,26 +97,27 @@ class BatteryMonitorApp extends App.AppBase {
 				oldDataSize = 0;
 			}
 
-			/*DEBUG*/ logMessage("Adding to " + oldDataSize + " elements");
+			/*DEBUG*/ logMessage("Adding to " + (oldDataSize / 3) + " elements");
 			oldData.addAll(data);
 	        /*DEBUG*/ logMessage("Free memory 3 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			data = null; // We don't need it anymore, reclaim its space
 	        /*DEBUG*/ logMessage("Free memory 4 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			var newDataSize = oldData.size();
-			/*DEBUG*/ logMessage("Now has " + newDataSize + " elements");
+			$.objectStorePut("RECEIVED_DATA_COUNT", newDataSize / 3); // Keep how much data we potentially have (might be lowered by the 'if' below) in a separate object so the glance code can read it and deal with it
+
+			/*DEBUG*/ logMessage("Now has " + (newDataSize / 3) + " elements");
 			var shrinkSteps = (newDataSize.toFloat() / (HISTORY_MAX * 3) + 1.0).toNumber(); // By how much data we'll skip to make it fit into a HISTORY_MAX size. Best case is a 2 to 1 shrink and we start shrinking at 50% over HISTORY_MAX
 			/*DEBUG*/ logMessage("Shrink steps is " + shrinkSteps);
 			if (shrinkSteps > 1) {
-				var i;
 				var newSize = newDataSize / shrinkSteps;
-				for (i = 0; i < newSize; i += 3) {
+				for (var i = 0; i < newSize; i += 3) {
 					var j = i * shrinkSteps; 
 					oldData[i + TIMESTAMP] = oldData[j + TIMESTAMP];
 					oldData[i + BATTERY] = oldData[j + BATTERY];
 					oldData[i + SOLAR] = oldData[j + SOLAR];
 				}
 
-				oldData = oldData.slice(0, i); // Only keep the section we copied, disregarding what's after
+				oldData = oldData.slice(0, newSize); // Only keep the section we copied, disregarding what's after
 
 		        /*DEBUG*/ logMessage("Free memory 4.5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 				/*DEBUG*/ logMessage("Finished. oldData is now " + oldData.size() + " elememts");
@@ -184,7 +185,6 @@ class BatteryMonitorApp extends App.AppBase {
 	}
 
     // Application handler for changes in day/night mode
-	(:glance_64kb) // No need to include that on devices that only have 32KB of Glance as they won't have night mode either
     public function onNightModeChanged() {
         // Handle a change in night mode
         if (System.DeviceSettings has :isNightModeEnabled) {
@@ -288,12 +288,12 @@ class BatteryMonitorApp extends App.AppBase {
     }
 
     // Theme accessor
-	(:can_glance, :glance_64kb)
+	(:can_glance)
     public function getTheme() as Theme {
         return mTheme;
     }
 
-	(:can_glance, :glance_64kb)
+	(:can_glance)
 	public function getGlanceLaunchMode() as GlanceLaunchMode {
 		return mGlanceLaunchMode;
 	}

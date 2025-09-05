@@ -457,7 +457,6 @@ class BatteryMonitorView extends Ui.View {
 		if (receivedData.size() > 0 || mNowData == null) {
 			/*DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
 			showLoadingPage(dc);
-			$.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
 
 			/*DEBUG*/ if (receivedData.size() > 0) { logMessage("onUpdate: Processing background data"); }
 			if (mNowData == null) {
@@ -467,7 +466,7 @@ class BatteryMonitorView extends Ui.View {
 			}
 
 			/*DEBUG*/ var startTime = Sys.getTimer();
-			var added = mHistoryClass.analyzeAndStoreData(receivedData, receivedData.size(), false);
+			var added = mHistoryClass.analyzeAndStoreData(receivedData, receivedData.size() / 3, false);
 			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("analyzing data took " + (endTime - startTime) + " msec"); startTime = endTime;
 
 			if (added > 1) { // If we stored multiple data, save now in case we crash
@@ -478,6 +477,9 @@ class BatteryMonitorView extends Ui.View {
 				mLastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null);
 				/*DEBUG*/ logMessage("Refreshing last charge to " + mLastChargeData);
 			}
+
+			$.objectStoreErase("RECEIVED_DATA"); // Now that we've processed it, get rid of that data
+			$.objectStorePut("RECEIVED_DATA_COUNT", 0); // Clear that too so the Glance doesn't write in dark red when above HISTORY_MAX
 
 			if (added > 0 && mHistoryClass.getHistoryNeedsReload() == true) {
 				Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice

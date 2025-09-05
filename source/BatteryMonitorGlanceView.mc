@@ -21,22 +21,22 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mSlopeNeedsFirstCalc;
     var mNowData;
     var mPleaseWaitVisible;
-    /*DEBUG*/ var mUpdateWholeStartTime;
-	/*DEBUG*/ var mUpdateStartTime;
-	/*DEBUG*/ var mFreeMemory;
+    //DEBUG*/ var mUpdateWholeStartTime;
+	//DEBUG*/ var mUpdateStartTime;
+	//DEBUG*/ var mFreeMemory;
 
     function initialize() {
-        /*DEBUG */ logMessage("Init1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+        //DEBUG */ logMessage("Init1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
         GlanceView.initialize();
-        /*DEBUG */ logMessage("Init2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+        //DEBUG */ logMessage("Init2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
         if (self has :HistoryClassGlance) {
     		mHistoryClass = new HistoryClass();
         }
-        /*DEBUG */ logMessage("Init3 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+        //DEBUG */ logMessage("Init3 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
         onSettingsChanged(true);
-        /*DEBUG */ logMessage("Init4 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+        //DEBUG */ logMessage("Init4 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
     }
 
     function onShow() {
@@ -55,7 +55,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         if (mHistoryClass != null && App.getApp().getGlanceLaunchMode() == LAUNCH_WHOLE) {
             if (mRefreshCount % 12 == 0) { // Every minute, read a new set of data
                 var data = mHistoryClass.getData();
-                /*DEBUG*/ logMessage("onRefreshTimer Read data " + data);
+                //DEBUG*/ logMessage("onRefreshTimer Read data " + data);
                 mHistoryClass.analyzeAndStoreData(data, 1, false);
             }
         }
@@ -71,7 +71,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             if (chargingData == null) {
                 $.objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
-            /*DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
+            //DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
             $.objectStorePut("LAST_CHARGE_DATA", nowData);
         }
         else {
@@ -83,7 +83,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     }
 
     function onLayout(dc) {
-        /*DEBUG */ logMessage("Layout1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+        //DEBUG */ logMessage("Layout1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 		var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE];
 
         // FInd the right font to draw two lines on screen
@@ -104,10 +104,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         mSlopeNeedsFirstCalc = true;
         mPleaseWaitVisible = false;
 
-        /*DEBUG */ logMessage("Layout2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+        //DEBUG */ logMessage("Layout2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
     }
 
-    (:glance_64kb)
     function onSettingsChanged(fromInit) {
         mSummaryMode = 0;
 		try {
@@ -144,24 +143,25 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         dc.setColor(fgColor, bgColor);
         dc.clear();
 
-        /*DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1024).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
-		/*DEBUG*/ if (mUpdateWholeStartTime == null) { mUpdateWholeStartTime = Sys.getTimer(); }
+        //DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1024).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
+		//DEBUG*/ if (mUpdateWholeStartTime == null) { mUpdateWholeStartTime = Sys.getTimer(); }
 
+        var warningColor = fgColor;
         if (mHistoryClass != null && App.getApp().getGlanceLaunchMode() == LAUNCH_WHOLE) {
     		//DEBUG*/ logMessage("LAUNCH_WHOLE");
             // Draw the two/three rows of text on the glance widget
             if (mHistoryClass.getHistory() == null) {
                 if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
-                    /*DEBUG*/ mUpdateStartTime = Sys.getTimer();
-                    /*DEBUG*/ logMessage("Displaying first please wait");
+                    //DEBUG*/ mUpdateStartTime = Sys.getTimer();
+                    //DEBUG*/ logMessage("Displaying first please wait");
                     mPleaseWaitVisible = true;
                     showPleaseWait(dc, fgColor);
                     Ui.requestUpdate(); // Needed so we can show a 'please wait' message whlle we're reading our data
                     return;
                 }
 
-                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
-                /*DEBUG*/ logMessage("Getting latest history");
+                //DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                //DEBUG*/ logMessage("Getting latest history");
                 showPleaseWait(dc, fgColor);
                 mHistoryClass.getLatestHistoryFromStorage();
                 Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
@@ -170,23 +170,25 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
             var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
             if (receivedData.size() > 0 || mNowData == null) {
-                /*DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
+                //DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
                 showPleaseWait(dc, fgColor);
 
-                $.objectStoreErase("RECEIVED_DATA"); // We'll process it, no need to keep its storage
-
-                /*DEBUG*/ if (receivedData.size() > 0) { logMessage("Processing background data"); }
+                //DEBUG*/ if (receivedData.size() > 0) { logMessage("Processing background data"); }
                 if (mNowData == null) {
-                    /*DEBUG*/ logMessage("tagging nowData to background data");
+                    //DEBUG*/ logMessage("tagging nowData to background data");
                     mNowData = mHistoryClass.getData();
                     receivedData.addAll(mNowData);
                 }
 
-                var added = mHistoryClass.analyzeAndStoreData(receivedData, receivedData.size(), false);
+                var added = mHistoryClass.analyzeAndStoreData(receivedData, receivedData.size() / 3, false);
                 if (added > 1) {
-                    /*DEBUG*/ logMessage("Saving history");
+                    //DEBUG*/ logMessage("Saving history");
     				mHistoryClass.storeHistory(true);
                 }
+
+    			$.objectStoreErase("RECEIVED_DATA"); // Now that we've processed it, get rid of that data
+    			$.objectStorePut("RECEIVED_DATA_COUNT", 0); // Clear that too so we don't write in dark red when above HISTORY_MAX
+
                 if (added > 0 && mHistoryClass.getHistoryNeedsReload() == true) {
                     Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
                     return;
@@ -194,8 +196,8 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             }
 
             if (mSlopeNeedsFirstCalc == true) {
-                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
-                /*DEBUG*/ logMessage("Doing initial calc of slopes");
+                //DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                //DEBUG*/ logMessage("Doing initial calc of slopes");
 
                 showPleaseWait(dc, fgColor);
 
@@ -207,15 +209,21 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             }
 
             if (mRefreshTimer == null) {
-                /*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before refresh timer took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
-                /*DEBUG*/ logMessage("Starting refresh timer");
+                //DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before refresh timer took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                //DEBUG*/ logMessage("Starting refresh timer");
                 mRefreshCount = 0;
                 mRefreshTimer = new Timer.Timer();
                 mRefreshTimer.start(method(:onRefreshTimer), 5000, true); // Check every five second
             }
-            /*DEBUG*/ else { mUpdateStartTime = null; }
+            //DEBUG*/ else { mUpdateStartTime = null; }
 
-		/*DEBUG*/ if (mUpdateStartTime != null) { var endTime = Sys.getTimer(); Sys.println("after timer took " + (endTime - mUpdateStartTime) + " msec"); Sys.println("**DONE** Took " + (endTime - mUpdateWholeStartTime) + " msec"); }
+		//DEBUG*/ if (mUpdateStartTime != null) { var endTime = Sys.getTimer(); Sys.println("after timer took " + (endTime - mUpdateStartTime) + " msec"); Sys.println("**DONE** Took " + (endTime - mUpdateWholeStartTime) + " msec"); }
+        }
+        else {
+            var newDataSize = $.objectStoreGet("RECEIVED_DATA_COUNT", 0);
+            if (newDataSize > HISTORY_MAX * 4 / 5) { // If our data waiting to be processed is above 80% of the HISTORY_MAX size, flag in red.
+                warningColor = Gfx.COLOR_DK_RED;
+            }
         }
 
 		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore
@@ -316,10 +324,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
         dc.drawText(0, mFontHeight, mFontType, remainingStr, Gfx.TEXT_JUSTIFY_LEFT);
         var xPos = (batteryStrLen > remainingStrLen ? batteryStrLen : remainingStrLen);
+        dc.setColor(warningColor, Gfx.COLOR_TRANSPARENT);
         dc.drawText(xPos, mFontHeight / 2, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
     }
 
-    (:glance_64kb)
 	function showPleaseWait(dc, fgColor) {
         if (mPleaseWaitVisible == true) {
             dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
