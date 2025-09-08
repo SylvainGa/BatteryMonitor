@@ -32,9 +32,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         GlanceView.initialize();
         //DEBUG */ logMessage("Init2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
-        if (self has :HistoryClassGlance) {
-    		mHistoryClass = new HistoryClass();
-        }
+        mHistoryClass = new HistoryClass();
         //DEBUG */ logMessage("Init3 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
         onSettingsChanged(true);
@@ -154,6 +152,8 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     		//DEBUG*/ logMessage("LAUNCH_WHOLE");
             // Draw the two/three rows of text on the glance widget
             if (mHistoryClass.getHistory() == null) {
+        		/*DEBUG*/ logMessage("LAUNCH_WHOLE");
+                /*DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
                 if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
                     //DEBUG*/ mUpdateStartTime = Sys.getTimer();
                     //DEBUG*/ logMessage("Displaying first please wait");
@@ -167,12 +167,14 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 //DEBUG*/ logMessage("Getting latest history");
                 showPleaseWait(dc, fgColor);
                 mHistoryClass.getLatestHistoryFromStorage();
+                /*DEBUG*/ logMessage("Free memory 2 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
                 Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
                 return;
             }
 
             var receivedData = $.objectStoreGet("RECEIVED_DATA", []);
             if (receivedData.size() > 0 || mNowData == null) {
+                /*DEBUG*/ logMessage("Free memory 3 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
                 //DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
                 showPleaseWait(dc, fgColor);
 
@@ -189,8 +191,11 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     				mHistoryClass.storeHistory(true);
                 }
 
+                receivedData = null; // We don't need it anymore, reclaim its space
     			$.objectStoreErase("RECEIVED_DATA"); // Now that we've processed it, get rid of that data
     			$.objectStorePut("RECEIVED_DATA_COUNT", 0); // Clear that too so we don't write in dark red when above HISTORY_MAX
+
+                /*DEBUG*/ logMessage("Free memory 4 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
                 if (added > 0 && mHistoryClass.getHistoryNeedsReload() == true) {
                     Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
@@ -206,6 +211,8 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
                 mHistoryClass.initDownSlope();
                 mSlopeNeedsFirstCalc = false;
+
+                /*DEBUG*/ logMessage("Free memory 5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
                 Ui.requestUpdate(); // Could be time consuming, stop now and ask for another time slice
                 return;
