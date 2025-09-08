@@ -103,10 +103,17 @@ class BatteryMonitorApp extends App.AppBase {
 			data = null; // We don't need it anymore, reclaim its space
 	        /*DEBUG*/ logMessage("Free memory 4 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			var newDataSize = oldData.size();
-			$.objectStorePut("RECEIVED_DATA_COUNT", newDataSize / 3); // Keep how much data we potentially have (might be lowered by the 'if' below) in a separate object so the glance code can read it and deal with it
 
-			/*DEBUG*/ logMessage("Now has " + (newDataSize / 3) + " elements");
-			var shrinkSteps = (newDataSize.toFloat() / (HISTORY_MAX * 3) + 1.0).toNumber(); // By how much data we'll skip to make it fit into a HISTORY_MAX size. Best case is a 2 to 1 shrink and we start shrinking at 50% over HISTORY_MAX
+			var oldCount = $.objectStoreGet("RECEIVED_DATA_COUNT", 0);
+			var topCount = oldCount / 10000;
+			var currentCount = newDataSize / 3;
+			if (currentCount > topCount) {
+				topCount = currentCount;
+			}
+			$.objectStorePut("RECEIVED_DATA_COUNT", (topCount * 10000 + currentCount)); // Keep how much data we potentially have (might be lowered by the 'if' below) in a separate object so the glance code can read it and deal with it
+
+			/*DEBUG*/ logMessage("Now has " + (currentCount) + " elements");
+			var shrinkSteps = (newDataSize.toFloat() / (HISTORY_MAX * 3) + 1.0).toNumber(); // By how much data we'll skip to make it fit into a HISTORY_MAX size.
 			/*DEBUG*/ logMessage("Shrink steps is " + shrinkSteps);
 			if (shrinkSteps > 1) {
 				var newSize = newDataSize / shrinkSteps;

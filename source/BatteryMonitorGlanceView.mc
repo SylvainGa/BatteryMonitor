@@ -319,8 +319,12 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         }
 
         var warningColor = fgColor;
-        if (mNewDataSize > HISTORY_MAX * 4 / 5) { // If our data waiting to be processed is above 80% of the HISTORY_MAX size, flag in red.
-            warningColor = Gfx.COLOR_DK_RED;
+        var topCount = mNewDataSize / 10000;
+        if (topCount > HISTORY_MAX) { // If our data waiting to be processed is above the HISTORY_MAX size, flag it red (it had lost resolution)
+            warningColor = Gfx.COLOR_RED;
+        }
+        else if (topCount > HISTORY_MAX * 3 / 5) { // If our data waiting to be processed is above 60% of the HISTORY_MAX size, flag it yellow (warning, about to loose resolution)
+            warningColor = Gfx.COLOR_YELLOW;
         }
 
         dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
@@ -328,7 +332,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var xPos = (batteryStrLen > remainingStrLen ? batteryStrLen : remainingStrLen);
         dc.setColor(warningColor, Gfx.COLOR_TRANSPARENT);
         var yPos = mFontHeight / 2;
-        /*DEBUG*/ dc.drawText(xPos, 0, mFontType, mNewDataSize, Gfx.TEXT_JUSTIFY_LEFT); yPos = mFontHeight;
+        /*DEBUG*/ dc.drawText(xPos, 0, mFontType, topCount + "/" + (mNewDataSize - topCount * 10000), Gfx.TEXT_JUSTIFY_LEFT); yPos = mFontHeight;
         dc.drawText(xPos, yPos, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
     }
 
