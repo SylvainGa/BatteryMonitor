@@ -145,6 +145,24 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         dc.setColor(fgColor, bgColor);
         dc.clear();
 
+        var battery = Sys.getSystemStats().battery;
+        var colorBat;
+        if (battery >= 20) {
+            colorBat = COLOR_BAT_OK;
+        }
+        else if (battery >= 10) {
+            colorBat = COLOR_BAT_LOW;
+        }
+        else {
+            colorBat = COLOR_BAT_CRITICAL;
+        }
+
+        dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
+        var batteryStr = $.stripTrailingZeros(battery.format("%0.1f")) + (Sys.getSystemStats().charging ? "+%" : "%");
+
+        var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", mFontType);
+        dc.drawText(0, 0, mFontType, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
+
         //DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1024).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
 		//DEBUG*/ if (mUpdateWholeStartTime == null) { mUpdateWholeStartTime = Sys.getTimer(); }
 
@@ -152,9 +170,9 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     		//DEBUG*/ logMessage("LAUNCH_WHOLE");
             // Draw the two/three rows of text on the glance widget
             if (mHistoryClass.getHistory() == null) {
-        		/*DEBUG*/ logMessage("LAUNCH_WHOLE");
-                /*DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
                 if (mPleaseWaitVisible == false) { // Somehow, the first requestUpdate doesn't show the Please Wait so I have to come back and reshow before reading the data
+                    /*DEBUG*/ logMessage("LAUNCH_WHOLE");
+                    /*DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
                     //DEBUG*/ mUpdateStartTime = Sys.getTimer();
                     //DEBUG*/ logMessage("Displaying first please wait");
                     mPleaseWaitVisible = true;
@@ -231,24 +249,6 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         }
 
 		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore
-
-        var battery = Sys.getSystemStats().battery;
-        var colorBat;
-        if (battery >= 20) {
-            colorBat = COLOR_BAT_OK;
-        }
-        else if (battery >= 10) {
-            colorBat = COLOR_BAT_LOW;
-        }
-        else {
-            colorBat = COLOR_BAT_CRITICAL;
-        }
-
-        dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
-        var batteryStr = $.stripTrailingZeros(battery.format("%0.1f")) + (Sys.getSystemStats().charging ? "+%" : "%");
-
-        var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", mFontType);
-        dc.drawText(0, 0, mFontType, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
 
         var remainingStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
         var dischargeStr = Ui.loadResource(Rez.Strings.NotAvailableShort);
@@ -346,7 +346,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 	function showPleaseWait(dc, fgColor) {
         if (mPleaseWaitVisible == true) {
             dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(0, dc.getHeight() / 2, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_LEFT | Gfx.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(0, mFontHeight, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_LEFT);
         }
     }
 }

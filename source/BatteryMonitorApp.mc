@@ -117,17 +117,18 @@ class BatteryMonitorApp extends App.AppBase {
 			/*DEBUG*/ logMessage("Shrink steps is " + shrinkSteps);
 			if (shrinkSteps > 1) {
 				var newSize = newDataSize / shrinkSteps;
-				for (var i = 0; i < newSize; i += 3) {
+				var i;
+				for (i = 0; i < newSize; i += 3) {
 					var j = i * shrinkSteps; 
 					oldData[i + TIMESTAMP] = oldData[j + TIMESTAMP];
 					oldData[i + BATTERY] = oldData[j + BATTERY];
 					oldData[i + SOLAR] = oldData[j + SOLAR];
 				}
 
-				oldData = oldData.slice(0, newSize); // Only keep the section we copied, disregarding what's after
+				oldData = oldData.slice(0, i); // Only keep the section we copied, disregarding what's after
 
 		        /*DEBUG*/ logMessage("Free memory 4.5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
-				/*DEBUG*/ logMessage("Finished. oldData is now " + oldData.size() + " elememts");
+				/*DEBUG*/ logMessage("Finished. oldData is now " + (oldData.size() / 3) + " elememts");
 			}
 
 	        /*DEBUG*/ logMessage("Free memory 5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");

@@ -87,6 +87,7 @@ If you would like to translate the language file in your own language, contact m
 - Unfortunately, because of the limited memory capacity of the Glance code for some not so old devices, I had to remove the following devices from the supported list: descentmk2, descentmk2s, fenix6pro, fenix6spro, fenix6xpro, fr245m, fr745, fr945, fr945lte, marqadventurer, marqathlete, marqaviator, marqcaptain, marqcommander, marqdriver, marqexpedition, 
 marqgolfer. Having just 32KB of code/data isn't enough to capture even just a few hours of history from the background process.
 - Because even devices with 64KB of Glance code shows limitation when capturing less than a day of history from the background process, to warn the user that the resolution will be impacted if the main app isn't launched soon, the time left in the glance view will be RED instead of white. When you see that, launch the main view and the data will be processed. This is for the FAST launch mode. In the WHOLE launch mode, data has already been processed by the Glance code.
+- In Glance, battery level is shown while Please Wait is shown so you see it right away
 - Bug fix in handling markers while adding data to the history array and showing last charge
 - Bug fix when converting old array style prior to V1.4
 
