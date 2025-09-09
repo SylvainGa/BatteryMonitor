@@ -136,7 +136,7 @@ class BatteryMonitorApp extends App.AppBase {
 			$.objectStorePut("RECEIVED_DATA", oldData);
 		}
 		else {
-			/*DEBUG*/ logMessage("onBackgroundData whole Launch, data is " +  + dataSize + " elements");
+			/*DEBUG*/ logMessage("onBackgroundData whole Launch, data is " +  + (dataSize / 3) + " elements");
 	        /*DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			// Store the data so the View's onUpdate function can process it
 			$.objectStoreErase("RECEIVED_DATA");

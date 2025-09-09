@@ -26,7 +26,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         else {
             //DEBUG*/ logMessage("onTE: BG previous data (" + data.size() + ") last: " + data[data.size() - 1]);
             if (data[0] instanceof Toybox.Lang.Array) {
-                data = null; // If we have the old array format, drop it. Yeah, sucks but no point to add code just for one time when space is already limited
+                data = []; // If we have the old array format, drop it. Yeah, sucks but no point to add code just for one time when space is already limited
             }
         }
 
