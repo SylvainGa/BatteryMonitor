@@ -23,6 +23,7 @@ fenix7xpro.resourcePath=$(fenix7xpro.resourcePath);resources-complications
 fenix7xpronowifi.resourcePath=$(fenix7xpronowifi.resourcePath);resources-complications
 fenix843mm.resourcePath=$(fenix843mm.resourcePath);resources-complications
 fenix847mm.resourcePath=$(fenix847mm.resourcePath);resources-complications
+fenix8pro47mm.resourcePath=$(fenix8pro47mm.resourcePath);resources-complications
 fenix8solar47mm.resourcePath=$(fenix8solar47mm.resourcePath);resources-complications
 fenix8solar51mm.resourcePath=$(fenix8solar51mm.resourcePath);resources-complications
 fenixe.resourcePath=$(fenixe.resourcePath);resources-complications
