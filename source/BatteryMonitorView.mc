@@ -329,7 +329,7 @@ class BatteryMonitorView extends Ui.View {
 				else if (mViewScreen == SCREEN_MARKER) {
 					var markerData = mHistoryClass.getData();
 
-					setMarkerData([markerData], true);
+					setMarkerData(markerData, true);
 				}
 			}
 		}
@@ -337,8 +337,8 @@ class BatteryMonitorView extends Ui.View {
 			if (mViewScreen == SCREEN_HISTORY) {
 				mNoChange = false; // So we go in and draw the popup
 				if (mCoord != null) { // We already showing a data, and we're holding AGAIN, mark it 
-					var markerData = [mFullHistory[mCoord[3] + TIMESTAMP], mFullHistory[mCoord[3] + BATTERY], (mHistoryClass.isSolar() ? mFullHistory[mCoord[3] + SOLAR] : null)];
-					setMarkerData([markerData], false);
+					var markerData = [mFullHistory[mCoord[3] + TIMESTAMP], mFullHistory[mCoord[3] + BATTERY], (mHistoryClass.isSolar() ? mFullHistory[mCoord[3] + SOLAR] : 0)];
+					setMarkerData(markerData, false);
 					mShowMarkerSet = true;
 				}
 				else {
