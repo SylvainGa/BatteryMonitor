@@ -257,6 +257,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 	var mView;
+
 	function initialize(view) {
 		mView = view;
 		ConfirmationDelegate.initialize();
