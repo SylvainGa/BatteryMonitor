@@ -346,7 +346,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mViewScreen == SCREEN_HISTORY) {
-			if (mSelectMode == ViewMode && graphSizeChange != 0) {
+			if (mSelectMode == ViewMode && graphSizeChange != 0 && mDownSlopeSec != null) {
 				mSelectMode = ZoomMode;
 			}
 
@@ -378,16 +378,16 @@ class BatteryMonitorView extends Ui.View {
 	function setMarkerData(markerData, add) {
 		if (mMarkerData != null) {
 			if (mMarkerData.size() == 1) { // We already have our first marker set, now record the second one
-				if (markerData[0][TIMESTAMP] > mMarkerData[0][TIMESTAMP]) { // Make sure the second entry is more recent than the first one
-					mMarkerData.add(markerData[0]); // Yes, add it
+				if (markerData[TIMESTAMP] > mMarkerData[0][TIMESTAMP]) { // Make sure the second entry is more recent than the first one
+					mMarkerData.add(markerData); // Yes, add it
 				}
 				else {
-					mMarkerData = [markerData[0], mMarkerData[0]]; // no, swap them
+					mMarkerData = [[markerData], mMarkerData[0]]; // no, swap them
 				}
 			}
 			else { // We already have our two markers. Start over
 				if (add == false) { // Unless we're picking a point off the screen, then use that point as the first marker
-					mMarkerData = markerData;
+					mMarkerData = [markerData];
 				}
 				else {
 					markerData = null;
@@ -396,7 +396,7 @@ class BatteryMonitorView extends Ui.View {
 			}
 		}
 		else { // Setting our first marker
-			mMarkerData = markerData;
+			mMarkerData = [markerData];
 		}
 
 		if (add && markerData != null) {
