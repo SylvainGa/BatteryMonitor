@@ -82,6 +82,10 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.11.0 Is about crashes reported through the Error Reporting and Analysis (ERA) tool**
+- Crash fix when erasing data
+- Crash fix when setting a marker
+
 **V1.11.0 Added the following**
 - Added devices Edge 550, 850 and Fenix 8 Pro 47 mm.
 - Attempt to prevent an out of memory when processing lots of data from the background process within a Glance view.

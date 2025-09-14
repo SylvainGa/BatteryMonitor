@@ -250,13 +250,15 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	function onMenu() {
 		//DEBUG*/ logMessage("onMenu");
 		var dialog = new Ui.Confirmation(Ui.loadResource(Rez.Strings.EraseHistory));
-		Ui.pushView(dialog, new ConfirmationDialogDelegate(), Ui.SLIDE_IMMEDIATE);
+		Ui.pushView(dialog, new ConfirmationDialogDelegate(mView), Ui.SLIDE_IMMEDIATE);
 		return true;
 	}
 }    
 
 class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
-	function initialize() {
+	var mView;
+	function initialize(view) {
+		mView = view;
 		ConfirmationDelegate.initialize();
 	}
 
