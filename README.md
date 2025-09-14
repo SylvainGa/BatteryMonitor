@@ -82,7 +82,7 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
-**V1.11.0 Is about crashes reported through the Error Reporting and Analysis (ERA) tool**
+**V1.11.1 Is about crashes reported through the Error Reporting and Analysis (ERA) tool**
 - Crash fix when erasing data
 - Crash fix when setting a marker
 - Crash fix when closing the app
