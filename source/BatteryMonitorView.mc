@@ -378,11 +378,11 @@ class BatteryMonitorView extends Ui.View {
 	function setMarkerData(markerData, add) {
 		if (mMarkerData != null) {
 			if (mMarkerData.size() == 1) { // We already have our first marker set, now record the second one
-				if (markerData[TIMESTAMP] > mMarkerData[0][TIMESTAMP]) { // Make sure the second entry is more recent than the first one
+				if (markerData[TIMESTAMP] >= mMarkerData[0][TIMESTAMP]) { // Make sure the second entry is more recent than the first one
 					mMarkerData.add(markerData); // Yes, add it
 				}
 				else {
-					mMarkerData = [[markerData], mMarkerData[0]]; // no, swap them
+					mMarkerData = [markerData, mMarkerData[0]]; // no, swap them
 				}
 			}
 			else { // We already have our two markers. Start over
