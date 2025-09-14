@@ -85,6 +85,7 @@ If you would like to translate the language file in your own language, contact m
 **V1.11.0 Is about crashes reported through the Error Reporting and Analysis (ERA) tool**
 - Crash fix when erasing data
 - Crash fix when setting a marker
+- Crash fix when closing the app
 
 **V1.11.0 Added the following**
 - Added devices Edge 550, 850 and Fenix 8 Pro 47 mm.
