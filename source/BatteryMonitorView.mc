@@ -110,7 +110,11 @@ class BatteryMonitorView extends Ui.View {
 		mLastData = $.objectStoreGet("LAST_VIEWED_DATA", null);
 		mMarkerData = $.objectStoreGet("MARKER_DATA", null);
 		mLastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null); // Will be modified when charge is detected in onRefreshTimer
-    }
+    
+		/*DEBUG*/ logMessage("LAST_VIEWED_DATA " + mLastData);
+		/*DEBUG*/ logMessage("LAST_CHARGE_DATA " + mLastChargeData);
+
+	}
 
     // Called when this View is brought to the foreground. Restore
     // the state of this View and prepare it to be shown. This includes
@@ -172,11 +176,22 @@ class BatteryMonitorView extends Ui.View {
 			}
 
 			if (Sys.getSystemStats().charging) {
+				var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
+				if (chargingData == null) {
+					/*DEBUG*/ logMessage("onRefreshTimer: Started charging at " + mNowData);
+					$.objectStorePut("STARTED_CHARGING_DATA", mNowData);
+				}
+
 				if (mLastChargeData == null || $.stripMarkers(mLastChargeData[BATTERY]) != $.stripMarkers(mNowData[BATTERY])) { // If we're charging and we have a different charge value than last time, store it
 					mLastChargeData = mNowData;
-					/*DEBUG*/ logMessage("onRefreshTimer: Charging " + mNowData);
-		            $.objectStorePut("LAST_CHARGE_DATA", mNowData);
+		            $.objectStorePut("LAST_CHARGE_DATA", mLastChargeData);
+					/*DEBUG*/ logMessage("onRefreshTimer: LAST_CHARGE_DATA " + mLastChargeData);
 				}
+
+			}
+			else {
+				/*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("onRefreshTimer: Finished charging at " + mNowData); }
+				$.objectStoreErase("STARTED_CHARGING_DATA");
 			}
 		}
 
@@ -475,7 +490,7 @@ class BatteryMonitorView extends Ui.View {
 				/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("saving history took " + (endTime - startTime) + " msec");
 
 				mLastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null);
-				/*DEBUG*/ logMessage("Refreshing last charge to " + mLastChargeData);
+				/*DEBUG*/ logMessage("onUpdate LAST_CHARGE_DATA " + mLastChargeData);
 			}
 
 			$.objectStoreErase("RECEIVED_DATA"); // Now that we've processed it, get rid of that data

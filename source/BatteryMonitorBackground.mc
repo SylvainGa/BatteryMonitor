@@ -40,11 +40,14 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         if (Sys.getSystemStats().charging) {
             var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
             if (chargingData == null) {
+                /*DEBUG*/ logMessage("onTemporalEvent: started charging at " + nowData);
                 $.objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
             $.objectStorePut("LAST_CHARGE_DATA", nowData);
+            /*DEBUG*/ logMessage("onTemporalEvent: LAST_CHARGE_DATA " + nowData);
         }
         else {
+            /*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("onTemporalEvent: Finished charging at " + nowData); }
             $.objectStoreErase("STARTED_CHARGING_DATA");
         }
 
