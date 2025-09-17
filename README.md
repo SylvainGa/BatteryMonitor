@@ -16,7 +16,7 @@ In the "Last Charge" view, it tells you when did the last charge occured and to 
 
 In the Marker view, you can set two markers using the Start button or touching the screen. Once two markes are set, the time between both as well as the discharge rate between these two times will be displayed. They will also appear as white vertical lines in the graphical views.
 
-The projection in the glance and summary view can be as simple as the discharge from the last charge or calculated using the average of all the discharges that the data has accumulated over times.
+The projection in the glance and summary view can be as simple as the discharge from the last (partial or full) charge or calculated using the average of all the discharges that the data has accumulated over times. In the summary view, you toggle between both projections by touching the screen or pressing the Start button. It always defaults to the long term projection when the view is displayed (at first or by returning to the summary view).
 
 In the graph views, if the device supports solar charging, a dark red line will represent the solar intensity (in %) as seen by the device. Below the graphs, the left arrow represent the earliest sample time, the right arrow represent "Now' for the History view and the time the device is projected to have a depleted battery in the Projection view. The '100=' further down is how long the battery is projected to last if the device was charged to 100%. A blue line under the graph means that an activity was occuring during that time sample. Helpful to see how much the battery drained within an activity compared to a timeline without an activity running.
 
