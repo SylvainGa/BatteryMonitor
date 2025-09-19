@@ -111,8 +111,8 @@ class BatteryMonitorView extends Ui.View {
 		mMarkerData = $.objectStoreGet("MARKER_DATA", null);
 		mLastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null); // Will be modified when charge is detected in onRefreshTimer
     
-		/*DEBUG*/ logMessage("LAST_VIEWED_DATA " + mLastData);
-		/*DEBUG*/ logMessage("LAST_CHARGE_DATA " + mLastChargeData);
+		//DEBUG*/ logMessage("LAST_VIEWED_DATA " + mLastData);
+		//DEBUG*/ logMessage("LAST_CHARGE_DATA " + mLastChargeData);
 
 	}
 
@@ -185,7 +185,7 @@ class BatteryMonitorView extends Ui.View {
 				if (mLastChargeData == null || $.stripMarkers(mLastChargeData[BATTERY]) != $.stripMarkers(mNowData[BATTERY])) { // If we're charging and we have a different charge value than last time, store it
 					mLastChargeData = mNowData;
 		            $.objectStorePut("LAST_CHARGE_DATA", mLastChargeData);
-					/*DEBUG*/ logMessage("onRefreshTimer: LAST_CHARGE_DATA " + mLastChargeData);
+					//DEBUG*/ logMessage("onRefreshTimer: LAST_CHARGE_DATA " + mLastChargeData);
 				}
 
 			}
@@ -490,7 +490,7 @@ class BatteryMonitorView extends Ui.View {
 				/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("saving history took " + (endTime - startTime) + " msec");
 
 				mLastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null);
-				/*DEBUG*/ logMessage("onUpdate LAST_CHARGE_DATA " + mLastChargeData);
+				//DEBUG*/ logMessage("onUpdate LAST_CHARGE_DATA " + mLastChargeData);
 			}
 
 			$.objectStoreErase("RECEIVED_DATA"); // Now that we've processed it, get rid of that data
@@ -951,8 +951,8 @@ class BatteryMonitorView extends Ui.View {
 		yPos += mFontHeight / 4; // Give some room before displaying the charging stats
 
 		//! Data section
-		/*DEBUG*/ logMessage("mNowData " + mNowData);
-		/*DEBUG*/ logMessage("mLastData " + mLastData);
+		//DEBUG*/ logMessage("mNowData " + mNowData);
+		//DEBUG*/ logMessage("mLastData " + mLastData);
 
 		//! Bat usage since last view
 		var batUsage = 0;
@@ -964,8 +964,8 @@ class BatteryMonitorView extends Ui.View {
 			timeDiff = mNowData[TIMESTAMP] - mLastData[TIMESTAMP];
 		}
 
-		/*DEBUG*/ logMessage("Bat usage: " + batUsage);
-		/*DEBUG*/ logMessage("Time diff: " + timeDiff);
+		//DEBUG*/ logMessage("Bat usage: " + batUsage);
+		//DEBUG*/ logMessage("Time diff: " + timeDiff);
 
 		dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SinceLastView), Gfx.TEXT_JUSTIFY_CENTER);
@@ -995,7 +995,7 @@ class BatteryMonitorView extends Ui.View {
 		dc.drawText(mCtrX, yPos, mFontType, dischargeRate, Gfx.TEXT_JUSTIFY_CENTER);
 		yPos += mFontHeight;
 
-		/*DEBUG*/ logMessage("Discharge since last view: " + dischargeRate);
+		//DEBUG*/ logMessage("Discharge since last view: " + dischargeRate);
 
 		//! Bat usage since last charge
 		dc.drawText(mCtrX, yPos, mFontType, Ui.loadResource(Rez.Strings.SinceLastCharge), Gfx.TEXT_JUSTIFY_CENTER);

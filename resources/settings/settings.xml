@@ -29,6 +29,10 @@
         </settingConfig>
     </setting>
 
+    <setting propertyKey="@Properties.GlanceBigBattery" title="@Strings.GlanceBigBattery">
+        <settingConfig type="boolean" required="true"/>
+    </setting>
+
     <setting propertyKey="@Properties.BuiltinPageIndicator" title="@Strings.BuiltinPageIndicator">
         <settingConfig type="boolean" required="true"/>
     </setting>

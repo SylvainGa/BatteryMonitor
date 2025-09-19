@@ -20,7 +20,6 @@
             <iq:product id="vivoactive5"/>-->
             <iq:product id="edge840"/>
             <iq:product id="fenix7spro"/>
-            <iq:product id="fenix8pro47mm"/>
         </iq:products>
         <iq:permissions>
             <iq:uses-permission id="Background"/>

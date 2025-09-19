@@ -321,7 +321,7 @@ class HistoryClass  {
 	            /*DEBUG*/ logMessage("getData: Started charging at " + nowData);
                 objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
-            /*DEBUG*/ logMessage("getData: LAST_CHARGE_DATA " + nowData);
+            //DEBUG*/ logMessage("getData: LAST_CHARGE_DATA " + nowData);
             $.objectStorePut("LAST_CHARGE_DATA", nowData);
 	    }
         else {
@@ -413,7 +413,7 @@ class HistoryClass  {
 
             // If we found new charge data (should be the case only if we charged through USB as the standard method of charging is detected through Sys.getSystemStats().charging)
             if (chargeData != null) {
-                /*DEBUG*/ logMessage("analyzeAndStoreData: LAST_CHARGE_DATA " + chargeData);
+                //DEBUG*/ logMessage("analyzeAndStoreData: LAST_CHARGE_DATA " + chargeData);
                 $.objectStorePut("LAST_CHARGE_DATA", chargeData);
             }
 
@@ -431,7 +431,7 @@ class HistoryClass  {
 
         if (added > 0) {
             /*DEBUG*/ logMessage("Added " + added + ". history now " + mHistorySize);
-            /*DEBUG*/ logMessage("LAST_HISTORY_KEY " + lastHistory);
+            //DEBUG*/ logMessage("LAST_HISTORY_KEY " + lastHistory);
             objectStorePut("LAST_HISTORY_KEY", lastHistory);
             mHistoryModified = true;
             mFullHistoryNeedsRefesh = true;

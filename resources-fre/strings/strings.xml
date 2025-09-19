@@ -67,6 +67,7 @@
     <string id="GlanceLaunchMode">Dans quel mode lancé l'apperçue rapide</string>
     <string id="LaunchFast">Rapide - Ne pas traité maintenant les données en attente</string>
     <string id="LaunchWhole">Complète - Traité les données en attente</string>
+    <string id="GlanceBigBattery">Afficher le niveau de la batterie en grands chiffres dans Glance pendant quelques secondes</string>
     <string id="LastCharge1">Depuis la dernière charge</string>
     <string id="LongTermAvg">La projection long terme</string>
     <string id="BuiltinPageIndicator">Utilisez les indicateurs de page interne (appareils avec CIQ 3.4 et plus)</string>

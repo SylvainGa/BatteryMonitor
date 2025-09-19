@@ -10,6 +10,7 @@ using Toybox.Time.Gregorian;
 (:glance, :can_glance)
 class BatteryMonitorGlanceView extends Ui.GlanceView {
 	var mHistoryClass; // Contains the current history as well as its helper functions
+    var mSettingaChanged;
 	var mRefreshTimer;
 	var mRefreshCount;
 	var mFontType;
@@ -22,6 +23,8 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mNowData;
     var mPleaseWaitVisible;
     var mNewDataSize;
+    var mBigBattery;
+	var mBigBatteryFontType;
 
     //DEBUG*/ var mUpdateWholeStartTime;
 	//DEBUG*/ var mUpdateStartTime;
@@ -36,6 +39,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         //DEBUG */ logMessage("Init3 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
         onSettingsChanged(true);
+        mSettingaChanged = false;
         //DEBUG */ logMessage("Init4 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
     }
 
@@ -50,6 +54,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     }
 
 	function onRefreshTimer() as Void {
+        mBigBattery = false; // Disable the big battery after 5 seconds
 		mRefreshCount++;
         mNewDataSize = $.objectStoreGet("RECEIVED_DATA_COUNT", 0);
 
@@ -97,6 +102,16 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 			}
 		}
 
+        if (mBigBattery) {
+            for (var i = fonts.size() - 1; i >= 0 ; i--) {
+                var fontHeight = Gfx.getFontHeight(fonts[i]);
+                if (dc.getHeight() >= fontHeight) {
+                    mBigBatteryFontType = fonts[i];
+                    break;
+                }
+            }
+        }
+        
 		if (mFontType == null) {
 			mFontType = Gfx.FONT_LARGE;
 		}
@@ -128,8 +143,27 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 			mProjectionType = 0;
         }
 
+        mBigBattery = false;
+        try {
+			mBigBattery = Properties.getValue("GlanceBigBattery");
+
+        }
+        catch (e) {
+			mBigBattery = false;
+        }
+
         if (mHistoryClass != null) {
     		mHistoryClass.onSettingsChanged(fromInit);
+        }
+
+        mSettingaChanged = true;
+
+        if (fromInit == false) {
+            if (mRefreshTimer) {
+                mRefreshTimer.stop();
+                mRefreshTimer = null;
+                Ui.requestUpdate();
+            }
         }
     }
 
@@ -137,6 +171,10 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var fgColor = Gfx.COLOR_WHITE;
         var bgColor = Gfx.COLOR_TRANSPARENT;
 
+        if (mSettingaChanged) {
+            onLayout(dc);
+        }
+        
         // Clear the screen with a black background so devices like my Edge 840 (usually a white background during daytime) can actually show something
         if (App.getApp().getTheme() == THEME_LIGHT) {
             fgColor = Gfx.COLOR_BLACK;
@@ -162,7 +200,12 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         var batteryStr = $.stripTrailingZeros(battery.format("%0.1f")) + (Sys.getSystemStats().charging ? "+%" : "%");
 
         var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", mFontType);
-        dc.drawText(0, 0, mFontType, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
+        if (mBigBattery) {
+            dc.drawText(0, dc.getHeight() / 2, mBigBatteryFontType, batteryStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
+        else {
+            dc.drawText(0, 0, mFontType, batteryStr, Graphics.TEXT_JUSTIFY_LEFT);
+        }
 
         //DEBUG */ var freeMemory = (Sys.getSystemStats().freeMemory / 1024).toNumber(); if (mFreeMemory == null || mFreeMemory != freeMemory) { mFreeMemory = freeMemory; logMessage("Free memory " + freeMemory + " KB"); }
 		//DEBUG*/ if (mUpdateWholeStartTime == null) { mUpdateWholeStartTime = Sys.getTimer(); }
@@ -247,6 +290,15 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             //DEBUG*/ else { mUpdateStartTime = null; }
 
 		//DEBUG*/ if (mUpdateStartTime != null) { var endTime = Sys.getTimer(); Sys.println("after timer took " + (endTime - mUpdateStartTime) + " msec"); Sys.println("**DONE** Took " + (endTime - mUpdateWholeStartTime) + " msec"); }
+        }
+        else {
+            if (mRefreshTimer == null) {
+                //DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before refresh timer took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+                //DEBUG*/ logMessage("Starting refresh timer");
+                mRefreshCount = 0;
+                mRefreshTimer = new Timer.Timer();
+                mRefreshTimer.start(method(:onRefreshTimer), 5000, true); // Check every five second
+            }
         }
 
 		mPleaseWaitVisible = false; // We don't need our 'Please Wait' popup anymore
@@ -335,13 +387,15 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             warningColor = Gfx.COLOR_YELLOW;
         }
 
-        dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(0, mFontHeight, mFontType, remainingStr, Gfx.TEXT_JUSTIFY_LEFT);
-        var xPos = (batteryStrLen > remainingStrLen ? batteryStrLen : remainingStrLen);
-        dc.setColor(warningColor, Gfx.COLOR_TRANSPARENT);
-        var yPos = mFontHeight / 2;
-        /*DEBUG*/ dc.drawText(xPos, 0, mFontType, topCount + "/" + (mNewDataSize - topCount * 10000), Gfx.TEXT_JUSTIFY_LEFT); yPos = mFontHeight;
-        dc.drawText(xPos, yPos, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
+        if (mBigBattery == false) {
+            dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
+            dc.drawText(0, mFontHeight, mFontType, remainingStr, Gfx.TEXT_JUSTIFY_LEFT);
+            var xPos = (batteryStrLen > remainingStrLen ? batteryStrLen : remainingStrLen);
+            dc.setColor(warningColor, Gfx.COLOR_TRANSPARENT);
+            var yPos = mFontHeight / 2;
+            /*DEBUG*/ dc.drawText(xPos, 0, mFontType, topCount + "/" + (mNewDataSize - topCount * 10000), Gfx.TEXT_JUSTIFY_LEFT); yPos = mFontHeight;
+            dc.drawText(xPos, yPos, mFontType, dischargeStr, Gfx.TEXT_JUSTIFY_LEFT);
+        }
     }
 
 	function showPleaseWait(dc, fgColor) {
