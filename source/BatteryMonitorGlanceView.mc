@@ -121,6 +121,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         mSlopeNeedsFirstCalc = true;
         mPleaseWaitVisible = false;
         mNewDataSize = $.objectStoreGet("RECEIVED_DATA_COUNT", 0);
+        mSettingaChanged = false;
 
         //DEBUG */ logMessage("Layout2 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
     }
@@ -199,7 +200,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         dc.setColor(colorBat, Graphics.COLOR_TRANSPARENT);
         var batteryStr = $.stripTrailingZeros(battery.format("%0.1f")) + (Sys.getSystemStats().charging ? "+%" : "%");
 
-        var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", mFontType);
+        var batteryStrLen = dc.getTextWidthInPixels(batteryStr + " ", mBigBattery ? mBigBatteryFontType : mFontType);
         if (mBigBattery) {
             dc.drawText(0, dc.getHeight() / 2, mBigBatteryFontType, batteryStr, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         }
@@ -220,14 +221,14 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                     //DEBUG*/ mUpdateStartTime = Sys.getTimer();
                     //DEBUG*/ logMessage("Displaying first please wait");
                     mPleaseWaitVisible = true;
-                    showPleaseWait(dc, fgColor);
+                    showPleaseWait(dc, fgColor, batteryStrLen);
                     Ui.requestUpdate(); // Needed so we can show a 'please wait' message whlle we're reading our data
                     return;
                 }
 
                 //DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
                 //DEBUG*/ logMessage("Getting latest history");
-                showPleaseWait(dc, fgColor);
+                showPleaseWait(dc, fgColor, batteryStrLen);
                 mHistoryClass.getLatestHistoryFromStorage();
                 /*DEBUG*/ logMessage("Free memory 2 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
                 Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
@@ -238,7 +239,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             if (receivedData.size() > 0 || mNowData == null) {
                 /*DEBUG*/ logMessage("Free memory 3 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
                 //DEBUG*/ var endTime = Sys.getTimer(); if (mUpdateStartTime != null) { Sys.println("before reading background data took " + (endTime - mUpdateStartTime) + " msec"); } mUpdateStartTime = endTime;
-                showPleaseWait(dc, fgColor);
+                showPleaseWait(dc, fgColor, batteryStrLen);
 
                 //DEBUG*/ if (receivedData.size() > 0) { logMessage("Processing background data"); }
                 if (mNowData == null) {
@@ -268,8 +269,6 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             if (mSlopeNeedsFirstCalc == true) {
                 //DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
                 //DEBUG*/ logMessage("Doing initial calc of slopes");
-
-                showPleaseWait(dc, fgColor);
 
                 mHistoryClass.initDownSlope();
                 mSlopeNeedsFirstCalc = false;
@@ -398,10 +397,15 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
         }
     }
 
-	function showPleaseWait(dc, fgColor) {
+	function showPleaseWait(dc, fgColor, batteryStrLen) {
         if (mPleaseWaitVisible == true) {
             dc.setColor(fgColor, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(0, mFontHeight, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_LEFT);
+            if (mBigBattery) {
+                dc.drawText(batteryStrLen, mFontHeight, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_LEFT | Gfx.TEXT_JUSTIFY_VCENTER);
+            }
+            else {
+                dc.drawText(0, mFontHeight, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_LEFT);
+            }
         }
     }
 }
