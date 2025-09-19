@@ -77,20 +77,20 @@ class HistoryClass  {
 			var historyArray = $.objectStoreGet("HISTORY_ARRAY", null);
 			if (historyArray != null && historyArray.size() > 0) {
 				if (mShrinkingInProgress == true || self.shrinkArraysIfNeeded(historyArray)) { // If we're already spawn a shrink (averaging) process, wait until it terminates before testing again!)
-					/*DEBUG*/ if (mShrinkingInProgress == true) { logMessage("Waiting for previous spawned shrinking to finish"); } else { logMessage("Spawned shrinking process, waiting for it to finish"); }
+					//DEBUG*/ if (mShrinkingInProgress == true) { logMessage("Waiting for previous spawned shrinking to finish"); } else { logMessage("Spawned shrinking process, waiting for it to finish"); }
 					Ui.requestUpdate();
 					return; // We're coming back at the top as we have shrunk our size;
 				}
 
 				mHistory = $.objectStoreGet("HISTORY_" + historyArray[historyArray.size() - 1], null);
 				if (mHistory != null && mHistory.size() == HISTORY_MAX * mElementSize) {
-					/*DEBUG*/ recalcHistorySize(); logMessage("Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
+					//DEBUG*/ recalcHistorySize(); logMessage("Read " + mHistorySize + " from " + "HISTORY_" + historyArray[historyArray.size() - 1]);
 					//DEBUG*/ Sys.println(historyArray); var start = mHistory[0 + TIMESTAMP]; Sys.println(start); Sys.print("["); for (var i = 0; i < mHistorySize; i++) { Sys.print(mHistory[i*3 + TIMESTAMP] - start + "," + mHistory[i*3 + BATTERY] + "," + mHistory[i*3 + SOLAR]); if (i < mHistorySize - 1) { Sys.print(","); } } Sys.println("];");
 					break;
 				 }
 				 else {
 					 // We had corruption? Drop it and try again
-				 	/*DEBUG*/ if (mHistory == null) { logMessage("Unable to read from HISTORY_" + historyArray[historyArray.size() - 1] + ". Dropping it"); } else { logMessage("HISTORY_" + historyArray[historyArray.size() - 1] + "is too short at " + mHistory.size()); }
+				 	//DEBUG*/ if (mHistory == null) { logMessage("Unable to read from HISTORY_" + historyArray[historyArray.size() - 1] + ". Dropping it"); } else { logMessage("HISTORY_" + historyArray[historyArray.size() - 1] + "is too short at " + mHistory.size()); }
 					$.objectStoreErase("HISTORY_" + historyArray[historyArray.size() - 1]);
 					historyArray.remove(historyArray[historyArray.size() - 1]);
 					if (historyArray.size() > 0) {
@@ -129,7 +129,7 @@ class HistoryClass  {
 
 					historyArray.add(mHistory[0 + TIMESTAMP]);
 					$.objectStorePut("HISTORY_" + mHistory[0 + TIMESTAMP], mHistory);
-					/*DEBUG*/ logMessage("HISTORY_" + mHistory[0 + TIMESTAMP] + " added to store with " + (mHistory.size() / mElementSize) + " elements");
+					//DEBUG*/ logMessage("HISTORY_" + mHistory[0 + TIMESTAMP] + " added to store with " + (mHistory.size() / mElementSize) + " elements");
 				}
 
 				$.objectStorePut("HISTORY_ARRAY", historyArray);
@@ -138,7 +138,7 @@ class HistoryClass  {
 		}
 
 		if (mHistory == null) {
-			/*DEBUG*/ logMessage("Starting from fresh!");
+			//DEBUG*/ logMessage("Starting from fresh!");
 			mHistory = new [HISTORY_MAX * mElementSize];
 		}
 
@@ -150,19 +150,19 @@ class HistoryClass  {
 
 	function storeHistory(modified) {
 		if (mHistory == null) {
-			/*DEBUG */ logMessage("storeHistory: mHistory is NULL");
+			//DEBUG */ logMessage("storeHistory: mHistory is NULL");
 			return;
 		}
 
         var timestamp = mHistory[0 + TIMESTAMP];
 		if (timestamp == null) {
-			/*DEBUG */ logMessage("storeHistory: empty mHistory, not saving");
+			//DEBUG */ logMessage("storeHistory: empty mHistory, not saving");
 			return;
 		}
 
 		if (modified == true) {
-			/*DEBUG */ logMessage("storeHistory: Saving HISTORY_" + timestamp);
-			/*DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			//DEBUG */ logMessage("storeHistory: Saving HISTORY_" + timestamp);
+			//DEBUG */ logMessage("Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			$.objectStoreErase("HISTORY_" + timestamp); // Remove it first as it seems to drop the memory used by objectStorePut
 			$.objectStorePut("HISTORY_" + timestamp, mHistory); // Store our history using the first timestamp for a key
 		}
@@ -172,10 +172,10 @@ class HistoryClass  {
 		if (index == -1) { // If that key isn't in the array of histories, add it
 			historyArray.add(timestamp);
 			$.objectStorePut("HISTORY_ARRAY", historyArray);
-			/*DEBUG */ logMessage("storeHistory: historyArray now " + historyArray);
+			//DEBUG */ logMessage("storeHistory: historyArray now " + historyArray);
 			self.shrinkArraysIfNeeded(historyArray);
 		}
-		/*DEBUG*/ else if (index != historyArray.size() - 1) { logMessage("storeHistory: HISTORY_" + timestamp + " found at position #" + index + " instead of " + (historyArray.size() - 1) + " of " + historyArray); }
+		//DEBUG*/ else if (index != historyArray.size() - 1) { logMessage("storeHistory: HISTORY_" + timestamp + " found at position #" + index + " instead of " + (historyArray.size() - 1) + " of " + historyArray); }
 
 		mHistoryModified = false;
 	}
@@ -183,7 +183,7 @@ class HistoryClass  {
 	function shrinkArraysIfNeeded(historyArray) {
 		if (historyArray.size() > mMaxArrays) { // But if we already have the max history arrays
 			if (mHandlingFullArray == 0) { // drop the earliest one
-				/*DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
+				//DEBUG*/ logMessage("Too many history arrays, droping HISTORY_" + historyArray[0]);
 				$.objectStoreErase("HISTORY_" + historyArray[0]);
 				$.objectStoreErase("SLOPES_" + historyArray[0]);
 				historyArray.remove(historyArray[0]);
@@ -193,7 +193,7 @@ class HistoryClass  {
 				return true;
 			}
 			else { // Average earliest one with the one before (but do that in its own timer thread and yes, we'll have an extra array until this merge is completed)
-				/*DEBUG*/ logMessage("Too many history arrays, spawning averageHistoryTimer in 50 msec");
+				//DEBUG*/ logMessage("Too many history arrays, spawning averageHistoryTimer in 50 msec");
 				mShrinkingInProgress = true;
 				var timer = new Timer.Timer();
 				timer.start(method(:averageHistoryTimer), 50, false);
@@ -209,11 +209,11 @@ class HistoryClass  {
 
 		var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
 		if (historyArray.size() > 1) { // Can't average if we have less than two arrays...
-			/*DEBUG*/ logMessage("Too many history arrays, averaging HISTORY_" + historyArray[0] + " and HISTORY_" + historyArray[1] + " into HISTORY_" + historyArray[0]);
-	        /*DEBUG */ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			//DEBUG*/ logMessage("Too many history arrays, averaging HISTORY_" + historyArray[0] + " and HISTORY_" + historyArray[1] + " into HISTORY_" + historyArray[0]);
+	        //DEBUG */ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
 			var destHistory = $.objectStoreGet("HISTORY_" + historyArray[0], null); // First the first pass, source and destination is the same as we're shrinking by two
-			/*DEBUG */ logMessage("Free memory 2 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			//DEBUG */ logMessage("Free memory 2 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			if (destHistory != null && destHistory.size() == HISTORY_MAX * mElementSize) { // Make sure both arrays are fine
 				for (var i = 0; i < HISTORY_MAX; i += 2) {
 					var destIndex = i / 2 * mElementSize;
@@ -229,7 +229,7 @@ class HistoryClass  {
 				}
 			}
 			else { // Something is wrong, delete it and remove it from our history array
-				/*DEBUG*/ logMessage("HISTORY_" + historyArray[0] + " is only " + destHistory.size() + " instead of " + (HISTORY_MAX * mElementSize) + ". Dropping it");
+				//DEBUG*/ logMessage("HISTORY_" + historyArray[0] + " is only " + destHistory.size() + " instead of " + (HISTORY_MAX * mElementSize) + ". Dropping it");
 				$.objectStoreErase("HISTORY_" + historyArray[0]);
 				$.objectStoreErase("SLOPES_" + historyArray[0]);
 				historyArray.remove(historyArray[0]);
@@ -241,7 +241,7 @@ class HistoryClass  {
 			}
 
 			var srcHistory = $.objectStoreGet("HISTORY_" + historyArray[1], null);
-			/*DEBUG */ logMessage("Free memory 3 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			//DEBUG */ logMessage("Free memory 3 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			if (srcHistory != null && srcHistory.size() == HISTORY_MAX * mElementSize) { // Make sure both arrays are fine
 				for (var i = 0; i < HISTORY_MAX; i += 2) {
 					var destIndex = ((HISTORY_MAX + i) / 2) * mElementSize;
@@ -256,20 +256,20 @@ class HistoryClass  {
 					}
 				}
 
-				/*DEBUG */ logMessage("Free memory 4 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+				//DEBUG */ logMessage("Free memory 4 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 				srcHistory = null; // Clear up the memory used by the source as we don't use it anymore
-				/*DEBUG */ logMessage("Free memory 5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+				//DEBUG */ logMessage("Free memory 5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 				$.objectStoreErase("HISTORY_" + historyArray[0]); // Remove it first as it seems to drop the memory used by objectStorePut
 				$.objectStorePut("HISTORY_" + historyArray[0], destHistory);
-				/*DEBUG */ logMessage("Free memory 6 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+				//DEBUG */ logMessage("Free memory 6 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
 				destHistory = null; // Clear up the memory used by the destination as we don't use it anymore
-				/*DEBUG */ logMessage("Free memory 7 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+				//DEBUG */ logMessage("Free memory 7 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 
 				// Now add the slopes
 				var slopes0 = $.objectStoreGet("SLOPES_" + historyArray[0], []);
 				var slopes1 = $.objectStoreGet("SLOPES_" + historyArray[1], []);
-				/*DEBUG */ logMessage("Free memory 8 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+				//DEBUG */ logMessage("Free memory 8 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 				if (slopes0.size() != 0 && slopes1.size() != 0) {
 					slopes0[0].addAll(slopes1[0]);
 					for (var i = 0; i < slopes0[0].size() - 1 && slopes0[0].size() > 10 ; i++) { // Average the earliest slopes until we have have a max of 10 slopes (size is going down by one because of the .remove within)
@@ -286,12 +286,12 @@ class HistoryClass  {
 				mHistoryNeedsReload = true;
 				mFullHistoryNeedsRefesh = true;
 
-				/*DEBUG*/ logMessage("HISTORY_ARRAY now has " + historyArray);
+				//DEBUG*/ logMessage("HISTORY_ARRAY now has " + historyArray);
 				$.objectStorePut("HISTORY_ARRAY", historyArray);
 
 			}
 			else { // Something is wrong, delete it and remove it from our history array
-				/*DEBUG*/ logMessage("HISTORY_" + historyArray[1] + " is only " + srcHistory.size() + " instead of " + (HISTORY_MAX * mElementSize) + ". Dropping it");
+				//DEBUG*/ logMessage("HISTORY_" + historyArray[1] + " is only " + srcHistory.size() + " instead of " + (HISTORY_MAX * mElementSize) + ". Dropping it");
 				$.objectStoreErase("HISTORY_" + historyArray[1]);
 				$.objectStoreErase("SLOPES_" + historyArray[1]);
 				historyArray.remove(historyArray[1]);
@@ -304,7 +304,7 @@ class HistoryClass  {
 			}
 		}
 		else {
-			/*DEBUG*/ logMessage("Can't average, only " + historyArray.size() + " history arrays. Need at least 2!");
+			//DEBUG*/ logMessage("Can't average, only " + historyArray.size() + " history arrays. Need at least 2!");
 		}
 	}
 
@@ -318,14 +318,14 @@ class HistoryClass  {
         if (Sys.getSystemStats().charging) {
             var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
             if (chargingData == null) {
-	            /*DEBUG*/ logMessage("getData: Started charging at " + nowData);
+	            //DEBUG*/ logMessage("getData: Started charging at " + nowData);
                 objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
             //DEBUG*/ logMessage("getData: LAST_CHARGE_DATA " + nowData);
             $.objectStorePut("LAST_CHARGE_DATA", nowData);
 	    }
         else {
-            /*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("getData: Finished charging at " + nowData); }
+            //DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("getData: Finished charging at " + nowData); }
             objectStoreErase("STARTED_CHARGING_DATA");
         }
 
@@ -359,7 +359,7 @@ class HistoryClass  {
 			var lastEntry = (dataSize - 1) * 3;
             lastHistory = [data[lastEntry + TIMESTAMP], data[lastEntry + BATTERY], data[lastEntry + SOLAR]];
             added = dataSize;
-            /*DEBUG*/ logMessage("analyze: First addition (" + added + ") " + data);
+            //DEBUG*/ logMessage("analyze: First addition (" + added + ") " + data);
         }
         else { // We have a history and a last history, see if the battery value is different than the last and if so, store it but ignore this is we ask to always store
             var dataIndex;
@@ -374,7 +374,7 @@ class HistoryClass  {
 
             var chargeData;
             
-            /*DEBUG*/ var addedData = []; logMessage("analyze: mHistorySize " + mHistorySize + " dataSize " + dataSize);
+            //DEBUG*/ var addedData = []; logMessage("analyze: mHistorySize " + mHistorySize + " dataSize " + dataSize);
             for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 				var dataPos = dataIndex * 3;
                 if (mHistorySize >= HISTORY_MAX) { // We've reached 500 (HISTORY_MAX), start a new array
@@ -404,10 +404,10 @@ class HistoryClass  {
                     mHistorySize++;
                     added++;
 
-                    /*DEBUG*/ addedData.addAll([data[dataPos + TIMESTAMP], data[dataPos + BATTERY], data[dataPos + SOLAR]]);
+                    //DEBUG*/ addedData.addAll([data[dataPos + TIMESTAMP], data[dataPos + BATTERY], data[dataPos + SOLAR]]);
                 }
                 else {
-                    /*DEBUG*/ logMessage("Ignored " + [data[dataPos + TIMESTAMP], data[dataPos + BATTERY], data[dataPos + SOLAR]]);
+                    //DEBUG*/ logMessage("Ignored " + [data[dataPos + TIMESTAMP], data[dataPos + BATTERY], data[dataPos + SOLAR]]);
                 }
             }
 
@@ -430,7 +430,7 @@ class HistoryClass  {
         }
 
         if (added > 0) {
-            /*DEBUG*/ logMessage("Added " + added + ". history now " + mHistorySize);
+            //DEBUG*/ logMessage("Added " + added + ". history now " + mHistorySize);
             //DEBUG*/ logMessage("LAST_HISTORY_KEY " + lastHistory);
             objectStorePut("LAST_HISTORY_KEY", lastHistory);
             mHistoryModified = true;
@@ -441,8 +441,8 @@ class HistoryClass  {
     }
 
     function downSlope(fromInit) { //data is history data as array / return a slope in percentage point per second
-        /*DEBUG*/ var startTime = Sys.getTimer();
-        /*DEBUG*/ logMessage("Calculating slope");
+        //DEBUG*/ var startTime = Sys.getTimer();
+        //DEBUG*/ logMessage("Calculating slope");
         var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
         var historyArraySize = historyArray.size();
 
@@ -466,13 +466,13 @@ class HistoryClass  {
                 if (index == historyArraySize - 1 || historyArraySize == 0) { // Last history is from memory
                     data = mHistory;
                     size = mHistorySize;
-                    /*DEBUG*/ logMessage("History: size " + size + " start@" + slopesStartPos);
+                    //DEBUG*/ logMessage("History: size " + size + " start@" + slopesStartPos);
                 }
                 else {
                     data = $.objectStoreGet("HISTORY_" + historyArray[index], null);
-                    /*DEBUG*/ logMessage("Calculating slope for HISTORY_" + historyArray[index]);
+                    //DEBUG*/ logMessage("Calculating slope for HISTORY_" + historyArray[index]);
                     if (data == null) {
-                        /*DEBUG*/ logMessage("Skipping because it can't be found");
+                        //DEBUG*/ logMessage("Skipping because it can't be found");
                         continue; // Skip this one if we can't read it. Can happen when arrays have been merged but not accounting for yet
                     }
                     size = self.findPositionInArray(data, 0);
@@ -619,7 +619,7 @@ class HistoryClass  {
         }
         var avgSlope = sumSlopes / slopesSize;
         //DEBUG*/ logMessage("avgSlope=" + avgSlope + " for " + slopesSize + " slopes");
-        /*DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
+        //DEBUG*/ var endTime = Sys.getTimer(); logMessage("downslope took " + (endTime - startTime) + "msec");
 
         return [avgSlope, slopeNeedsCalc];
     }
@@ -697,7 +697,7 @@ class HistoryClass  {
 
 	function saveLastData() {
         var lastData = self.getData();
-        /*DEBUG*/ logMessage("Saving last viewed data " + lastData);
+        //DEBUG*/ logMessage("Saving last viewed data " + lastData);
         self.analyzeAndStoreData(lastData, 1, false);
         $.objectStorePut("LAST_VIEWED_DATA", lastData);
     }
@@ -726,7 +726,7 @@ class HistoryClass  {
 
 		var historySize = mHistory.size();
 		if (historySize != HISTORY_MAX * mElementSize) {
-			/*DEBUG*/ logMessage("mHistory is " + mHistory.size() + "elements instead of " + HISTORY_MAX * mElementSize + "! Resizing it");
+			//DEBUG*/ logMessage("mHistory is " + mHistory.size() + "elements instead of " + HISTORY_MAX * mElementSize + "! Resizing it");
 			var newHistory = new [HISTORY_MAX * mElementSize];
 			var i;
 			for (i = 0; i < historySize && i < HISTORY_MAX * mElementSize; i++) {
@@ -741,7 +741,7 @@ class HistoryClass  {
 
 		// Sanity check. If our previous position (mHistorySize - 1) is null, start from scratch, otherwise start from our current position to improve performance
 		if (mHistorySize == null || mHistorySize > HISTORY_MAX || (mHistorySize > 0 && mHistory[(mHistorySize - 1) * mElementSize + TIMESTAMP] == null)) {
-			/*DEBUG*/ if (mHistorySize != 0) { logMessage("mHistorySize was " + mHistorySize); }
+			//DEBUG*/ if (mHistorySize != 0) { logMessage("mHistorySize was " + mHistorySize); }
 			mHistorySize = 0;
 		}
 
