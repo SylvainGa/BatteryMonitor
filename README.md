@@ -56,7 +56,7 @@ On the bottom line of the Glance view, it shows the projection. This projection 
 Options are Fast and Whole. Fast (default) shows the charge level and the projected range was seen the last time the main app ran and no new data will be processed. In the Whole mode, the projected mode is calculated on the fly and new data are processed by the glance code itself instead of waiting for the main app to run.
 
 *Show battery level in big numbers in Glance for a few seconds*
-With this set (default is unset), when Glance is first shown, only the battery level will be shown and will use the largest font that fits the glance allocated view space for 5 seconds.
+With this set (default is unset), when Glance is first shown, only the battery level will be shown and will use the largest font that fits the glance allocated view space for 5 seconds. Usefull for those with reduced vision.
 
 *Use built-in page indicator (devices with CIQ 3.4 and above)*
 Newer devices have a built-in page indicator, which I find quite intrusive on my watch, but quite usable on my Edge, so you have a choice of using the built-in one or the one I added. On older device, it only uses the one I added. Default is to use the page indicated I added (a workaround for CIQ 3.4 device that doesn't like reusing a view, I think)
@@ -86,6 +86,7 @@ If you would like to translate the language file in your own language, contact m
 
 ## Changelog
 **V1.12 Added the following**
+- Added support for the Venu 4 41 mm and 45 mm devices.
 - A new settings (Big battery) that shows only the battery level in the biggest font that fit the glance view for 5 seconds when Glance is launched. Usefull for those with reduced vision
 
 **V1.11.1 Is about crashes reported through the Error Reporting and Analysis (ERA) tool**
