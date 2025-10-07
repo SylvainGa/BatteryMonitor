@@ -85,6 +85,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.12.1 Added the following**
+- As requested, added support for the GPSMAP H1 and eTrex Touch devices. Keep in mind these only have 32KB of background memory so they might becone unstable if there is too much data waiting to be processed.
+
 **V1.12 Added the following**
 - Added support for the Venu 4 41 mm and 45 mm devices.
 - A new settings (Big battery) that shows only the battery level in the biggest font that fit the glance view for 5 seconds when Glance is launched. Usefull for those with reduced vision
