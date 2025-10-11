@@ -149,6 +149,8 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 	function onDrag(dragEvent ) {
 		var coord = dragEvent.getCoordinates();
+		var viewMode = mView.getVSelectMode();
+		var viewScreen = mView.getViewScreen();
 
 		if (dragEvent.getType() == WatchUi.DRAG_TYPE_START) {
 			mDragStartX = coord[0];
@@ -161,6 +163,9 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			if (xMovement > yMovement) { // We 'swiped' left or right predominantly
 				if (mDragStartX > coord[0]) { // Like WatchUi.SWIPE_LEFT
 					/*DEBUG*/ logMessage(("Drag left"));
+					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
+						return false;
+					}
 					var width = System.getDeviceSettings().screenWidth;
 					/*DEBUG*/ logMessage("Start:" + mDragStartX + " end:" + coord[0] + " travel:" + (mDragStartX - coord[0]));
 					if (mDragStartX - coord[0] > width * 75 / 100) { // If we swipe left accross most of the screen, assume it's a request to open the menu
@@ -172,6 +177,9 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 				}
 				else { // Like  WatchUi.SWIPE_RIGHT
 					/*DEBUG*/ logMessage(("Drag right"));
+					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
+						return false;
+					}
 					var panelIndex = mView.getPanelIndex();
 					mHandler.invoke(panelIndex, -1);
 				}
@@ -179,8 +187,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			else { // We 'swiped' up or down predominantly
 				if (mDragStartY > coord[1]) { // Like WatchUi.SWIPE_UP
 					/*DEBUG*/ logMessage(("Drag up"));
-					var viewMode = mView.getVSelectMode();
-					var viewScreen = mView.getViewScreen();
 					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 						return false;
 					}
@@ -188,8 +194,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 				}
 				else { // Like  WatchUi.SWIPE_DOWN
 					/*DEBUG*/ logMessage(("Drag down"));
-					var viewMode = mView.getVSelectMode();
-					var viewScreen = mView.getViewScreen();
 					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 						return false;
 					}
@@ -206,10 +210,11 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	}
 
 	function onSwipe(swipeEvent) {
+		var viewMode = mView.getVSelectMode();
+		var viewScreen = mView.getViewScreen();
+
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_DOWN) {
 			/*DEBUG*/ logMessage(("Swipe down"));
-			var viewMode = mView.getVSelectMode();
-			var viewScreen = mView.getViewScreen();
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
@@ -218,8 +223,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_UP) {
 			/*DEBUG*/ logMessage(("Swipe up"));
-			var viewMode = mView.getVSelectMode();
-			var viewScreen = mView.getViewScreen();
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
@@ -228,12 +231,18 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_LEFT) {
 			/*DEBUG*/ logMessage(("Swipe left"));
+			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
+				return false;
+			}
 			// var panelIndex = mView.getPanelIndex();
 			// mHandler.invoke(panelIndex, 1);
 		}
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_RIGHT) {
 			/*DEBUG*/ logMessage(("Swipe right"));
+			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
+				return false;
+			}
 			// var panelIndex = mView.getPanelIndex();
 			// mHandler.invoke(panelIndex, -1);
 		}
