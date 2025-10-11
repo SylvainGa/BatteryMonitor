@@ -28,7 +28,7 @@ class PageIndicatorFactory extends WatchUi.ViewLoopFactory {
     //! Retrieve a view/delegate pair for the page at the given index
     function getView(page as Number) as [ViewLoopFactory.Views] or [ViewLoopFactory.Views, ViewLoopFactory.Delegates] {
         mView.resetViewVariables();
-        mView.setPage((App.getApp().mView.getPanelSize() - 1) - page);
+        mView.setPage(page);
         return [mView, mDelegate];
     }
 

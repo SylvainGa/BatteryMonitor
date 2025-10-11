@@ -622,7 +622,7 @@ class BatteryMonitorView extends Ui.View {
 				dc.setPenWidth(1);
 				for (var i = 0; i < mPanelSize; i++, yPos -= steps) {
 					dc.drawCircle(xPos, yPos, mCtrX / 20);
-					if (i + 1 == mViewScreen) {
+					if (mPanelSize - i == mViewScreen) {
 						dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 						dc.fillCircle(xPos, yPos, mCtrX / 30);
 						dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
@@ -640,7 +640,7 @@ class BatteryMonitorView extends Ui.View {
 					var xPos = mCtrX + radius * Math.sin(Math.toRadians(angle));
 					var yPos = mCtrY + radius * Math.cos(Math.toRadians(angle));
 					dc.drawCircle(xPos, yPos, mCtrX / 30);
-					if (i + 1 == mViewScreen) {
+					if (mPanelSize - i == mViewScreen) {
 						dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
 						dc.fillCircle(xPos, yPos, mCtrX / 40);
 						dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);

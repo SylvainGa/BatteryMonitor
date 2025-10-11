@@ -64,7 +64,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 				mHandler.invoke(panelIndex, 0);
 			}
 			else {
-				mHandler.invoke(panelIndex, -1);
+				mHandler.invoke(panelIndex, 1);
 			}
 		}
 		else {
@@ -90,7 +90,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 				mHandler.invoke(panelIndex, 0);
 			}
 			else {
-				mHandler.invoke(panelIndex, 1);
+				mHandler.invoke(panelIndex, -1);
 			}
 		}
 		else {
@@ -120,7 +120,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
-			mHandler.invoke(panelIndex, 1);
+			mHandler.invoke(panelIndex, -1);
 			return true;
 		}
 		
@@ -133,7 +133,7 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
-			mHandler.invoke(panelIndex, -1);
+			mHandler.invoke(panelIndex, 1);
 			return true;
 		}
 		

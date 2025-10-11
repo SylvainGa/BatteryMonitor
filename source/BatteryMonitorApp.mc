@@ -243,6 +243,16 @@ class BatteryMonitorApp extends App.AppBase {
         return [mGlance];
     }
 
+	(:can_viewloop)
+	function canViewLoop() {
+		return true;
+	}
+
+	(:cant_viewloop)
+	function canViewLoop() {
+		return false;
+	}
+
     // Return the initial view of your application here
     function getInitialView() {	
 		/*DEBUG*/ logMessage("getInitialView");
@@ -263,9 +273,9 @@ class BatteryMonitorApp extends App.AppBase {
 	    if ($.objectStoreGet("fromGlance", false) == true) { // Up/Down buttons work when launched from glance (or if we don't have/need buttons)
             $.objectStorePut("fromGlance", false); // In case we change our watch setting later on that we want to start from the widget and not the glance
 
-			if (self has :canViewLoop && WatchUi has :ViewLoop && useBuiltinPageIndicator) {
+			if (canViewLoop() && WatchUi has :ViewLoop && useBuiltinPageIndicator) {
 				var factory = new PageIndicatorFactory();
-				var viewLoop = new WatchUi.ViewLoop(factory, {:page => mView.getPanelSize() - 1, :wrap => true/*, :color => Graphics.COLOR_BLACK */});
+				var viewLoop = new WatchUi.ViewLoop(factory, {:page => 0, :wrap => true/*, :color => Graphics.COLOR_BLACK */});
 				return [viewLoop, new PageIndicatorDelegate(viewLoop)];
 			} else {
 				mView = new BatteryMonitorView(false);
@@ -276,12 +286,13 @@ class BatteryMonitorApp extends App.AppBase {
         else { // Sucks, but we have to have an extra view so the Up/Down button work in our main view
             $.objectStorePut("fromGlance", false); // In case we change our watch setting later on that we want to start from the widget and not the glance
 
-			if (self has :canViewLoop && WatchUi has :ViewLoop && useBuiltinPageIndicator) {
+			if (canViewLoop() && WatchUi has :ViewLoop && useBuiltinPageIndicator) {
 				var factory = new PageIndicatorFactory();
-				var viewLoop = new WatchUi.ViewLoop(factory, {:page => mView.getPanelSize() - 1, :wrap => true /*, :color => Graphics.COLOR_BLACK */});
+				var viewLoop = new WatchUi.ViewLoop(factory, {:page => 0, :wrap => true /*, :color => Graphics.COLOR_BLACK */});
 				return [viewLoop, new PageIndicatorDelegate(viewLoop)];
-			} else {
 				/*DEBUG*/ logMessage(("Launching no glance view"));
+			}
+			else {
 				mView = new NoGlanceView();
 				mDelegate = new NoGlanceDelegate();
 				return [mView , mDelegate];

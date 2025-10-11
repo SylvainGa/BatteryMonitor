@@ -27,14 +27,14 @@ When charging, a popup will show up showing the battery level and the rate of in
 
 Use the Menu button to erase the history and start fresh.
  
-Depending on the device, there could be enough memory to store 2,500 data elements (settable in Settings, depends on how much memory your device has). Since only changed battery level are recorded, depending on how fast your device is draining, you'll have data for several days if not weeks.
+Depending on the device, there could be enough memory to store 5,000 data elements (settable in Settings, depends on how much memory your device has). Since only changed battery level are recorded, depending on how fast your device is draining, you'll have data for several days if not weeks.
 
 Data points are calculated using a background process running every 5 minutes (configurable in Settings) when inactive and every minute while the Glance (unless in Fast launch mode) or the app is active.
 
 **Explanation on how the projection works**:
-On the real device, the Garmin's projection until discharged is two fold but for both, it's basically how long will the device last if it stays in that state, be it simply being at the watchface or being in an activity. That's why you might see a time to empty of 3 days when the device is idle and this goes down to 8 hours when you select an activity with GPS. 
+Garmin's projection until discharged is two fold but for both, it's basically how long will the device last if it stays in that state, be it simply being at the watchface or being in an activity. That's why you might see a time to empty of 3 days when the device is idle and this goes down to 8 hours when you select an activity with GPS. 
 
-In this App however, the projection until empty can be a simple ratio of the battery level at last charge over the time span since last charge or it can be a complex calculations using a linear least squares fit method to average all the recorded battery downtrends. This method gets more accurate as more data is gathered. Using the 2500 data entry and 5 minutes intervals, on my watch, it can capture up to 16 days of usage. Of course, if your activity usage is random, the accuracy of the projection will suffer. 
+In this App however, the projection until empty can be a simple ratio of the battery level at last charge over the time span since last charge, or it can be a complex calculation using a linear least squares fit method to average all the recorded battery downtrends. This method gets more accurate as more data is gathered. Using the 5,000 data entry and 5 minutes intervals, on my watch, it can capture over 28 days of usage! Of course, if your activity usage is random, the accuracy of the projection will suffer. 
 
 YOU MUST LET THE APP GATHER DATA FOR SEVERAL DAYS BEFORE A MEANINGFULL PROJECTION CAN BE DISPLAYED.
 
@@ -62,11 +62,11 @@ With this set (default is unset), when Glance is first shown, only the battery l
 Newer devices have a built-in page indicator, which I find quite intrusive on my watch, but quite usable on my Edge, so you have a choice of using the built-in one or the one I added. On older device, it only uses the one I added. Default is to use the page indicated I added (a workaround for CIQ 3.4 device that doesn't like reusing a view, I think)
 
 *What to do when history is full:*
-The app can store up to 2,500 data points, at 5 minutes per data point, that's enough data for about 3.5 days, but since the battery doesn't usually drain 0.1% (resolution of the app) per 5 minutes, this can extend for quite some time. On my 7S Pro, I had 14 days of data before reaching 2,500!
+The app can store up to 5,000 data points, at 5 minutes per data point, that's enough data for about 7 days, but since the battery doesn't usually drain 0.1% (resolution of the app) per 5 minutes, this can extend for quite some time. On my 7S Pro, I had over 28 days of data before reaching 5,000!
 However, once that limit is reached, the app can either drop the earliest 500 data points to make room for 500 more, or down sample the last 1,000 data points (ie, average two consecutive data points into one) to again, make room for 500 new data points. Using this method, you don't loose your previous data, just its granularity.
 
 *How many elements to store:*
-This app can be quite CPU intensive, especially when showing the graphs with lots of data. It's intensive enought that on some devices, at the max stored elements (5000, configurable in Settings), the app might crash with the line "Watchdog Tripped Error - Code Executed Too Long" or 'Out of Memory" in CIQ_LOG file. Lowering this value should help.
+This app can be quite CPU intensive, especially when showing the graphs with lots of data. It's intensive enought that on some devices, at the max stored elements (5,000, configurable in Settings), the app might crash with the line "Watchdog Tripped Error - Code Executed Too Long" or 'Out of Memory" in CIQ_LOG file. Lowering this value should help.
 
 *Maximum time in msec before having to relinquish control when drawing (from 250 to 900):*
 Like mentionned above, the app might crash because it took too long to do its work. This is more prevalent while drawing the graph with lots of data points. This field tells it to stop drawing and relinquish control and continue drawing when we have the control back. You'll notice when that time is reached by a small pause while drawing the graph. 
@@ -85,12 +85,17 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.12.2 Added the following**
+- Compiled with CIQ 8.3.0
+- The swipe up/down, button up/down are now behaving like they do in other aspect of the device (they used to be reversed)
+- A previous version broke the usage of the device built-in page indicator (for CIQ V3.4 and above). This is now fixed.
+
 **V1.12.1 Added the following**
-- As requested, added support for the GPSMAP H1 and eTrex Touch devices. Keep in mind these only have 32KB of background memory so they might becone unstable if there is too much data waiting to be processed.
+- As requested, added support for the GPSMAP H1 and eTrex Touch devices. Keep in mind these only have 32KB of background memory so they might become unstable if there is too much data waiting to be processed.
 
 **V1.12 Added the following**
 - Added support for the Venu 4 41 mm and 45 mm devices.
-- A new settings (Big battery) that shows only the battery level in the biggest font that fit the glance view for 5 seconds when Glance is launched. Usefull for those with reduced vision
+- A new settings (Big battery) that shows only the battery level in the biggest font that fit the glance view for 5 seconds when Glance is launched. Usefull for those with reduced vision.
 
 **V1.11.1 Is about crashes reported through the Error Reporting and Analysis (ERA) tool**
 - Crash fix when erasing data
