@@ -149,6 +149,8 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 	function onDrag(dragEvent ) {
 		var coord = dragEvent.getCoordinates();
+		var viewMode = mView.getVSelectMode();
+		var viewScreen = mView.getViewScreen();
 
 		if (dragEvent.getType() == WatchUi.DRAG_TYPE_START) {
 			mDragStartX = coord[0];
@@ -161,8 +163,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			if (xMovement > yMovement) { // We 'swiped' left or right predominantly
 				if (mDragStartX > coord[0]) { // Like WatchUi.SWIPE_LEFT
 					//DEBUG*/ logMessage(("Drag left"));
-					var viewMode = mView.getVSelectMode();
-					var viewScreen = mView.getViewScreen();
 					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 						return false;
 					}
@@ -177,8 +177,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 				}
 				else { // Like  WatchUi.SWIPE_RIGHT
 					//DEBUG*/ logMessage(("Drag right"));
-					var viewMode = mView.getVSelectMode();
-					var viewScreen = mView.getViewScreen();
 					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 						return false;
 					}
@@ -189,8 +187,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 			else { // We 'swiped' up or down predominantly
 				if (mDragStartY > coord[1]) { // Like WatchUi.SWIPE_UP
 					//DEBUG*/ logMessage(("Drag up"));
-					var viewMode = mView.getVSelectMode();
-					var viewScreen = mView.getViewScreen();
 					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 						return false;
 					}
@@ -198,8 +194,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 				}
 				else { // Like  WatchUi.SWIPE_DOWN
 					//DEBUG*/ logMessage(("Drag down"));
-					var viewMode = mView.getVSelectMode();
-					var viewScreen = mView.getViewScreen();
 					if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 						return false;
 					}
@@ -216,10 +210,11 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	}
 
 	function onSwipe(swipeEvent) {
-		if (swipeEvent.getDirection() == WatchUi.SWIPE_DOWN) {
-			//DEBUG*/ logMessage(("Swipe down"));
 			var viewMode = mView.getVSelectMode();
 			var viewScreen = mView.getViewScreen();
+
+		if (swipeEvent.getDirection() == WatchUi.SWIPE_DOWN) {
+			//DEBUG*/ logMessage(("Swipe down"));
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
@@ -228,8 +223,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_UP) {
 			//DEBUG*/ logMessage(("Swipe up"));
-			var viewMode = mView.getVSelectMode();
-			var viewScreen = mView.getViewScreen();
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
@@ -237,8 +230,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		}
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_LEFT) {
-			var viewMode = mView.getVSelectMode();
-			var viewScreen = mView.getViewScreen();
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
@@ -248,8 +239,6 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 		}
 
 		if (swipeEvent.getDirection() == WatchUi.SWIPE_RIGHT) {
-			var viewMode = mView.getVSelectMode();
-			var viewScreen = mView.getViewScreen();
 			if (mIsViewLoop && (viewScreen != SCREEN_HISTORY || (viewScreen == SCREEN_HISTORY && viewMode == ViewMode))) { // We're using the view loop controls
 				return false;
 			}
