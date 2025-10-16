@@ -58,6 +58,10 @@
         </settingConfig>
     </setting>
 
+    <setting propertyKey="@Properties.MinimumLevelIncrease" title="@Strings.MinimumLevelIncrease">
+		<settingConfig type="Numeric" required="true" min="0" max="10"/>
+    </setting>
+
     <setting propertyKey="@Properties.MaxRuntime" title="@Strings.MaxRuntime">
 		<settingConfig type="Numeric" required="true" min="250" max="900"/>
     </setting>

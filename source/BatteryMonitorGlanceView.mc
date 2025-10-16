@@ -25,6 +25,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
     var mNewDataSize;
     var mBigBattery;
 	var mBigBatteryFontType;
+    var mMinimumLevelIncrease; // How much the battery level must INCREASE before a charge event is recorded. Is overridden by the watch flagging a charge event. 
 
     //DEBUG*/ var mUpdateWholeStartTime;
 	//DEBUG*/ var mUpdateStartTime;
@@ -77,8 +78,12 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 /*DEBUG*/ logMessage("onRefreshTimer: Started charging at " + nowData);
                 $.objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
-            //DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
-            $.objectStorePut("LAST_CHARGE_DATA", nowData);
+			else {
+				if (chargingData[BATTERY] + mMinimumLevelIncrease * 10 < nowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
+                    //DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
+                    $.objectStorePut("LAST_CHARGE_DATA", nowData);
+                }
+            }
         }
         else {
             /*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("onRefreshTimer: Finished charging at " + nowData); }
@@ -166,6 +171,13 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
                 Ui.requestUpdate();
             }
         }
+
+		mMinimumLevelIncrease = 0;
+		try {
+			mMinimumLevelIncrease = Properties.getValue("MinimumLevelIncrease");
+		} catch (e) {
+			mMinimumLevelIncrease = 0;
+		}
     }
 
     function onUpdate(dc) {

@@ -77,4 +77,5 @@
     <string id="HowHandleFullArray">Quoi faire quand l'historique est plein</string>
     <string id="HowHandleFullArrayDiscard">Retiré les plus vieilles données</string>
     <string id="HowHandleFullArrayAverage">Faire la moyenne des plus vieiles données</string>
+    <string id="MinimumLevelIncrease">Augmentation minimum de la charge en % pour reconnaitre une charge</string>
 </strings>

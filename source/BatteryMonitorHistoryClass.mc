@@ -41,7 +41,8 @@ class HistoryClass  {
 	private var mMaxArrays;
 	private var mHandlingFullArray;
 	private var mShrinkingInProgress;
-
+	private var mMinimumLevelIncrease; // How much the battery level must INCREASE before a charge event is recorded. Is overridden by the watch flagging a charge event. 
+	
     function initialize() {
 		//DEBUG*/ logMessage("HistoryClass.initialize");
 		mIsSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
@@ -67,6 +68,12 @@ class HistoryClass  {
 			mHandlingFullArray = 0;
 		}
 
+		mMinimumLevelIncrease = 0;
+		try {
+			mMinimumLevelIncrease = Properties.getValue("MinimumLevelIncrease");
+		} catch (e) {
+			mMinimumLevelIncrease = 0;
+		}
 	}
 
 	function getLatestHistoryFromStorage() {
@@ -321,8 +328,12 @@ class HistoryClass  {
 	            /*DEBUG*/ logMessage("getData: Started charging at " + nowData);
                 objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
-            //DEBUG*/ logMessage("getData: LAST_CHARGE_DATA " + nowData);
-            $.objectStorePut("LAST_CHARGE_DATA", nowData);
+			else {
+				if (chargingData[BATTERY] + mMinimumLevelIncrease * 10 < nowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
+					//DEBUG*/ logMessage("getData: LAST_CHARGE_DATA " + nowData);
+					$.objectStorePut("LAST_CHARGE_DATA", nowData);
+				}
+			}
 	    }
         else {
             /*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("getData: Finished charging at " + nowData); }
@@ -340,11 +351,58 @@ class HistoryClass  {
     function analyzeAndStoreData(data, dataSize, storeAlways) {
         //DEBUG*/ logMessage("analyzeAndStoreData");
 
-        if (data == null) {
+        if (data == null || dataSize == 0) {
             return 0;
         }
         
+		var lastBatteryLevel;
+		var lastDataIndex;
+		var lastChargeEventIndex;
+		var lastDetectedChargeEventIndex;
         var lastHistory = objectStoreGet("LAST_HISTORY_KEY", null);
+
+		// Start from what we saw last time we ran if possible
+		if (lastHistory != null) {
+			lastBatteryLevel = lastHistory[BATTERY];
+			lastDataIndex = -1;
+		}
+		else {
+			lastBatteryLevel = data[BATTERY]; // (no need for 0 * 3 + BATTERY as just BATTERY is the same)
+			lastDataIndex = 0;
+		}
+
+		// Go through the data to find the last charge event that happened 
+		for (var i = 0; i < dataSize; i++) {
+			var curBatteryLevel = data[i * 3 + BATTERY];
+			if (lastBatteryLevel < curBatteryLevel) {
+				// Found a charge event by the last battery being less than the current one, flag it if it's the first up trend
+				if (lastChargeEventIndex == null) {
+					lastChargeEventIndex = lastDataIndex;
+				}
+
+				// Keep going until our treshold is reached (need to account that the first event is from lastHistory)
+				if ((lastChargeEventIndex == -1 ? lastHistory[BATTERY] : data[lastChargeEventIndex * 3 + BATTERY]) + mMinimumLevelIncrease * 10 < curBatteryLevel) {
+					lastDetectedChargeEventIndex = i; // lastDetectedChargeEventIndex can NEVER be -1 here so later on, I don't need to check for that
+				}
+			}
+			else {
+				 // Charge is going DOWN, if we had a charge event, it's now gone and we need to look for a newer one, if any
+				lastChargeEventIndex = null;
+				lastDataIndex = i;
+			}
+
+			lastBatteryLevel = curBatteryLevel;
+		}
+
+		// Now that we've gone through the list, see if we had a charge event and if we do, see if it's newer than the last recorded charge event
+		if (lastDetectedChargeEventIndex != null) {
+			var lastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null);
+			if (lastChargeData == null || lastChargeData[TIMESTAMP] < data[lastDetectedChargeEventIndex * 3 + TIMESTAMP]) {
+				// Newer one, record it
+				$.objectStorePut("LAST_CHARGE_DATA", [data[lastDetectedChargeEventIndex * 3 + TIMESTAMP], data[lastDetectedChargeEventIndex * 3 + BATTERY], data[lastDetectedChargeEventIndex * 3 + SOLAR]]);
+			}
+		}
+
         var added = 0;
 
         if (lastHistory == null) { // no data yet (if we haven't got a last history, we can safely assume history was also empty)

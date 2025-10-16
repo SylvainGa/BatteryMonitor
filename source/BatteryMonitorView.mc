@@ -65,6 +65,7 @@ class BatteryMonitorView extends Ui.View {
 	var mOnScreenBuffer; // Points to a completed drawn bit buffer that we'll use to display on screen
 	var mDrawLive; // We have no bit buffers (shouldn't happen with all devices being at CIQ 3.2 or above) so flag to draw directly on screen
 	var mLoadingPageCounter; // In the loading page, this is used to toggle between "???"" and ""
+	var mMinimumLevelIncrease; // How much the battery level must INCREASE before a charge event is recorded. Is overridden by the watch flagging a charge event.
 	/*DEBUG*/ var mUpdateWholeStartTime;
 	/*DEBUG*/ var mUpdateStartTime;
 	/*DEBUG*/ var mDrawChartStartTime;
@@ -181,13 +182,13 @@ class BatteryMonitorView extends Ui.View {
 					/*DEBUG*/ logMessage("onRefreshTimer: Started charging at " + mNowData);
 					$.objectStorePut("STARTED_CHARGING_DATA", mNowData);
 				}
-
-				if (mLastChargeData == null || $.stripMarkers(mLastChargeData[BATTERY]) != $.stripMarkers(mNowData[BATTERY])) { // If we're charging and we have a different charge value than last time, store it
+				else {
 					mLastChargeData = mNowData;
-		            $.objectStorePut("LAST_CHARGE_DATA", mLastChargeData);
-					//DEBUG*/ logMessage("onRefreshTimer: LAST_CHARGE_DATA " + mLastChargeData);
+					if (chargingData[BATTERY] + mMinimumLevelIncrease * 10 < mNowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
+						//DEBUG*/ logMessage("onRefreshTimer: LAST_CHARGE_DATA " + mLastChargeData);
+						$.objectStorePut("LAST_CHARGE_DATA", mNowData);
+					}
 				}
-
 			}
 			else {
 				/*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("onRefreshTimer: Finished charging at " + mNowData); }
@@ -286,6 +287,13 @@ class BatteryMonitorView extends Ui.View {
 		}
 		catch (e) {
 			mMaxRuntime = 700;
+		}
+
+		mMinimumLevelIncrease = 0;
+		try {
+			mMinimumLevelIncrease = Properties.getValue("MinimumLevelIncrease");
+		} catch (e) {
+			mMinimumLevelIncrease = 0;
 		}
 
 		mHistoryClass.onSettingsChanged(fromInit);

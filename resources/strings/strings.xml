@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.12.2.b2</string>
+    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.13.0.b1</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -78,4 +78,5 @@
     <string id="HowHandleFullArray">What to do when history is full</string>
     <string id="HowHandleFullArrayDiscard">Discard oldest data</string>
     <string id="HowHandleFullArrayAverage">Average oldest data</string>
+    <string id="MinimumLevelIncrease">Minimum % battery level increase to detect a charge</string>
 </strings>

@@ -30,6 +30,13 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             }
         }
 
+		var minimumLevelIncrease = 0;
+		try {
+			minimumLevelIncrease = Properties.getValue("MinimumLevelIncrease");
+		} catch (e) {
+			minimumLevelIncrease = 0;
+		}
+
         var now = Time.now().value(); //in seconds from UNIX epoch in UTC
         var stats = Sys.getSystemStats();
         var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
@@ -43,8 +50,12 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
                 /*DEBUG*/ logMessage("onTemporalEvent: started charging at " + nowData);
                 $.objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
-            $.objectStorePut("LAST_CHARGE_DATA", nowData);
-            //DEBUG*/ logMessage("onTemporalEvent: LAST_CHARGE_DATA " + nowData);
+			else {
+				if (chargingData[BATTERY] + minimumLevelIncrease * 10 < nowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
+                    //DEBUG*/ logMessage("onTemporalEvent: LAST_CHARGE_DATA " + nowData);
+                    $.objectStorePut("LAST_CHARGE_DATA", nowData);
+                }
+            }
         }
         else {
             /*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("onTemporalEvent: Finished charging at " + nowData); }
