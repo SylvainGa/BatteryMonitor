@@ -323,10 +323,10 @@ class HistoryClass  {
         var nowData = [now, battery, solar];
 
         if (Sys.getSystemStats().charging) {
-            var chargingData = objectStoreGet("STARTED_CHARGING_DATA", null);
+            var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
             if (chargingData == null) {
 	            /*DEBUG*/ logMessage("getData: Started charging at " + nowData);
-                objectStorePut("STARTED_CHARGING_DATA", nowData);
+                $.objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
 			else {
 				if (chargingData[BATTERY] + mMinimumLevelIncrease * 10 < nowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
@@ -337,7 +337,7 @@ class HistoryClass  {
 	    }
         else {
             /*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("getData: Finished charging at " + nowData); }
-            objectStoreErase("STARTED_CHARGING_DATA");
+            $.objectStoreErase("STARTED_CHARGING_DATA");
         }
 
         var activityStartTime = Activity.getActivityInfo().startTime;
@@ -354,16 +354,17 @@ class HistoryClass  {
         if (data == null || dataSize == 0) {
             return 0;
         }
-        
+
+		// First see if the data passed has a charge event
 		var lastBatteryLevel;
 		var lastDataIndex;
 		var lastChargeEventIndex;
 		var lastDetectedChargeEventIndex;
-        var lastHistory = objectStoreGet("LAST_HISTORY_KEY", null);
+        var lastUpBatteryLevel = $.objectStoreGet("LAST_UP_BATTERY_LEVEL", null);
 
 		// Start from what we saw last time we ran if possible
-		if (lastHistory != null) {
-			lastBatteryLevel = lastHistory[BATTERY];
+		if (lastUpBatteryLevel != null) {
+			lastBatteryLevel = lastUpBatteryLevel[BATTERY];
 			lastDataIndex = -1;
 		}
 		else {
@@ -371,22 +372,27 @@ class HistoryClass  {
 			lastDataIndex = 0;
 		}
 
-		// Go through the data to find the last charge event that happened 
+		// Go through the data to find the last charge event that happened (for charged through USB as the standard method of charging is detected through Sys.getSystemStats().charging)
+		/*DEBUG*/  var firstTimestamp = data[TIMESTAMP]; logMessage("Analyse: Looking for charging events starting at " + firstTimestamp + " " + lastBatteryLevel);
 		for (var i = 0; i < dataSize; i++) {
+			/*DEBUG*/ logMessage((data[i * 3 + TIMESTAMP] - firstTimestamp) + " " + data[i * 3 + BATTERY]);
 			var curBatteryLevel = data[i * 3 + BATTERY];
 			if (lastBatteryLevel < curBatteryLevel) {
 				// Found a charge event by the last battery being less than the current one, flag it if it's the first up trend
 				if (lastChargeEventIndex == null) {
+					/*DEBUG*/ logMessage("First event");
 					lastChargeEventIndex = lastDataIndex;
 				}
 
-				// Keep going until our treshold is reached (need to account that the first event is from lastHistory)
-				if ((lastChargeEventIndex == -1 ? lastHistory[BATTERY] : data[lastChargeEventIndex * 3 + BATTERY]) + mMinimumLevelIncrease * 10 < curBatteryLevel) {
+				// Keep going until our treshold is reached (need to account that the first event is from lastUpBatteryLevel)
+				if ((lastChargeEventIndex == -1 ? lastUpBatteryLevel[BATTERY] : data[lastChargeEventIndex * 3 + BATTERY]) + mMinimumLevelIncrease * 10 < curBatteryLevel) {
+					/*DEBUG*/ logMessage("Above threshold of " + mMinimumLevelIncrease);
 					lastDetectedChargeEventIndex = i; // lastDetectedChargeEventIndex can NEVER be -1 here so later on, I don't need to check for that
 				}
 			}
 			else {
 				 // Charge is going DOWN, if we had a charge event, it's now gone and we need to look for a newer one, if any
+				/*DEBUG*/ if (lastChargeEventIndex != null) { logMessage("No longer charging"); }
 				lastChargeEventIndex = null;
 				lastDataIndex = i;
 			}
@@ -394,17 +400,35 @@ class HistoryClass  {
 			lastBatteryLevel = curBatteryLevel;
 		}
 
+		// If value were still climbing up when we ended, record the start of the climbing so we can go back to it next time
+		if (lastChargeEventIndex != null) {
+			if (lastChargeEventIndex >= 0) { // We can ignore -1 as this is what is already in LAST_UP_BATTERY_LEVEL
+				$.objectStorePut("LAST_UP_BATTERY_LEVEL", [data[lastChargeEventIndex * 3 + TIMESTAMP], data[lastChargeEventIndex * 3 + BATTERY], data[lastChargeEventIndex * 3 + SOLAR]]);
+				/*DEBUG*/ logMessage("Ended while climbing");
+			}
+		}
+		else {
+			// Otherwise record the last known battery level
+			$.objectStorePut("LAST_UP_BATTERY_LEVEL", [data[(dataSize - 1) * 3 + TIMESTAMP], data[(dataSize - 1) * 3 + BATTERY], data[(dataSize - 1) * 3 + SOLAR]]);
+			/*DEBUG*/ logMessage("Saving last recorded battery level");
+		}
+
 		// Now that we've gone through the list, see if we had a charge event and if we do, see if it's newer than the last recorded charge event
 		if (lastDetectedChargeEventIndex != null) {
+			/*DEBUG*/ logMessage("Charge event recorded at " + [data[lastDetectedChargeEventIndex * 3 + TIMESTAMP], data[lastDetectedChargeEventIndex * 3 + BATTERY], data[lastDetectedChargeEventIndex * 3 + SOLAR]]);
 			var lastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null);
 			if (lastChargeData == null || lastChargeData[TIMESTAMP] < data[lastDetectedChargeEventIndex * 3 + TIMESTAMP]) {
 				// Newer one, record it
+				/*DEBUG*/ logMessage("And it's newer than " + lastChargeData);
 				$.objectStorePut("LAST_CHARGE_DATA", [data[lastDetectedChargeEventIndex * 3 + TIMESTAMP], data[lastDetectedChargeEventIndex * 3 + BATTERY], data[lastDetectedChargeEventIndex * 3 + SOLAR]]);
 			}
+			/*DEBUG*/ else { logMessage("But keeping " + lastChargeData); }
 		}
 
         var added = 0;
+        var lastHistory = $.objectStoreGet("LAST_HISTORY_KEY", null);
 
+		// See if we have just started building data and if so, process it quickly
         if (lastHistory == null) { // no data yet (if we haven't got a last history, we can safely assume history was also empty)
             for (var dataIndex = 0; dataIndex < dataSize && mHistorySize < HISTORY_MAX; dataIndex++, mHistorySize++) { // Now add the new ones (if any)
                 mHistory[mHistorySize * mElementSize + TIMESTAMP] = data[dataIndex * 3 + TIMESTAMP]; // data is always made of 3 elements, SOLAR is simply always 0 on non solar devices and ignored in history
@@ -419,7 +443,8 @@ class HistoryClass  {
             added = dataSize;
             /*DEBUG*/ logMessage("analyze: First addition (" + added + ") " + data);
         }
-        else { // We have a history and a last history, see if the battery value is different than the last and if so, store it but ignore this is we ask to always store
+        else {
+			// We have a history and a last history, see if the battery value is different than the last and if so, store it but ignore this is we ask to always store
             var dataIndex;
             for (dataIndex = 0; dataIndex < dataSize && storeAlways == false; dataIndex++) {
                 if (lastHistory[BATTERY] != data[dataIndex * 3 + BATTERY]) { // Look for the first new battery level since last time (don't use stripMarkers here as we want to keep if an activity was started/stop too)
@@ -430,8 +455,6 @@ class HistoryClass  {
                 }
             }
 
-            var chargeData;
-            
             /*DEBUG*/ var addedData = []; logMessage("analyze: mHistorySize " + mHistorySize + " dataSize " + dataSize);
             for (; dataIndex < dataSize; dataIndex++) { // Now add the new ones (if any)
 				var dataPos = dataIndex * 3;
@@ -443,12 +466,6 @@ class HistoryClass  {
                     mHistory = new [HISTORY_MAX * mElementSize];
                     mHistorySize = 0;
                     mHistoryNeedsReload = true; // Flag so we can rebuild our full history based on the new history arrays
-                }
-
-                if (lastHistory != null && $.stripMarkers(lastHistory[BATTERY]) < $.stripMarkers(data[dataPos + BATTERY])) { // If our last battery value is less than the current one, we were charging
-                    if (chargeData == null || $.stripMarkers(chargeData[BATTERY]) < $.stripMarkers(data[dataPos + BATTERY])) { // Keep the highest battery level
-                        chargeData = [data[dataPos + TIMESTAMP], data[dataPos + BATTERY], data[dataPos + SOLAR]];
-                    }
                 }
 
                 // No history or we asked to always store (for markers) or the battery value is diffenrent than the previous one, store
@@ -469,12 +486,6 @@ class HistoryClass  {
                 }
             }
 
-            // If we found new charge data (should be the case only if we charged through USB as the standard method of charging is detected through Sys.getSystemStats().charging)
-            if (chargeData != null) {
-                //DEBUG*/ logMessage("analyzeAndStoreData: LAST_CHARGE_DATA " + chargeData);
-                $.objectStorePut("LAST_CHARGE_DATA", chargeData);
-            }
-
             //DEBUG*/ logMessage("Added (" + added + ") " + addedData);
             if (added > 0) {
 				var lastHistoryPos = (mHistorySize - 1) * mElementSize;
@@ -490,7 +501,7 @@ class HistoryClass  {
         if (added > 0) {
             /*DEBUG*/ logMessage("Added " + added + ". history now " + mHistorySize);
             //DEBUG*/ logMessage("LAST_HISTORY_KEY " + lastHistory);
-            objectStorePut("LAST_HISTORY_KEY", lastHistory);
+            $.objectStorePut("LAST_HISTORY_KEY", lastHistory);
             mHistoryModified = true;
             mFullHistoryNeedsRefesh = true;
         }

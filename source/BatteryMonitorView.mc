@@ -175,28 +175,32 @@ class BatteryMonitorView extends Ui.View {
 			if (mHistoryClass.analyzeAndStoreData(mNowData, 1, false) > 0) {
 				mNoChange = false;
 			}
+		}
 
+		if (mRefreshCount % 50 == 0) { // Every 5 seconds
+			var stats = Sys.getSystemStats();
+			var battery = (stats.battery * 10).toNumber(); // * 10 to keep one decimal place without using the space of a float variable
+			var solar = (stats.solarIntensity == null ? null : stats.solarIntensity >= 0 ? stats.solarIntensity : 0);
+			var now = Time.now().value(); //in seconds from UNIX epoch in UTC
+			var nowData = [now, battery, solar];
 			if (Sys.getSystemStats().charging) {
 				var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
 				if (chargingData == null) {
-					/*DEBUG*/ logMessage("onRefreshTimer: Started charging at " + mNowData);
-					$.objectStorePut("STARTED_CHARGING_DATA", mNowData);
+					/*DEBUG*/ logMessage("onRefreshTimer: Started charging at " + nowData);
+					$.objectStorePut("STARTED_CHARGING_DATA", nowData);
 				}
 				else {
-					mLastChargeData = mNowData;
-					if (chargingData[BATTERY] + mMinimumLevelIncrease * 10 < mNowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
-						//DEBUG*/ logMessage("onRefreshTimer: LAST_CHARGE_DATA " + mLastChargeData);
-						$.objectStorePut("LAST_CHARGE_DATA", mNowData);
+					if (chargingData[BATTERY] + mMinimumLevelIncrease * 10 < nowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
+						/*DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
+						$.objectStorePut("LAST_CHARGE_DATA", nowData);
 					}
 				}
 			}
 			else {
-				/*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("onRefreshTimer: Finished charging at " + mNowData); }
+				/*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("onRefreshTimer: Finished charging at " + nowData); }
 				$.objectStoreErase("STARTED_CHARGING_DATA");
 			}
-		}
 
-		if (mRefreshCount % 50 == 0) { // Every 5 seconds
 			//DEBUG*/ logMessage("Every 5 seconds event");
 			if (mDebug < 5 || mDebug >= 10) {
 				mDebug = 0;

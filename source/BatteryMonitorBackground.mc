@@ -3,6 +3,7 @@ using Toybox.Activity;
 using Toybox.System as Sys;
 using Toybox.Time;
 using Toybox.Lang;
+using Toybox.Application.Properties;
 
 // The Service Delegate is the main entry point for background processes
 // our onTemporalEvent() method will get run each time our periodic event
@@ -52,7 +53,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             }
 			else {
 				if (chargingData[BATTERY] + minimumLevelIncrease * 10 < nowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
-                    //DEBUG*/ logMessage("onTemporalEvent: LAST_CHARGE_DATA " + nowData);
+                    /*DEBUG*/ logMessage("onTemporalEvent: LAST_CHARGE_DATA " + nowData);
                     $.objectStorePut("LAST_CHARGE_DATA", nowData);
                 }
             }

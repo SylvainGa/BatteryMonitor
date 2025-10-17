@@ -80,7 +80,7 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
             }
 			else {
 				if (chargingData[BATTERY] + mMinimumLevelIncrease * 10 < nowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
-                    //DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
+                    /*DEBUG*/ logMessage("onRefreshTimer: Charging " + nowData);
                     $.objectStorePut("LAST_CHARGE_DATA", nowData);
                 }
             }
