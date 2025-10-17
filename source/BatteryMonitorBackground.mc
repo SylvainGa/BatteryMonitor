@@ -48,18 +48,18 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
         if (Sys.getSystemStats().charging) {
             var chargingData = $.objectStoreGet("STARTED_CHARGING_DATA", null);
             if (chargingData == null) {
-                /*DEBUG*/ logMessage("onTemporalEvent: started charging at " + nowData);
+                //DEBUG*/ logMessage("onTemporalEvent: started charging at " + nowData);
                 $.objectStorePut("STARTED_CHARGING_DATA", nowData);
             }
 			else {
 				if (chargingData[BATTERY] + minimumLevelIncrease * 10 < nowData[BATTERY]) { // We're charging, are we going over the threshold to recognize a charging event?
-                    /*DEBUG*/ logMessage("onTemporalEvent: LAST_CHARGE_DATA " + nowData);
+                    //DEBUG*/ logMessage("onTemporalEvent: LAST_CHARGE_DATA " + nowData);
                     $.objectStorePut("LAST_CHARGE_DATA", nowData);
                 }
             }
         }
         else {
-            /*DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("onTemporalEvent: Finished charging at " + nowData); }
+            //DEBUG*/ if ($.objectStoreGet("STARTED_CHARGING_DATA", null) != null) { logMessage("onTemporalEvent: Finished charging at " + nowData); }
             $.objectStoreErase("STARTED_CHARGING_DATA");
         }
 
@@ -80,13 +80,13 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
             //DEBUG*/  data = new [2001]; for (var i = 0; i < 2001; i++) {  data[i] = i; }
 
             do {
-                /*DEBUG*/ logMessage("onTE: Exit with " + (dataSize / 3) + " elements");
+                //DEBUG*/ logMessage("onTE: Exit with " + (dataSize / 3) + " elements");
                 success = true; // Assume we'll succeed
                 try {
                     Background.exit(data);
                 }
                 catch (e instanceof Background.ExitDataSizeLimitException) { // We are trying to pass too much data! Shrink it down!
-                    /*DEBUG*/ logMessage("Exit failed.");
+                    //DEBUG*/ logMessage("Exit failed.");
                     success = false; // We didn't :-( Half the data and retry
                     dataSize = (data.size() / 2); // Doing it this way so precision error doesn't truncate it too short
                     for (var i = 0; i < dataSize; i += 3) {  // No averaging, here, just take every second data. We've been away from the app for very long, no need to be this precise.
@@ -96,7 +96,7 @@ class BatteryMonitorServiceDelegate extends Sys.ServiceDelegate {
                         data[i + SOLAR] =     data[j + SOLAR];
                     }
 
-                    /*DEBUG*/ logMessage("Had " + ((dataSize * 2) / 3) + " elements. Retrying with just " + (dataSize / 3) + " elements");
+                    //DEBUG*/ logMessage("Had " + ((dataSize * 2) / 3) + " elements. Retrying with just " + (dataSize / 3) + " elements");
                     data = data.slice(0, dataSize);
                 }
             } while (success == false);
