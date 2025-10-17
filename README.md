@@ -68,6 +68,9 @@ However, once that limit is reached, the app can either drop the earliest 500 da
 *How many elements to store:*
 This app can be quite CPU intensive, especially when showing the graphs with lots of data. It's intensive enought that on some devices, at the max stored elements (5,000, configurable in Settings), the app might crash with the line "Watchdog Tripped Error - Code Executed Too Long" or 'Out of Memory" in CIQ_LOG file. Lowering this value should help.
 
+*Minimum % battery level increase to detect a charge*
+Only when the battery level has increased by at least this % will a 'Charge event' be registered (default is 0%). This is to prevent a device with solar charging to register a charge event because of the sun. On those devices, you might want to set this to 1 or 2%. The charge event will still be recorded from the start of the charging, not after that x%. 
+
 *Maximum time in msec before having to relinquish control when drawing (from 250 to 900):*
 Like mentionned above, the app might crash because it took too long to do its work. This is more prevalent while drawing the graph with lots of data points. This field tells it to stop drawing and relinquish control and continue drawing when we have the control back. You'll notice when that time is reached by a small pause while drawing the graph. 
 
@@ -85,6 +88,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.13.0 Added the following**
+- New Setup option to limit when a charge event occurs. Only when a charge increases by x% will it flag a charge event as happening.
+
 **V1.12.2 Added the following**
 - Compiled with CIQ 8.3.0
 - The swipe up/down, button up/down are now behaving like they do in other aspect of the device (they used to be reversed)
