@@ -88,8 +88,11 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.13.1 Added the following**
+- Strip markers before testing if battery level is increasing.
+
 **V1.13.0 Added the following**
-- New Setup option to limit when a charge event occurs. Only when a charge increases by x% will it flag a charge event as happening.
+- New Setup option to limit when a charge event occurs. Only when the battery level increase by x% will it flag a charge event has happening.
 
 **V1.12.2 Added the following**
 - Compiled with CIQ 8.3.0
