@@ -89,7 +89,7 @@ If you would like to translate the language file in your own language, contact m
 
 ## Changelog
 **V1.13.1 Added the following**
-- Strip markers before testing if battery level is increasing.
+- Bug fix: Strip markers before testing if battery level is increasing.
 
 **V1.13.0 Added the following**
 - New Setup option to limit when a charge event occurs. Only when the battery level increase by x% will it flag a charge event has happening.
