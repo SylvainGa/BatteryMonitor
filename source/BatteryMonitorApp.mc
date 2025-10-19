@@ -86,22 +86,22 @@ class BatteryMonitorApp extends App.AppBase {
 		//DEBUG*/ logMessage("onBackgroundData: " + dataSize);
 
 		if (mGlanceLaunchMode == LAUNCH_FAST) { // If we're launching Glance fast, we aren't reading and clearing RECEIVED_DATA in the Glance code so keep adding to it. It will be read once we finally launch the main view
-			/*DEBUG*/ logMessage("onBackgroundData Fast Launch, data is " + (dataSize / 3) + " elements");
-	        /*DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			//DEBUG*/ logMessage("onBackgroundData Fast Launch, data is " + (dataSize / 3) + " elements");
+	        //DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			var oldData = $.objectStoreGet("RECEIVED_DATA", []);
-	        /*DEBUG*/ logMessage("Free memory 2 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+	        //DEBUG*/ logMessage("Free memory 2 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			var oldDataSize = oldData.size();
 			if (oldDataSize > 0 && oldData[0] instanceof Toybox.Lang.Array) {
-				/*DEBUG*/ logMessage("Old format, clearing oldData");
+				//DEBUG*/ logMessage("Old format, clearing oldData");
 				oldData = []; // If what we have is an array of arrays (old format), unfortunately, we'll ignore that data
 				oldDataSize = 0;
 			}
 
-			/*DEBUG*/ logMessage("Adding to " + (oldDataSize / 3) + " elements");
+			//DEBUG*/ logMessage("Adding to " + (oldDataSize / 3) + " elements");
 			oldData.addAll(data);
-	        /*DEBUG*/ logMessage("Free memory 3 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+	        //DEBUG*/ logMessage("Free memory 3 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			data = null; // We don't need it anymore, reclaim its space
-	        /*DEBUG*/ logMessage("Free memory 4 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+	        //DEBUG*/ logMessage("Free memory 4 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			var newDataSize = oldData.size();
 
 			var oldCount = $.objectStoreGet("RECEIVED_DATA_COUNT", 0);
@@ -112,9 +112,9 @@ class BatteryMonitorApp extends App.AppBase {
 			}
 			$.objectStorePut("RECEIVED_DATA_COUNT", (topCount * 10000 + currentCount)); // Keep how much data we potentially have (might be lowered by the 'if' below) in a separate object so the glance code can read it and deal with it
 
-			/*DEBUG*/ logMessage("Now has " + (currentCount) + " elements");
+			//DEBUG*/ logMessage("Now has " + (currentCount) + " elements");
 			var shrinkSteps = (newDataSize.toFloat() / (HISTORY_MAX * 3) + 1.0).toNumber(); // By how much data we'll skip to make it fit into a HISTORY_MAX size.
-			/*DEBUG*/ logMessage("Shrink steps is " + shrinkSteps);
+			//DEBUG*/ logMessage("Shrink steps is " + shrinkSteps);
 			if (shrinkSteps > 1) {
 				var newSize = newDataSize / shrinkSteps;
 				var i;
@@ -127,17 +127,17 @@ class BatteryMonitorApp extends App.AppBase {
 
 				oldData = oldData.slice(0, i); // Only keep the section we copied, disregarding what's after
 
-		        /*DEBUG*/ logMessage("Free memory 4.5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
-				/*DEBUG*/ logMessage("Finished. oldData is now " + (oldData.size() / 3) + " elememts");
+		        //DEBUG*/ logMessage("Free memory 4.5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+				//DEBUG*/ logMessage("Finished. oldData is now " + (oldData.size() / 3) + " elememts");
 			}
 
-	        /*DEBUG*/ logMessage("Free memory 5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+	        //DEBUG*/ logMessage("Free memory 5 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			$.objectStoreErase("RECEIVED_DATA"); // Also help not crashing for some reason
 			$.objectStorePut("RECEIVED_DATA", oldData);
 		}
 		else {
-			/*DEBUG*/ logMessage("onBackgroundData whole Launch, data is " +  + (dataSize / 3) + " elements");
-	        /*DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
+			//DEBUG*/ logMessage("onBackgroundData whole Launch, data is " +  + (dataSize / 3) + " elements");
+	        //DEBUG*/ logMessage("Free memory 1 " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
 			// Store the data so the View's onUpdate function can process it
 			$.objectStoreErase("RECEIVED_DATA");
 			$.objectStorePut("RECEIVED_DATA", data);
@@ -153,7 +153,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 		// Was in onHide
 		if (mService == null) { // Not for the background service
-			/*DEBUG*/ logMessage("onStop (" + (mGlance == null ? "VW)" : "GL)"));
+			//DEBUG*/ logMessage("onStop (" + (mGlance == null ? "VW)" : "GL)"));
 			if (mGlance == null && mView has :HistoryClass && mView.mHistoryClass != null) { // and not for the Glance view
 				mView.mHistoryClass.saveLastData();
 			}
@@ -167,13 +167,13 @@ class BatteryMonitorApp extends App.AppBase {
 
     // onAppInstall() is called when your application is installed
     function onAppInstall() {
-		/*DEBUG*/ logMessage("onAppInstall (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onAppInstall (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 		startBackgroundService(false);
     }
 
     // onAppUpdate() is called when your application is Updated
     function onAppUpdate() {
-		/*DEBUG*/ logMessage("onAppUpdate (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
+		//DEBUG*/ logMessage("onAppUpdate (" + (mService != null ? "SD)" : (mGlance == null ? "VW)" : "GL)")));
 		startBackgroundService(false);
 	}
 
@@ -234,7 +234,7 @@ class BatteryMonitorApp extends App.AppBase {
 
 	(:can_glance)
     function getGlanceView() {
-		/*DEBUG*/ logMessage("getGlanceView");
+		//DEBUG*/ logMessage("getGlanceView");
 
 		// Tell the 'Main View' that we launched from Glance
         Storage.setValue("fromGlance", true);
@@ -255,7 +255,7 @@ class BatteryMonitorApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {	
-		/*DEBUG*/ logMessage("getInitialView");
+		//DEBUG*/ logMessage("getInitialView");
 
 		//DEBUG*/ var historyArray = $.objectStoreGet("HISTORY_ARRAY", null); $.dumpHistory(historyArray.size() - 1); return;
 		//DEBUG*/ logMessage("Building fake history"); buildFakeHistory();
@@ -292,7 +292,7 @@ class BatteryMonitorApp extends App.AppBase {
 				var factory = new PageIndicatorFactory();
 				var viewLoop = new WatchUi.ViewLoop(factory, {:page => 0, :wrap => true /*, :color => Graphics.COLOR_BLACK */});
 				return [viewLoop, new PageIndicatorDelegate(viewLoop)];
-				/*DEBUG*/ logMessage(("Launching no glance view"));
+				//DEBUG*/ logMessage(("Launching no glance view"));
 			}
 			else {
 				mView = new NoGlanceView();
