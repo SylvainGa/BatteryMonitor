@@ -88,6 +88,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.13.2 Added the following**
+- Added device Instinct Crossover AMOLED (although the needles might obscure some data as the data doesn't flow around the needles)
+
 **V1.13.1 Added the following**
 - Strip markers before testing if battery level is increasing.
 
