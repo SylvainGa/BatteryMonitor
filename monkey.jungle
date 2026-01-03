@@ -42,6 +42,7 @@ fr965.resourcePath=$(fr965.resourcePath);resources-complications
 fr970.resourcePath=$(fr970.resourcePath);resources-complications
 instinct3amoled45mm.resourcePath=$(instinct3amoled45mm.resourcePath);resources-complications
 instinct3amoled50mm.resourcePath=$(instinct3amoled50mm.resourcePath);resources-complications
+instinctcrossoveramoled.resourcePath=$(instinctcrossoveramoled.resourcePath);resources-complications
 marq2.resourcePath=$(marq2.resourcePath);resources-complications
 marq2aviator.resourcePath=$(marq2aviator.resourcePath);resources-complications
 venu2.resourcePath=$(venu2.resourcePath);resources-complications
