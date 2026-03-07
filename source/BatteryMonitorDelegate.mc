@@ -257,14 +257,43 @@ class BatteryMonitorDelegate extends Ui.BehaviorDelegate {
 	}
 
 	function onMenu() {
-		/*DEBUG*/ logMessage("onMenu");
-		var dialog = new Ui.Confirmation(Ui.loadResource(Rez.Strings.EraseHistory));
-		Ui.pushView(dialog, new ConfirmationDialogDelegate(mView), Ui.SLIDE_IMMEDIATE);
-		return true;
+		/*DEBUG*/ logMessage("onMenu:Entering");
+        var menu = new WatchUi.Menu();
+        menu.setTitle(Rez.Strings.Menu);
+        menu.addItem(Rez.Strings.RebuildSlopes, :RebuildSlopes);
+        menu.addItem(Rez.Strings.EraseHistory, :EraseHistory);
+
+        var delegate = new MenuDelegate(mView);
+
+        WatchUi.pushView(menu, delegate, WatchUi.SLIDE_IMMEDIATE);
+        return true;
 	}
 }    
 
-class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
+class MenuDelegate extends Ui.MenuInputDelegate {
+	var mView;
+
+    function initialize(view) {
+		mView = view;
+        MenuInputDelegate.initialize();
+    }
+
+    function onMenuItem(item) {
+        if (item == :RebuildSlopes) {
+			/*DEBUG*/ logMessage("Asking OK to rebuild slopes");
+			var dialog = new Ui.Confirmation(Ui.loadResource(Rez.Strings.Proceed));
+			Ui.pushView(dialog, new RebuildConfirmationDialogDelegate(mView), Ui.SLIDE_IMMEDIATE);
+			return true;
+        } else if (item == :EraseHistory) {
+			/*DEBUG*/ logMessage("Asking OK to erase history");
+			var dialog = new Ui.Confirmation(Ui.loadResource(Rez.Strings.Proceed));
+			Ui.pushView(dialog, new EraseConfirmationDialogDelegate(mView), Ui.SLIDE_IMMEDIATE);
+			return true;
+        }
+    }
+}
+
+class EraseConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 	var mView;
 
 	function initialize(view) {
@@ -274,13 +303,13 @@ class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 
 	function onResponse(value) {
 		if (value == 0) {
-			//Keep
+			// Do nothing
 		}
 		else {
 			var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
 			var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
-			//Erase
+			// Erase history
 			mView.mHistoryClass.setHistoryNeedsReload(true);
 			mView.mHistoryClass.setHistoryModified(true);
 			mView.mHistoryClass.setHistory(new [HISTORY_MAX * elementSize]);
@@ -299,6 +328,36 @@ class ConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 			$.objectStoreErase("LAST_CHARGED_DATA");
 			$.objectStoreErase("MARKER_DATA");
 		}
+
+		return true;
+	}
+}
+
+class RebuildConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
+	var mView;
+
+	function initialize(view) {
+		mView = view;
+		ConfirmationDelegate.initialize();
+	}
+
+	function onResponse(value) {
+		if (value == 0) {
+			// Do nothing
+		}
+		else {
+			// Rebuild slopes
+			var historyArray = $.objectStoreGet("HISTORY_ARRAY", []);
+			var historyArraySize = historyArray.size();
+			for (var index = 0; index < historyArraySize; index++) {
+				$.objectStoreErase("SLOPES_" + historyArray[index]);
+			}
+
+			mView.mDownSlopeSec = null;
+			mView.mSlopeNeedsCalc = true;
+			mView.mSlopeNeedsFirstCalc = true;
+		}
+
 		return true;
 	}
 }

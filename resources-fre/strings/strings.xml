@@ -55,7 +55,10 @@
     <string id="PluralSuffix">s</string>
     <string id="MediumDateFormat">$1$ $2$ $3$</string>
 
-    <string id="EraseHistory">Effacer l'historique?</string>
+    <string id="Menu">Sélectionner</string>
+    <string id="RebuildSlopes">Rebatir les pentes</string>
+    <string id="EraseHistory">Effacer l'historique</string>
+    <string id="Proceed">Confirmer</string>
 
 <!-- In Settings -->
 	<string id="PanelOrder">Ordre des panneaux</string>

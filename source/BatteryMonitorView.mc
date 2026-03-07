@@ -62,7 +62,8 @@ class BatteryMonitorView extends Ui.View {
 	var mShowMarkerSet;
 	var mMarkerDataXPos;
 	var mOffScreenBuffer; // Points to the bit buffer that we are going to use to draw our chart
-	var mOnScreenBuffer; // Points to a completed drawn bit buffer that we'll use to display on screen
+	var mOnScreenBufferHistory; // Points to a completed drawn bit buffer that we'll use to display on screen on history view
+	var mOnScreenBufferProjection; // Points to a completed drawn bit buffer that we'll use to display on screen in projection view
 	var mDrawLive; // We have no bit buffers (shouldn't happen with all devices being at CIQ 3.2 or above) so flag to draw directly on screen
 	var mLoadingPageCounter; // In the loading page, this is used to toggle between "???"" and ""
 	var mMinimumLevelIncrease; // How much the battery level must INCREASE before a charge event is recorded. Is overridden by the watch flagging a charge event.
@@ -111,7 +112,7 @@ class BatteryMonitorView extends Ui.View {
 		mLastData = $.objectStoreGet("LAST_VIEWED_DATA", null);
 		mMarkerData = $.objectStoreGet("MARKER_DATA", null);
 		mLastChargeData = $.objectStoreGet("LAST_CHARGE_DATA", null); // Will be modified when charge is detected in onRefreshTimer
-    
+
 		//DEBUG*/ logMessage("LAST_VIEWED_DATA " + mLastData);
 		//DEBUG*/ logMessage("LAST_CHARGE_DATA " + mLastChargeData);
 
@@ -373,6 +374,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mViewScreen == SCREEN_HISTORY) {
+			mNoChange = false;
 			if (mSelectMode == ViewMode && graphSizeChange != 0 && mDownSlopeSec != null) {
 				mSelectMode = ZoomMode;
 			}
@@ -397,7 +399,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 		//DEBUG*/ logMessage("mGraphSizeChange is " + mGraphSizeChange);
 
-		mNoChange = false; // We interacted, assume something has (or will) change
+		//mNoChange = false; // We interacted, assume something has (or will) change
 
 		Ui.requestUpdate();
 	}
@@ -435,18 +437,18 @@ class BatteryMonitorView extends Ui.View {
 	}
 
 	function resetViewVariables() {
+		//mNoChange = false; // We'll need to redraw the graph on next pass
+		//mOnScreenBuffer = null; // Graph on screen disappears when we switch view
 		mGraphSizeChange = 0; // If we changed panel, reset zoom of graphic view and debug count
+		mTimeOffset = 0; //The time offset (ie, pan) that we had set
 		mGraphShowFull = false;
 		mSelectMode = ViewMode; // and our view mode in the history view
 		mSummaryProjection = true; // Summary shows projection
 		mLastFullHistoryPos = mFullHistorySize; // We'll start a graph draw from the start
-		mTimeOffset = 0; //The time offset (ie, pan) that we had set
 		mTimeSpan = 0; // The width of the displayed graph in seconds
 		mMinXDelta = null; // Reset so we'll get a new min X next time we go im
 		mCoord = null; // Will make the popup disappear
-		mNoChange = false; // We'll need to redraw the graph on next pass
 		mShowMarkerSet = false; // Marker popup disappears when we switch view
-		mOnScreenBuffer = null; // Graph on screen disappears when we switch view
 	}
 
     // Update the view
@@ -473,7 +475,7 @@ class BatteryMonitorView extends Ui.View {
 
 			/*DEBUG*/ logMessage("Getting latest history");
 			showLoadingPage(dc);
-			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime; var startTime = endTime;
+			/*DEBUG*/ if (mUpdateStartTime == null) { mUpdateStartTime = Sys.getTimer(); } var endTime = Sys.getTimer();  Sys.println("before getLatestHistoryFromStorage took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime; var startTime = endTime;
 			mHistoryClass.getLatestHistoryFromStorage();
 			/*DEBUG*/ endTime = Sys.getTimer(); Sys.println("getLatestHistoryFromStorage took " + (endTime - startTime) + " msec");
 			Ui.requestUpdate(); // Time consuming, stop now and ask for another time slice
@@ -515,7 +517,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mSlopeNeedsFirstCalc == true) {
-			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+			/*DEBUG*/ if (mUpdateStartTime == null) { mUpdateStartTime = Sys.getTimer(); } var endTime = Sys.getTimer(); Sys.println("before slopes took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 			/*DEBUG*/ logMessage("Doing calc of slopes");
 			showLoadingPage(dc);
 
@@ -529,7 +531,7 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mRefreshTimer == null) {
-			/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("before refresh timer took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
+			/*DEBUG*/ if (mUpdateStartTime == null) { mUpdateStartTime = Sys.getTimer(); } var endTime = Sys.getTimer(); Sys.println("before refresh timer took " + (endTime - mUpdateStartTime) + " msec"); mUpdateStartTime = endTime;
 			/*DEBUG*/ logMessage("Starting refresh timer");
 			mRefreshTimer = new Timer.Timer();
 			mRefreshTimer.start(method(:onRefreshTimer), 100, true); // Runs every 100 msec to do its different tasks (at different intervals within)
@@ -569,9 +571,9 @@ class BatteryMonitorView extends Ui.View {
 					}
 				}
 				else {
-					if (mOnScreenBuffer != null) {
+					if (mOnScreenBufferHistory != null) {
 						dc.clear();
-			            dc.drawBitmap(0, 0, mOnScreenBuffer);
+			            dc.drawBitmap(0, 0, mOnScreenBufferHistory);
 						//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right (unless we have no data to work with)
 						if (mDownSlopeSec != null && mDebug == 0) {
 							showSelectMode(dc, screenFormat);
@@ -589,8 +591,8 @@ class BatteryMonitorView extends Ui.View {
 					drawChart(dc, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], SCREEN_PROJECTION, true);
 				}
 				else {
-					if (mOnScreenBuffer != null) {
-			            dc.drawBitmap(0, 0, mOnScreenBuffer);
+					if (mOnScreenBufferProjection != null) {
+			            dc.drawBitmap(0, 0, mOnScreenBufferProjection);
 					}
 					else {
 						drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
@@ -1237,7 +1239,8 @@ class BatteryMonitorView extends Ui.View {
 		}
 
 		if (mFullHistorySize == 0) {
-			mOnScreenBuffer = mOffScreenBuffer; // We can use this buffer to draw on screen
+			mOnScreenBufferHistory = mOffScreenBuffer; // We can use this buffer to draw on screen
+			mOnScreenBufferProjection = mOffScreenBuffer; // We can use this buffer to draw on screen
 			mOffScreenBuffer = null; // And clear this buffer so we can start fresh next time
 			mNoChange = true; // When we get data, this will be set to false so set it to true now so we can display the empty grid right away
 			return false; // Nothing but the grid to draw
@@ -1577,7 +1580,12 @@ class BatteryMonitorView extends Ui.View {
 
 		mNoChange = true; // Assume we'll get no changes before last redraw
 
-		mOnScreenBuffer = mOffScreenBuffer; // And we can use this buffer to draw on screen
+		if (whichView == SCREEN_PROJECTION) {
+			mOnScreenBufferProjection = mOffScreenBuffer; // And we can use this buffer to draw on screen
+		}
+		else {
+			mOnScreenBufferHistory = mOffScreenBuffer; // And we can use this buffer to draw on screen
+		}
 		mOffScreenBuffer = null; // And clear this buffer so we can start fresh next time
 
 		/*DEBUG*/ var endTime = Sys.getTimer(); Sys.println("drawChart finished in " + (endTime - mDrawChartStartTime) + " msec"); mDrawChartStartTime = null;

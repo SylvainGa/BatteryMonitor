@@ -1,6 +1,6 @@
 <strings>
     <string id="AppName">Battery Monitor</string>
-    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.13.1.b1</string>
+    <string id="AppNameVersion" translatable="false" >Battery Monitor V1.14.0.b4</string>
     <string id="shortComplicationLabel" scope="background">BM</string>
     <string id="longComplicationLabel" scope="background">BatteryMonitor</string>
 
@@ -56,7 +56,10 @@
     <string id="PluralSuffix">s</string>
     <string id="MediumDateFormat">$1$ $3$ $2$</string>
 
-    <string id="EraseHistory">Erase history?</string>
+    <string id="Menu">Select one</string>
+    <string id="RebuildSlopes">Rebuild slopes</string>
+    <string id="EraseHistory">Erase history</string>
+    <string id="Proceed">Proceed?</string>
 
 <!-- In Settings -->
 	<string id="PanelOrder">Panel order</string>

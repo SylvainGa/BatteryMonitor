@@ -88,6 +88,12 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.14.0 Added the following**
+- Compiled with CIQ 8.4.1
+- Added device D2 Mach 2
+- Menu option now offers two choices, "Erase History" like before and a new "Rebuild slopes" as a second option. Use that one to rebuild the slopes if they get corrupted.
+- Charts no longer rebuilds every time you get to the 'Graphical historical' view and a 'Projection' view but only if something has changed, like new data has been received.
+
 **V1.13.2 Added the following**
 - Added device Instinct Crossover AMOLED (although the needles might obscure some data as the data doesn't flow around the needles)
 

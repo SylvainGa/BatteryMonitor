@@ -5,6 +5,7 @@ approachs7042mm.resourcePath=$(approachs7042mm.resourcePath);resources-complicat
 approachs7047mm.resourcePath=$(approachs7047mm.resourcePath);resources-complications
 d2airx10.resourcePath=$(d2airx10.resourcePath);resources-complications
 d2mach1.resourcePath=$(d2mach1.resourcePath);resources-complications
+d2mach2.resourcePath=$(d2mach2.resourcePath);resources-complications
 descentg2.resourcePath=$(descentg2.resourcePath);resources-complications
 descentmk343mm.resourcePath=$(descentmk343mm.resourcePath);resources-complications
 descentmk351mm.resourcePath=$(descentmk351mm.resourcePath);resources-complications

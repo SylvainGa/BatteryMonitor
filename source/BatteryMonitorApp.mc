@@ -258,8 +258,6 @@ class BatteryMonitorApp extends App.AppBase {
 		/*DEBUG*/ logMessage("getInitialView");
 
 		//DEBUG*/ var historyArray = $.objectStoreGet("HISTORY_ARRAY", null); $.dumpHistory(historyArray.size() - 1); return;
-		//DEBUG*/ logMessage("Building fake history"); buildFakeHistory();
-		//DEBUG*/ logMessage("Building copied history"); $.buildCopiedHistory(); logMessage("History built from a copy"); return;
 		//DEBUG*/$.objectStorePut("RECEIVED_DATA", $.buildCopiedData()); return;
 
 		//DEBUG*/ var historyClass = new HistoryClass(); historyClass.analyzeAndStoreData([0,861,0,600,4096+860,0,1500,4096+859,0,2400,858,0,3300,857,0,3900,858,0,4500,869,0,5400,872,0,5700,853,0,6600,852,0,7200,854,0,8100,854,0,8701,855,0,9300,857,0,10203,860,0], 15, false);
