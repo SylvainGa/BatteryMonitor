@@ -11,5 +11,5 @@
 	<property id="MaxArrays" type="number">5</property>
 	<property id="BGInterval" type="number">5</property>
 	<property id="HowHandleFullArray" type="number">0</property>
-	<property id="DumpHistoryIdx" type="number">-1</property>
+	<!-- <property id="DumpHistoryIdx" type="number">-1</property> -->
 </properties>
