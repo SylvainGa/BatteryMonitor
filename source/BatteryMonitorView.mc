@@ -97,6 +97,7 @@ class BatteryMonitorView extends Ui.View {
 		mDebug = 0;
 		mRefreshCount = 0;
 		mGraphSizeChange = 0;
+		mTimeOffset = 0;
 		mGraphShowFull = false;
 		mSelectMode = ViewMode;
 		mSummaryProjection = true;
@@ -212,8 +213,9 @@ class BatteryMonitorView extends Ui.View {
 			Ui.requestUpdate(); // And ask the screen to be refreshed
 		}
 
-		if (mNoChange == false && mDrawLive == false && (mViewScreen == SCREEN_HISTORY || mViewScreen == SCREEN_PROJECTION)) { // If we have work to do, do it
+		if ((mViewScreen == SCREEN_HISTORY && (mNoChange == false || mOnScreenBufferHistory == null) && mDrawLive == false ) || (mViewScreen == SCREEN_PROJECTION && (mNoChange == false || mOnScreenBufferProjection == null) && mDrawLive == false)) { // If we have work to do, do it
 			/*DEBUG*/ logMessage("Drawing graph");
+			mNoChange = false; // Whatever the reason we got here, we'll jump right back out of drawChart if this stays at true
 			mDrawLive = drawChart(null, [10, mCtrX * 2 - 10, mCtrY - mCtrY / 2, mCtrY + mCtrY / 2], mViewScreen, false);
 			if (mNoChange == true) { // We're done, now request a new screen update
 				/*DEBUG*/ logMessage("Graph drawn, requesting to show the result");
@@ -309,10 +311,10 @@ class BatteryMonitorView extends Ui.View {
 			return;
 		}
 
-		if (newIndex == -1) {
+		if (newIndex == -1) { // Start pressed and we're charging
 			mHideChargingPopup = !mHideChargingPopup;
 		}
-		else if (newIndex == -2) {
+		else if (newIndex == -2) { // Start pressed and we're NOT charging
 			if (mCoord != null) {
 				mCoord = null;
 				mShowMarkerSet = false;
@@ -361,8 +363,8 @@ class BatteryMonitorView extends Ui.View {
 				return;
 			}
 		}
-		else {
-			if (newIndex != mPanelIndex) {
+		else { // We've touched a button other than Start or swiped the screen
+			if (newIndex != mPanelIndex) { // We're switching view
 				resetViewVariables();
 
 				// Keep track of where we were in the refesh count so we can count for 5 seconds
@@ -373,19 +375,22 @@ class BatteryMonitorView extends Ui.View {
 			mViewScreen = mPanelOrder[mPanelIndex];
 		}
 
-		if (mViewScreen == SCREEN_HISTORY) {
-			mNoChange = false;
+		if (mViewScreen == SCREEN_HISTORY) { // View screen has button/swipe interaction. Other views don't
 			if (mSelectMode == ViewMode && graphSizeChange != 0 && mDownSlopeSec != null) {
 				mSelectMode = ZoomMode;
 			}
 
 			if (mSelectMode == PanMode) {
+				mNoChange = false;
 				mTimeOffset -= graphSizeChange * mTimeSpan / 2; // '-' so a swipe left moves the graph left
 				if (mTimeOffset < 0) {
 					mTimeOffset = 0;
 				}
 			}
 			else {
+				if (graphSizeChange != 0) {
+					mNoChange = false;
+				}
 				mGraphSizeChange += graphSizeChange;
 				if (mGraphSizeChange < 0) {
 					mGraphSizeChange = 0;
@@ -397,6 +402,13 @@ class BatteryMonitorView extends Ui.View {
 				mMinXDelta = null; // We're done, we'll need to recalc for next zoom level
 			}
 		}
+		else if (mGraphSizeChange != 0 || mTimeOffset != 0) { // We're not in History view and when we were, we zoomed in/out or panned, reset to zero and say we'll need to redraw
+			mNoChange = false;
+			mGraphSizeChange = 0;
+			mTimeOffset = 0;
+			mOnScreenBufferHistory = null;
+		}
+
 		//DEBUG*/ logMessage("mGraphSizeChange is " + mGraphSizeChange);
 
 		//mNoChange = false; // We interacted, assume something has (or will) change
@@ -439,8 +451,8 @@ class BatteryMonitorView extends Ui.View {
 	function resetViewVariables() {
 		//mNoChange = false; // We'll need to redraw the graph on next pass
 		//mOnScreenBuffer = null; // Graph on screen disappears when we switch view
-		mGraphSizeChange = 0; // If we changed panel, reset zoom of graphic view and debug count
-		mTimeOffset = 0; //The time offset (ie, pan) that we had set
+		//mGraphSizeChange = 0; // If we changed panel, reset zoom of graphic view and debug count
+		//mTimeOffset = 0; //The time offset (ie, pan) that we had set
 		mGraphShowFull = false;
 		mSelectMode = ViewMode; // and our view mode in the history view
 		mSummaryProjection = true; // Summary shows projection
@@ -573,13 +585,18 @@ class BatteryMonitorView extends Ui.View {
 				else {
 					if (mOnScreenBufferHistory != null) {
 						dc.clear();
-			            dc.drawBitmap(0, 0, mOnScreenBufferHistory);
+						if (mNoChange) {
+							/*DEBUG*/ logMessage("Showing history bitmap");
+				            dc.drawBitmap(0, 0, mOnScreenBufferHistory);
+						}
+						/*DEBUG*/ else { logMessage("Waiting for new bitmao to be drawn"); } 
 						//! Show which view mode is selected for the use of the PageNext/Previous and Swipe Left/Right (unless we have no data to work with)
 						if (mDownSlopeSec != null && mDebug == 0) {
 							showSelectMode(dc, screenFormat);
 						}
 					}
 					else {
+						/*DEBUG*/ logMessage("Showing history please wait");
 						drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
 						dc.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
 					}
@@ -592,9 +609,14 @@ class BatteryMonitorView extends Ui.View {
 				}
 				else {
 					if (mOnScreenBufferProjection != null) {
-			            dc.drawBitmap(0, 0, mOnScreenBufferProjection);
+						if (mNoChange) {
+							/*DEBUG*/ logMessage("Showing projection bitmap");
+							dc.drawBitmap(0, 0, mOnScreenBufferProjection);
+						}
+						/*DEBUG*/ else { logMessage("Waiting for new bitmao to be drawn"); } 
 					}
 					else {
+						/*DEBUG*/ logMessage("Showing projection please wait");
 						drawBox(dc, (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), mCtrY - (mFontHeight + mFontHeight / 2), mCtrX * 2 - 2 * (screenFormat == System.SCREEN_SHAPE_RECTANGLE ? 5 : 10 * mCtrX * 2 / 240), 2 * (mFontHeight + mFontHeight / 2));
 						dc.drawText(mCtrX, mCtrY, mFontType, Ui.loadResource(Rez.Strings.PleaseWait), Gfx.TEXT_JUSTIFY_CENTER | Gfx.TEXT_JUSTIFY_VCENTER);
 					}
@@ -729,7 +751,7 @@ class BatteryMonitorView extends Ui.View {
 	}
 
 	function doDownSlope() {
-		if (mDownSlopeSec == null) { // Gte what we have nothing (ie, started) and we have something stored from previous run
+		if (mDownSlopeSec == null) { // We have nothing yet (ie, just started) and we have something stored from previous run, start with that
 			var downSlopeData = $.objectStoreGet("LAST_SLOPE_DATA", null);
 			if (downSlopeData != null) {
 				mDownSlopeSec = downSlopeData[0];

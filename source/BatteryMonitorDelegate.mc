@@ -326,6 +326,7 @@ class EraseConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 			$.objectStoreErase("LAST_HISTORY_KEY");
 			$.objectStoreErase("LAST_VIEWED_DATA");
 			$.objectStoreErase("LAST_CHARGED_DATA");
+			$.objectStoreErase("LAST_SLOPE_DATA");
 			$.objectStoreErase("MARKER_DATA");
 		}
 
@@ -352,6 +353,8 @@ class RebuildConfirmationDialogDelegate extends Ui.ConfirmationDelegate {
 			for (var index = 0; index < historyArraySize; index++) {
 				$.objectStoreErase("SLOPES_" + historyArray[index]);
 			}
+
+			$.objectStoreErase("LAST_SLOPE_DATA");
 
 			mView.mDownSlopeSec = null;
 			mView.mSlopeNeedsCalc = true;
