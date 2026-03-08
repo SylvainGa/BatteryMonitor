@@ -924,34 +924,34 @@ function buildCopiedHistory() {
 }
 
 function dumpHistory(index) {
-	// var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
-	// var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
+	var isSolar = Sys.getSystemStats().solarIntensity != null ? true : false;
+	var elementSize = isSolar ? HISTORY_ELEMENT_SIZE_SOLAR : HISTORY_ELEMENT_SIZE;
 
-	// Sys.println("Dumping history");
-	// var historyArray = $.objectStoreGet("HISTORY_ARRAY", null);
-	// if (historyArray != null && historyArray.size() > 0) {
-	// 	var history = $.objectStoreGet("HISTORY_" + historyArray[index], null);
-	// 	if (history != null) {
-	// 		Sys.println(historyArray);
-	// 		var start = history[0 + TIMESTAMP];
-	// 		Sys.println(start);
-	// 		Sys.print("[");
-	// 		var historySize = history.size() / elementSize;
-	// 		for (var i = 0; i < historySize; i++) {
-	// 			if (history[i * elementSize + TIMESTAMP] != null) {
-	// 				Sys.print(history[i * elementSize + TIMESTAMP] - start + "," + history[i * elementSize + BATTERY] + "," + (isSolar ? history[i * elementSize + SOLAR] : null));
-	// 			}
-	// 			else {
-	// 				break;
-	// 			}
-	// 			if (i < historySize - 1) {
-	// 				Sys.print(",");
-	// 			}
-	// 		}
-	// 		Sys.println("]");
-	// 	}
+	Sys.println("Dumping history");
+	var historyArray = $.objectStoreGet("HISTORY_ARRAY", null);
+	if (historyArray != null && historyArray.size() > 0) {
+		var history = $.objectStoreGet("HISTORY_" + historyArray[index], null);
+		if (history != null) {
+			Sys.println(historyArray);
+			var start = history[0 + TIMESTAMP];
+			Sys.println(start);
+			Sys.print("[");
+			var historySize = history.size() / elementSize;
+			for (var i = 0; i < historySize; i++) {
+				if (history[i * elementSize + TIMESTAMP] != null) {
+					Sys.print(history[i * elementSize + TIMESTAMP] - start + "," + history[i * elementSize + BATTERY] + "," + (isSolar ? history[i * elementSize + SOLAR] : null));
+				}
+				else {
+					break;
+				}
+				if (i < historySize - 1) {
+					Sys.print(",");
+				}
+			}
+			Sys.println("]");
+		}
 
-	// 	var slopes = $.objectStoreGet("SLOPES_" + historyArray[index], null);
-	// 	Sys.println(slopes);
-	// }
+		var slopes = $.objectStoreGet("SLOPES_" + historyArray[index], null);
+		Sys.println(slopes);
+	}
 }
