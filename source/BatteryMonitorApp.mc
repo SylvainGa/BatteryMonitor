@@ -11,6 +11,7 @@ using Toybox.Time.Gregorian;
 using Toybox.Math;
 using Toybox.Lang;
 using Toybox.Application.Storage;
+using Toybox.Application.Properties;
 
 const COLOR_BAT_OK = Gfx.COLOR_GREEN;
 const COLOR_BAT_WARNING = Gfx.COLOR_YELLOW;
@@ -257,9 +258,9 @@ class BatteryMonitorApp extends App.AppBase {
     function getInitialView() {	
 		/*DEBUG*/ logMessage("getInitialView");
 
-		//DEBUG*/ var historyArray = $.objectStoreGet("HISTORY_ARRAY", null); $.dumpHistory(historyArray.size() - 1); return;
-		//DEBUG*/$.objectStorePut("RECEIVED_DATA", $.buildCopiedData()); return;
-
+		//DEBUG*/ var index; try { index = Properties.getValue("DumpHistoryIdx"); } catch (e) { index = -1; } if (index >= 0) { $.dumpHistory(index); return; }
+		//DEBUG*/ $.RestoreCopiedHistory(); return;
+		//DEBUG*/ $.objectStorePut("RECEIVED_DATA", $.buildCopiedData()); return;
 		//DEBUG*/ var historyClass = new HistoryClass(); historyClass.analyzeAndStoreData([0,861,0,600,4096+860,0,1500,4096+859,0,2400,858,0,3300,857,0,3900,858,0,4500,869,0,5400,872,0,5700,853,0,6600,852,0,7200,854,0,8100,854,0,8701,855,0,9300,857,0,10203,860,0], 15, false);
 
 		var useBuiltinPageIndicator = true;

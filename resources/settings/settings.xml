@@ -69,4 +69,9 @@
     <setting propertyKey="@Properties.BGInterval" title="@Strings.BGInterval">
 		<settingConfig type="Numeric" required="true"/>
     </setting>
+
+    <setting propertyKey="@Properties.DumpHistoryIdx" title="@Strings.DumpHistoryIdx">
+		<settingConfig type="Numeric" required="false" min="-1" max="9"/>
+    </setting>
+
 </settings>
