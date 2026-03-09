@@ -18,7 +18,7 @@ class NoGlanceView extends Ui.View {
             App.getApp().mView = view;
             App.getApp().mDelegate = delegate;
 
-            /*DEBUG*/ logMessage(("Launching main view"));
+            //DEBUG*/ logMessage(("Launching main view"));
 			Ui.pushView(view, delegate, Ui.SLIDE_IMMEDIATE);
         }
         else {

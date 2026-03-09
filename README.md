@@ -88,6 +88,9 @@ Some code are based on the work of JuliensLab (https://github.com/JuliensLab/Gar
 If you would like to translate the language file in your own language, contact me and we'll work on it.
 
 ## Changelog
+**V1.14.1 Added the following**
+- Optmimized font size selection
+
 **V1.14.0 Added the following**
 - Compiled with CIQ 8.4.1
 - Added device D2 Mach 2
