@@ -155,7 +155,7 @@ class BatteryMonitorApp extends App.AppBase {
 		// Was in onHide
 		if (mService == null) { // Not for the background service
 			/*DEBUG*/ logMessage("onStop (" + (mGlance == null ? "VW)" : "GL)"));
-			if (mGlance == null && mView has :HistoryClass && mView.mHistoryClass != null) { // and not for the Glance view
+			if (mGlance == null && mView != null && mView has :HistoryClass && mView.mHistoryClass != null) { // and not for the Glance view
 				mView.mHistoryClass.saveLastData();
 			}
 

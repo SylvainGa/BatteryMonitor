@@ -96,31 +96,21 @@ class BatteryMonitorGlanceView extends Ui.GlanceView {
 
     function onLayout(dc) {
         //DEBUG */ logMessage("Layout1 Free memory " + (Sys.getSystemStats().freeMemory / 1024).toNumber() + " KB");
-		var fonts = [Gfx.FONT_XTINY, Gfx.FONT_TINY, Gfx.FONT_SMALL, Gfx.FONT_MEDIUM, Gfx.FONT_LARGE];
+		var fontByScreenSizes = {"218" => Gfx.FONT_SMALL, "240" => Gfx.FONT_SMALL, "260" => Gfx.FONT_SMALL, "280" => Gfx.FONT_SMALL, "320" => Gfx.FONT_LARGE, "322" => Gfx.FONT_LARGE, "360" => Gfx.FONT_SMALL, "390" => Gfx.FONT_SMALL, "416" => Gfx.FONT_SMALL, "454" => Gfx.FONT_TINY, "470" =>  Gfx.FONT_LARGE, "486" => Gfx.FONT_TINY, "800" => Gfx.FONT_MEDIUM};
+		var height = System.getDeviceSettings().screenHeight;
 
-        // FInd the right font to draw two lines on screen
-		for (var i = fonts.size() - 1; i >= 0 ; i--) {
-			var fontHeight = Gfx.getFontHeight(fonts[i]);
-			if (dc.getHeight() / fontHeight == 2) {
-				mFontType = fonts[i];
-				break;
-			}
-		}
+        mFontType = fontByScreenSizes[height.toString()];
 
-        if (mBigBattery) {
-            for (var i = fonts.size() - 1; i >= 0 ; i--) {
-                var fontHeight = Gfx.getFontHeight(fonts[i]);
-                if (dc.getHeight() >= fontHeight) {
-                    mBigBatteryFontType = fonts[i];
-                    break;
-                }
-            }
-        }
-        
 		if (mFontType == null) {
 			mFontType = Gfx.FONT_LARGE;
 		}
 
+		fontByScreenSizes = {"218" => Gfx.FONT_MEDIUM, "240" => Gfx.FONT_LARGE, "260" => Gfx.FONT_LARGE, "280" => Gfx.FONT_LARGE, "320" => Gfx.FONT_LARGE, "322" => Gfx.FONT_LARGE, "360" => Gfx.FONT_MEDIUM, "390" => Gfx.FONT_MEDIUM, "416" => Gfx.FONT_LARGE, "454" => Gfx.FONT_LARGE, "470" =>  Gfx.FONT_LARGE, "486" => Gfx.FONT_LARGE, "800" => Gfx.FONT_LARGE};
+        mBigBatteryFontType = fontByScreenSizes[height.toString()];
+		if (mBigBatteryFontType == null) {
+			mBigBatteryFontType = Gfx.FONT_LARGE;
+		}
+        
 		mFontHeight = Gfx.getFontHeight(mFontType);
         mSlopeNeedsCalc = true;
         mSlopeNeedsFirstCalc = true;
